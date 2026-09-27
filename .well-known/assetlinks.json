@@ -3,6 +3,6 @@
       "target": {
         "namespace": "android_app",
         "package_name": "dev.pages.mikeassist.twa",
-        "sha256_cert_fingerprints": ["B1:C8:D0:12:AE:DB:F1:EF:BA:E6:87:4B:0E:7F:E3:E6:4B:14:81:0F:9A:36:F6:28:46:55:3C:AC:61:54:A7:7C"]
+        "sha256_cert_fingerprints": ["38:C2:37:2C:AF:74:6E:69:AB:E3:06:14:4E:D3:D7:54:27:79:D7:A5:EF:3A:67:F2:EC:57:75:45:12:85:5C:E4"]
       }
     }]
