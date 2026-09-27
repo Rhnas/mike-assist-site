@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" />
+<title>111 Série Gold</title>
+<link rel="manifest" href="mikeassist-manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="mikeassist-icon-192.png">
+<link rel="apple-touch-icon" href="mikeassist-icon-192.png">
+<meta name="theme-color" content="#0c1424">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="111 Série Gold">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+  /* Fonte do sistema — nada pra baixar, cada aparelho usa a fonte nativa
+     dele: SF Pro no iPhone, Roboto no Android, Segoe no Windows. É o que dá
+     aquela cara "app de fábrica" em vez de fonte "de web importada". */
+  /* Tema escuro (padrão) — tons de azul-marinho da PMERJ */
+  :root, :root[data-theme="dark"] {
+    --bg: #0c1424; --bg-panel: #162545; --bg-chip: #1d2c4d; --bg-ghost: #1c2c4d;
+    --bg-input: #0e1830; --bg-tabbar: #101b34; --border: #2a3d63;
+    --text: #e8ecef; --text-muted: #9aa7b2; --text-muted-2: #7d8894; --text-dim: #5c6875;
+  }
+  /* Tema claro */
+  :root[data-theme="light"] {
+    --bg: #eef1f6; --bg-panel: #ffffff; --bg-chip: #e6ebf2; --bg-ghost: #e6ebf2;
+    --bg-input: #ffffff; --bg-tabbar: #ffffff; --border: #d6dde6;
+    --text: #16202e; --text-muted: #4d5866; --text-muted-2: #5f6b78; --text-dim: #8791a0;
+  }
+  html, body { margin: 0; padding: 0; background: var(--bg); transition: background .15s ease; }
+  * { box-sizing: border-box; }
+  ::placeholder { color: var(--text-dim); }
+  button { cursor: pointer; font-family: inherit; transition: transform .12s ease, filter .12s ease, background .15s ease, border-color .15s ease; }
+  button:active { transform: scale(0.96); filter: brightness(0.94); }
+  textarea, input { font-family: inherit; transition: border-color .15s ease, box-shadow .15s ease; }
+  textarea:focus, input:focus { border-color: #c9a24a !important; box-shadow: 0 0 0 3px rgba(201,162,74,0.15); outline: none; }
+  @keyframes mkFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes mkPop { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+  @keyframes mkSpin { to { transform: rotate(360deg); } }
+  @keyframes mkSplashBar { 0% { transform: translateX(-120%); } 100% { transform: translateX(320%); } }
+  .mk-panel { animation: mkFadeIn .16s ease-out both; }
+  .mk-tabpage { animation: mkFadeIn .16s ease-out both; }
+  .mk-card { animation: mkPop .14s ease-out both; }
+  .mk-spinner { display: inline-block; width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(232,236,239,0.25); border-top-color: currentColor; animation: mkSpin .7s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #2a3d63; border-radius: 8px; }
+</style>
+</head>
+<body>
+<div id="root">
+  <div style="min-height:100vh;background:#0c1424;color:#e8ecef;font-family:sans-serif;padding:24px;font-size:14px;">
+    Carregando 111 Série Gold…
+  </div>
+</div>
+
+<script>
+  window.addEventListener("error", function (e) {
+    var root = document.getElementById("root");
+    if (root && root.textContent.indexOf("Carregando") !== -1) {
+      root.innerHTML =
+        '<div style="min-height:100vh;background:#0c1424;color:#e8ecef;font-family:sans-serif;padding:24px;font-size:14px;line-height:1.6;">' +
+        '<strong style="color:#e3877a;">Erro ao carregar o 111 Série Gold</strong><br/><br/>' +
+        'Mensagem: ' + (e.message || "desconhecida") + '<br/>' +
+        'Arquivo: ' + (e.filename || "?") + '<br/>' +
+        'Linha: ' + (e.lineno || "?") +
+        '<br/><br/>Tire um print desta tela e envie para ajuste.</div>';
+    }
+  });
+
+  setTimeout(function () {
+    var root = document.getElementById("root");
+    if (root && root.textContent.indexOf("Carregando") !== -1) {
+      root.innerHTML =
+        '<div style="min-height:100vh;background:#0c1424;color:#e8ecef;font-family:sans-serif;padding:24px;font-size:14px;line-height:1.6;">' +
+        '<strong style="color:#c9a24a;">Demorando mais que o esperado</strong><br/><br/>' +
+        'Os arquivos de suporte (React) podem estar bloqueados pela sua rede/operadora, ou a conexão está lenta.<br/><br/>' +
+        'Tente: trocar de Wi-Fi para dados móveis (ou vice-versa), ou abrir em outro navegador.<br/><br/>' +
+        'Se persistir, tire um print desta tela e envie para ajuste.</div>';
+    }
+  }, 8000);
+</script>
+
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect } = React;
+
+// ============================================================
+// CONFIGURAÇÃO — troque pela URL do seu backend (Etapa 2/README)
+// Pode deixar em branco aqui: o app vai pedir na primeira vez que
+// abrir, e guardar no navegador para as próximas vezes.
+// ============================================================
+const WORKER_URL = "https://mikeassist.raphaelhnas.workers.dev"; // troque pela URL do seu Worker
+const PIX_KEY_DOACAO = ""; // cole aqui sua chave Pix aleatória para receber doações
+
+const VADE_MECUM_SAMPLE = `
+ASSISTENCIAIS / EMERGÊNCIAS / ATENDIMENTOS DIVERSOS
+00.001 - Veículo abandonado em via pública
+00.002 - Acidente de trânsito sem vítima
+00.003 - Acidente de trânsito com vítima
+00.004 - Princípio de afogamento
+00.005 - Afogamento
+00.006 - Acidente náutico
+00.007 - Acidente aéreo
+00.008 - Acidente ferroviário
+00.009 - Acidente com veículo automotor
+00.010 - Acidente com veículo de tração animal
+00.011 - Desabamento / desmoronamento
+00.012 - Soterramento, deslizamento ou rompimento
+00.013 - Queda de árvore
+00.014 - Salvamento em cisterna ou poço
+00.015 - Salvamento em fossa
+00.016 - Salvamento em elevador
+00.017 - Salvamento em teleféricos
+00.018 - Salvamento em gruta ou caverna
+00.019 - Acidente vascular cerebral (AVC)
+00.020 - Convulsão
+00.021 - Dispneia
+00.022 - Distúrbio psiquiátrico
+00.023 - Dor precordial (coração)
+00.024 - Intoxicação exógena
+00.025 - Mal não definido (distúrbio)
+00.026 - Obstrução respiratória
+00.027 - Parada cardiorrespiratória
+00.028 - Parada respiratória
+00.029 - Parturiente
+00.030 - Síncope (desmaio)
+00.031 - Transporte interhospitalar
+00.032 - Acidente com motocicleta
+00.033 - Acidente com bicicleta
+00.034 - Vítima de atropelamento
+00.035 - Agressão física com arma branca
+00.036 - Agressão física com arma de fogo
+00.037 - Agressão física sem uso de armas
+00.038 - Queda de altura
+00.039 - Queda da própria altura
+00.040 - Vítima de eletrocussão
+00.041 - Vítima de explosão
+00.042 - Vítima de queimadura
+00.043 - Ataque de insetos
+00.044 - Ataque de animal peçonhento
+00.045 - Ataque de cães
+00.046 - Ataque de demais animais
+00.047 - Suicídio (tentativa)
+00.048 - Captura/resgate de animal em situação de risco
+00.049 - Captura de enxame
+00.050 - Corte ou poda de árvore
+00.051 - Pessoa extraviada/desaparecida em local de difícil acesso
+00.052 - Resgate de cadáver
+00.053 - Resgate de feto
+00.054 - Resgate de parte cadavérica (órgãos, ossada humana)
+00.055 - Assistência de pessoa indigente
+00.056 - Atrito verbal
+00.057 - Autoextermínio (suicídio consumado)
+00.058 - Averiguação de disparo de alarme
+00.059 - Averiguação de pessoa/veículo em atitude suspeita
+00.060 - Bloqueio de via por ação de populares/classe
+00.061 - Foragido da justiça
+00.062 - Fuga de preso
+00.063 - Pessoa localizada
+00.064 - Bem e/ou valor encontrado/localizado/recuperado
+00.064.A - Carga encontrada/localizada/recuperada
+00.065 - Tentativa de fuga
+00.066 - Veículo localizado/recuperado
+00.067 - Encontro de cadáver
+00.068 - Encontro de feto
+00.069 - Encontro de parte de cadáver/órgãos/ossada humana
+00.070 - Mediação de conflito
+00.071 - Resolução pacífica de conflitos
+00.072 - Crimes contra a mulher (a especificar tipo penal no histórico)
+00.073 - Violência doméstica
+00.074 - Reuniões comunitárias
+00.075 - Aula PROERD
+00.076 - Visitas domiciliares
+00.078 - Ações sociais e comunitárias
+00.079 - Visitas de acompanhamento pós-crime
+00.080 - Projetos desportivos, culturais e educacionais
+00.081 - Solicitante não encontrado
+00.082 - Endereço não localizado
+00.083 - Providência dispensada
+00.084 - Nada constatado
+00.085 - Duplicata
+00.086 - Teste
+00.087 - Trote
+00.000 - Outros tipos (busca/resgate de cadáver, salvamento em local de difícil acesso, infrações contra administração/fé pública, contra organização do trabalho, contra a família, ocorrência de trânsito, substâncias entorpecentes — sempre discriminar no histórico)
+
+LESÃO CORPORAL E MORTE DECORRENTES DE INTERVENÇÃO POLICIAL
+99.000 - Lesão corporal seguida de morte decorrente de intervenção policial
+99.000.A - Lesão corporal decorrente de intervenção policial
+90.002 - Lesão corporal gravíssima ou seguida de morte sofrida por agente público e familiares
+90.004 - Homicídio sofrido por agente público e familiares
+
+CRIMES CONTRA A PESSOA
+01.121 - Homicídio
+01.121.T - Tentativa de homicídio
+01.122 - Induzimento/instigação/auxílio a suicídio
+01.123 - Infanticídio
+01.124 - Aborto provocado pela gestante ou com seu consentimento
+01.125 - Aborto provocado por terceiro
+01.126 - Provocar aborto com o consentimento da gestante
+01.129 - Lesão corporal
+01.129.A - Lesão corporal seguida de morte
+01.130 - Perigo de contágio venéreo
+01.131 - Perigo de contágio de moléstia grave
+01.132 - Perigo para a vida ou saúde de outrem
+01.133 - Abandono de incapaz
+01.134 - Exposição ou abandono de recém-nascido
+01.135 - Omissão de socorro
+01.135.A - Condicionamento de atendimento médico-hospitalar emergencial
+01.136 - Maus-tratos
+01.137 - Rixa
+01.138 - Calúnia
+01.139 - Difamação
+01.140 - Injúria
+01.146 - Constrangimento ilegal
+01.147 - Ameaça
+01.148 - Sequestro e cárcere privado
+01.149 - Redução a condição análoga à de escravo
+01.150 - Violação de domicílio
+01.151 - Sonegação/destruição/violação de correspondência ou comunicação telefônica
+01.153 - Divulgação de segredo
+01.154 - Violação de segredo profissional
+01.154.A - Invasão de dispositivo de informática alheio
+01.502 - Assédio sexual
+
+CRIMES CONTRA O PATRIMÔNIO
+01.155 - Furto
+01.155.A - Furto a residência ou estabelecimento comercial
+01.155.B - Furto de veículo
+01.155.C - Furto em veículo
+01.155.D - Furto de animal
+01.155.E - Furto a estabelecimento comercial
+01.156 - Furto de coisa comum
+01.157 - Roubo
+01.157.A - Roubo a residência/estabelecimento comercial
+01.157.B - Roubo de veículo
+01.157.C - Roubo de animal
+01.157.D - Latrocínio
+01.157.E - Roubo a estabelecimento comercial
+01.158 - Extorsão
+01.159 - Extorsão mediante sequestro
+01.160 - Extorsão indireta
+01.161 - Esbulho possessório / usurpação de águas / alteração de limites
+01.163 - Dano
+01.164 - Introdução ou abandono de animal em propriedade alheia
+01.168 - Apropriação indébita de coisa alheia móvel
+01.169 - Apropriação de coisa havida por erro (coisa achada)
+01.171 - Estelionato
+01.172 - Duplicata simulada
+01.180 - Receptação
+
+CRIMES CONTRA A FAMÍLIA E COSTUMES
+01.213 - Estupro
+01.215 - Violação sexual mediante fraude
+01.217.A - Estupro de vulnerável
+01.218 - Corrupção de menores
+01.218.A - Satisfação da lascívia mediante presença de criança ou adolescente
+01.218.B - Favorecimento da prostituição ou exploração sexual
+01.227 - Mediação para servir à lascívia de outrem
+01.228 - Favorecimento à prostituição
+01.229 - Casa de prostituição
+01.230 - Rufianismo
+01.231 - Tráfico internacional de pessoas para fins de exploração sexual
+01.233 - Ato obsceno
+01.234 - Escrito ou objeto obsceno
+01.235 - Bigamia
+01.244 - Abandono material
+01.245 - Entrega de filho menor a pessoa idônea
+01.246 - Abandono intelectual (instrução fundamental)
+01.247 - Abandono intelectual
+01.248 - Induzimento a fuga, entrega arbitrária ou sonegação de incapazes
+01.249 - Subtração de incapazes
+
+CRIMES CONTRA A INCOLUMIDADE E SAÚDE PÚBLICA
+01.250 - Incêndio
+01.251 - Explosão
+01.252 - Uso de gás tóxico ou asfixiante
+01.253 - Fabricar/fornecer/adquirir/possuir substância explosiva
+01.254 - Inundação (risco de vida ou patrimônio)
+01.256 - Desabamento ou desmoronamento (risco de vida ou patrimônio)
+01.264 - Arremesso de projétil
+01.265 - Atentado contra segurança de serviço de utilidade pública
+01.270 - Envenenamento de água potável ou substância alimentícia/medicinal
+01.272 - Falsificação/corrupção/adulteração de substância ou produto alimentício
+01.273 - Falsificação/adulteração de produtos terapêuticos ou medicinais
+
+CRIMES CONTRA A FÉ PÚBLICA
+01.289 - Moeda falsa
+01.297 - Falsificação de documento público
+01.298 - Falsificação de documento particular
+01.299 - Falsidade ideológica
+01.304 - Uso de documento falso
+01.305 - Supressão de documento
+01.307 - Falsa identidade
+01.308 - Falsa identidade — usar como próprio documento alheio ou ceder a outrem
+01.311 - Adulteração de sinal identificador de veículo automotor (inclusive clonagem)
+
+CRIMES CONTRA A ADMINISTRAÇÃO PÚBLICA
+01.312 - Peculato
+01.316 - Concussão
+01.317 - Corrupção passiva
+01.319 - Prevaricação
+01.322 - Violência arbitrária
+01.325 - Violação de sigilo funcional
+01.328 - Usurpação de função
+01.329 - Resistência
+01.330 - Desobediência
+01.331 - Desacato
+01.332 - Tráfico de influência
+01.333 - Corrupção ativa
+01.334 - Contrabando ou descaminho
+01.339 - Denunciação caluniosa
+01.340 - Comunicação falsa de crime ou contravenção
+01.341 - Auto-acusação falsa
+01.342 - Falso testemunho ou falsa perícia
+01.344 - Coação no curso do processo
+01.350 - Exercício arbitrário ou abuso de poder
+01.351 - Facilitação/promoção de fuga de pessoa presa
+01.352 - Evasão mediante violência contra a pessoa
+01.353 - Arrebatamento de presos
+01.354 - Motim de presos
+11.030 / 11.040 - Crimes de abuso de autoridade (Lei 13.869/2019)
+
+CRIMES CONTRA A ORGANIZAÇÃO DO TRABALHO
+01.197 a 01.207 - Crimes contra a organização do trabalho (atentado à liberdade de trabalho/associação, paralisação, frustração de direito trabalhista, aliciamento — especificar tipo no histórico)
+
+CRIMES DE TORTURA, ARMAS E EXPLOSIVOS
+02.010 - Tortura
+03.120 - Posse irregular de arma de fogo de uso permitido
+03.140 - Porte ilegal de arma de fogo de uso permitido
+03.150 - Disparo de arma de fogo ou acionamento de munição
+03.160 - Posse ou porte ilegal de arma de fogo de uso restrito
+03.161 - Suprimir ou alterar marca/numeração/sinal de identificação de arma de fogo
+03.163 - Possuir/deter/fabricar/empregar artefato explosivo
+03.164 - Portar/possuir/adquirir/transportar/fornecer arma de fogo
+03.165 - Vender/entregar/fornecer arma de fogo
+03.170 - Comércio ilegal de arma de fogo, acessório ou munição
+03.180 - Tráfico internacional de arma de fogo
+08.190 - Porte ilegal de arma branca
+
+CRIMES E INFRAÇÕES DE DROGAS (LEI 11.343/2006)
+04.280 - Uso e consumo de drogas
+04.330 - Tráfico ilícito de drogas
+04.331 - Tráfico ilícito de matérias-primas para preparação de drogas
+04.332 - Cultivo de plantas utilizadas na preparação de drogas
+04.333 - Utilização/consentimento de uso de local ou bem para tráfico de drogas
+04.334 - Incentivo ao uso ou consumo de drogas
+04.335 - Oferecimento eventual ao consumo de drogas
+04.340 - Fabrico, venda ou posse de apetrechos para preparação de drogas
+04.350 - Associação para o tráfico de drogas
+04.351 - Associação para o financiamento ou custeio do tráfico de drogas
+04.360 - Financiamento ou custeio de tráfico de drogas
+04.370 - Colaboração como informante para o tráfico de drogas
+
+ESTATUTO DA CRIANÇA E DO ADOLESCENTE (ECA — LEI 8.069/90)
+05.228 a 05.244 - Infrações diversas do ECA (omissão de comunicação/atendimento, privação de liberdade sem flagrante, submissão a vexame, subtração de incapaz, tráfico de criança/adolescente, pornografia infantil — especificar artigo no histórico)
+05.501 a 05.505 - Exploração sexual, pornografia infantil e aliciamento de criança/adolescente por qualquer meio (arts. 240 a 241-D do ECA)
+
+CONTRAVENÇÕES PENAIS E INFRAÇÕES DIVERSAS
+08.200 - Anúncio de meio abortivo
+08.210 - Vias de fato/agressão
+08.240 - Instrumento de emprego usual na prática de furto
+08.260 - Violação de lugar ou objeto (chaveiro sem autorização)
+08.360 - Sinais de perigo (comunicação de perigo na via pública)
+08.370 - Arremesso ou colocação perigosa
+08.380 - Emissão abusiva de fumaça, vapor ou gás
+08.390 - Associação secreta
+08.400 - Provocação de tumulto/conduta inconveniente
+08.410 - Falso alarma — ameaça de bomba
+08.420 - Perturbação do trabalho ou do sossego alheios
+08.430 - Recusa de moeda de curso legal
+08.450 - Simulação da qualidade de funcionário público
+08.460 - Uso ilegítimo de uniforme ou distintivo
+08.470 - Exercício ilegal de profissão ou atividade
+08.480 - Exercício ilegal do comércio/obra de arte/coisas antigas
+08.500 - Jogos de azar
+08.510 - Loteria não autorizada
+08.580 - Jogo do bicho
+08.590 - Vadiagem
+08.600 - Mendicância
+08.610 - Importunação ofensiva ao pudor
+08.620 - Embriaguez (escândalo/perigo próprio ou alheio)
+08.630 - Servir bebida alcoólica a menores, incapazes ou embriagados
+08.640 - Crueldade contra animais
+08.650 - Perturbação da tranquilidade
+08.660 - Omissão de comunicação de crime
+08.670 - Inumação ou exumação de cadáver
+08.680 - Recusa de dados sobre a própria identificação ou qualificação
+08.700 - Violação do privilégio postal da União
+
+CRIMES DE TRÂNSITO (CTB)
+10.161 - Aplicação das medidas administrativas previstas no art. 269 do CTB
+10.302 - Homicídio culposo na direção de veículo automotor
+10.303 - Lesão corporal culposa na direção de veículo automotor
+10.304 - Omissão de socorro em acidente de trânsito
+10.305 - Abandono do local de acidente de trânsito
+10.306 - Dirigir sob influência de álcool ou substância psicoativa
+10.307 - Violar suspensão ou proibição de dirigir
+10.308 - Disputa de corrida não autorizada (racha)
+10.309 - Dirigir sem permissão/habilitação ou com habilitação cassada gerando perigo de dano
+10.310 - Entrega de direção a pessoa não habilitada
+10.311 - Transitar em velocidade incompatível em locais específicos ou com aglomeração
+10.312 - Alterar local de crime em acidente de trânsito
+
+ESTATUTO DO IDOSO (LEI 10.741/2003)
+13.096 a 13.109 - Crimes contra o idoso (discriminação, abandono, exposição a perigo, apropriação de bens/benefício, retenção de cartão, coação, exibição depreciativa — especificar artigo no histórico)
+
+CRIMES MILITARES E DE APOIO
+38.xxx - Crimes militares diversos (Código Penal Militar — especificar artigo no histórico)
+39.001/44.001 - Apoio a órgãos federais
+39.002/44.002 - Apoio a órgãos estaduais
+39.003/44.003 - Apoio a órgãos municipais
+39.004/44.004 - Apoio a órgãos privados
+39.005/44.005 - Apoio à Polícia Civil/Delegado de Polícia Civil
+39.006/44.006 - Apoio a militar/PM/BM
+39.007 - Apoio a órgãos judiciários
+40.001 a 40.004 - Descumprimento de sigilo/colaboração premiada em organização criminosa (Lei 12.850/2013)
+42.000 - Prática de ato por xenofobia, racismo, etnia ou religião com finalidade de terror social (Lei 13.260/2016)
+
+OUTRAS LEIS ESPECIAIS (citar sempre a lei/artigo específico no histórico quando identificado)
+06.xxx - Infrações ao Código de Defesa do Consumidor
+07.xxx - Crimes de preconceito de raça/cor/etnia/religião (Lei 7.716/89)
+09.18x/09.19x - Crimes contra propriedade industrial, marcas e patentes
+12.xxx - Crimes contra o sistema de estoque de combustível
+14.1xx - Crimes de responsabilidade de prefeitos e vereadores
+15.0xx - Crimes relativos a sonegação fiscal
+16.0xx-16.2xx - Crimes contra a segurança nacional
+17.0xx-17.2xx - Crimes contra o sistema financeiro nacional
+18.1xx-18.2xx - Crimes contra o sentimento religioso e respeito aos mortos
+19.5xx - Crimes relativos ao Estatuto do Índio
+20.2xx-34.1xx - Crimes eleitorais
+21.0xx - Crimes de lavagem ou ocultação de bens, direitos e valores
+22.120 / 36.05x - Violação de direito autoral (programa de computador, topografia de circuito integrado)
+23.0xx-23.0xx - Crimes contra a ordem tributária, econômica e relações de consumo
+24.0xx - Crimes relativos a serviços postais
+25.183 - Crimes relativos a serviços de telecomunicações
+26.0xx - Crimes relativos ao Código de Telecomunicações
+27.1xx/28.2xx - Crimes relativos ao meio ambiente
+29.0xx - Infrações contra ordenamento urbano/patrimônio cultural/administração ambiental
+30.4xx / 31.0xx / 32.3xx - Infrações ambientais relativas à fauna, flora, pesca
+35.089-35.098 - Crimes contra licitações e contratos da administração pública (Lei 8.666/93)
+37.001-37.006 - Fraude/violência em competição esportiva; revenda irregular de ingressos
+`.trim();
+
+// Exemplos reais de histórico de BOPM, cedidos pelo próprio usuário (Sd PM,
+// 40º BPM) para calibrar o ESTILO do texto gerado (vocabulário, estrutura,
+// jargão real de batalhão). Identificadores que pareciam reais (nomes
+// completos, RG, matrícula de perito, números de viatura/RO/BAM) foram
+// substituídos por placeholders — o que importa aqui é a forma, não o caso
+// específico. Isso é conteúdo estático do app (igual à tabela de códigos),
+// nunca é preenchido com ocorrências reais de quem usa o 111 Série Gold.
+const EXEMPLOS_HISTORICO_REAL = `
+--- exemplo 1 (desentendimento familiar) ---
+Guarnição do Setor Fox procedeu à ocorrência paga por Maré Zero, inicialmente relacionada a desentendimento familiar. No local, após contato com os envolvidos, verificou-se tratar de divergência familiar envolvendo questões relacionadas a imóvel, herança e obra realizada em terreno onde existe uma servidão utilizada para acesso a quatro residências.
+Segundo informado, um dos envolvidos alega possuir procuração com assinatura do pai da solicitante, relacionada às questões envolvendo o imóvel. A solicitante, moradora da primeira residência, informou que seu pai atualmente se encontra em estado de demência, havendo divergências entre os familiares acerca da situação patrimonial e da utilização do terreno.
+A solicitante informou ainda possuir medida protetiva em face de um dos envolvidos. Cabe ressaltar que as partes residem em imóveis contíguos, lado a lado, havendo apenas a própria estrutura/muro das residências como separação física entre elas. No documento apresentado à guarnição, não foi observada especificação de distância mínima de afastamento ou outra determinação específica relacionada à proximidade entre as respectivas residências.
+Durante a atuação da guarnição, a situação apresentada restringiu-se a atrito verbal decorrente das divergências familiares, não sendo constatada agressão física ou outra situação que demandasse intervenção imediata naquele momento.
+Diante dos fatos, as partes foram devidamente orientadas quanto à necessidade de buscar os meios legais competentes para resolução das questões relativas ao imóvel, herança, procuração, servidão e obra. Cessado o atrito verbal e não sendo constatada, naquele momento, outra situação que exigisse providência imediata da guarnição, a ocorrência foi encerrada no local após as devidas orientações.
+
+--- exemplo 2 (possíveis maus-tratos a menor) ---
+Guarnição do Setor Fox procedeu ao local para averiguar ocorrência inicialmente informada como possível situação envolvendo maus-tratos a menor de 9 anos, tendo sido relatado na solicitação que a tia teria colocado a criança para fora da residência, impedido seu retorno e que supostamente a agrediria.
+No local, a guarnição fez contato com os envolvidos, constatando que a tia reside no mesmo imóvel que a mãe do menor e auxilia nos cuidados da família. Segundo relato da tia, tanto a mãe quanto o menor apresentam distúrbios, sendo ainda informado por ela que a criança já teria saído da residência sem autorização em outras oportunidades e que, em razão de sua condição, por vezes apresentaria relatos que, segundo a declarante, não corresponderiam à realidade. Ressalta-se que tais informações correspondem exclusivamente à versão apresentada pela tia.
+Durante o atendimento, a guarnição manteve contato com o menor, não sendo visualizadas naquele momento lesões ou marcas aparentes que indicassem agressão física, tampouco foram percebidas manifestações aparentes de temor da criança em relação à tia. O menor retornou ao interior da residência, não havendo resistência por parte da tia quanto à sua entrada.
+Diante das circunstâncias efetivamente constatadas pela guarnição naquele momento, não foram identificados elementos aparentes que confirmassem a situação de agressão narrada inicialmente na solicitação. As partes foram devidamente orientadas, permanecendo o menor no interior da residência juntamente com seus familiares, sendo a ocorrência encerrada no local, sem outras alterações observadas pela guarnição.
+
+--- exemplo 3 (acidente de trânsito com vítima, envolve perícia/DP — identificadores anonimizados) ---
+Guarnição do Setor Fox foi empenhada em ocorrência de acidente de trânsito com vítima, tratando-se de colisão com veículo parado.
+Ao chegar, constatou-se que o cenário do acidente já se encontrava desfeito, não sendo possível verificar a posição original dos veículos ou outros elementos relacionados à dinâmica do fato. Encontrava-se presente equipe do CBMERJ, viatura [nº da ASE], tendo como mais antigo o [posto/graduação e nome], RG [nº].
+O condutor da motocicleta, [nome], qualificado neste BOPM, estava sob os cuidados do CBMERJ, sendo posteriormente conduzido ao [hospital], onde foi gerado o BAM nº [nº]. [Familiar], também qualificado(a), permaneceu como seu(sua) representante. A motocicleta envolvida ficou acautelada sob a responsabilidade de [nome], [grau de parentesco] do condutor.
+Quanto ao [outro veículo envolvido], foi constatado que este se encontrava enguiçado. [Nome] apresentou-se à guarnição como seu condutor, acompanhado de [nome], que se identificou como proprietário do veículo e empregador do condutor. O veículo permaneceu sob a responsabilidade de seu proprietário.
+Após as providências iniciais, a equipe deslocou-se ao [hospital], onde, em contato com os profissionais responsáveis pelo atendimento, foi informada de que a vítima se encontrava fora de risco de vida.
+Em seguida, os fatos foram apresentados na [nº]ª DP, sendo confeccionado o RO nº [nº]. Embora não houvesse vítima fatal e o cenário já estivesse desfeito quando da chegada da equipe, o inspetor responsável solicitou a realização de perícia.
+Em cumprimento à solicitação, a guarnição retornou ao local. Às [hora], compareceu o perito [nome], matrícula nº [nº], na viatura nº [nº], realizando os procedimentos periciais, já sem a presença dos veículos envolvidos.
+Ressalta-se que a guarnição não presenciou o acidente e encontrou o cenário já desfeito, não sendo possível estabelecer sua dinâmica ou atribuir responsabilidade aos envolvidos, limitando-se às constatações realizadas, às informações prestadas e às providências adotadas.
+Concluídos os trabalhos periciais e não havendo outras providências a cargo da guarnição, a ocorrência foi encerrada.
+
+--- exemplo 4 (perturbação do sossego) ---
+Guarnição do Setor Fox procedeu ao local para atendimento de ocorrência de perturbação do trabalho e do sossego. Ao chegar ao endereço indicado, o solicitante não se apresentou à guarnição.
+No local, foi identificado o responsável pelo evento, sendo realizada a devida orientação quanto ao volume do som e aos possíveis transtornos causados à vizinhança. O responsável mostrou-se receptivo às orientações, comprometendo-se a reduzir imediatamente o volume e a encerrar o evento em breve.
+Diante da situação e não havendo outras alterações no momento, a ocorrência foi encerrada no local após as devidas orientações.
+
+--- exemplo 5 (possível violência doméstica, sem lesão relatada) ---
+Guarnição do Setor Fox recebeu solicitação para atendimento de ocorrência inicialmente informada como violência doméstica contra a mulher, com possível lesão corporal.
+Ao chegar ao local, a guarnição fez contato com a solicitante, a qual relatou que desejava que seu ex-marido deixasse a residência, mencionando apenas a ocorrência de atrito verbal entre as partes. Durante o atendimento, não foi relatada pela solicitante qualquer agressão física.
+Após contato e orientação de ambas as partes, o homem retirou alguns de seus pertences pessoais e deixou a residência voluntariamente, cessando o desentendimento.
+Diante da situação constatada no local e não havendo outras alterações naquele momento, a ocorrência foi encerrada no local após as devidas orientações às partes.
+
+--- exemplo 6 (possível lesão corporal contra mulher, sem lesão constatada) ---
+Guarnição do Setor Fox procedeu ao local para averiguar ocorrência inicialmente informada como lesão corporal contra mulher.
+Ao chegar ao endereço, a guarnição deparou-se com o casal em atrito verbal, sendo relatado por ambas as partes que houve troca de insultos durante a discussão.
+A solicitante manifestou não se sentir confortável com a permanência de seu marido na residência, solicitando que ele deixasse o imóvel. O referido, que se encontrava no local, concordou em sair voluntariamente, cessando, naquele momento, o atrito entre as partes.
+A solicitante recebeu as devidas orientações e informou que, pela manhã, acompanhada de sua mãe, compareceria à Delegacia de Atendimento à Mulher para relatar os fatos e adotar as providências que entendesse cabíveis.
+Diante da saída voluntária do marido e da cessação do conflito naquele momento, a ocorrência foi encerrada no local, após as devidas orientações.
+`.trim();
+
+// Telefones de unidades (SOP / Oficial de Dia). Lista estática, mantida manualmente —
+// nenhum dado de contato é buscado ou enviado a terceiros pelo app.
+const TELEFONES_UNIDADES = [
+  { unidade: "2º BPM", tipo: "SOP", numero: "21978835012" },
+  { unidade: "3º BPM", tipo: "SOP", numero: "21982363076" },
+  { unidade: "4º BPM", tipo: "SOP", numero: "21978851210" },
+  { unidade: "5º BPM", tipo: "SOP", numero: "21970650119" },
+  { unidade: "6º BPM", tipo: "SOP", numero: "21973199064" },
+  { unidade: "7º BPM", tipo: "SOP", numero: "21975899101" },
+  { unidade: "8º BPM", tipo: "SOP", numero: "22992123810" },
+  { unidade: "9º BPM", tipo: "SOP", numero: "21999633892" },
+  { unidade: "10º BPM", tipo: "SOP", numero: "24992872278" },
+  { unidade: "11º BPM", tipo: "SOP", numero: "22992820192" },
+  { unidade: "12º BPM", tipo: "SOP", numero: "21981125792" },
+  { unidade: "14º BPM", tipo: "SOP", numero: "21976300981" },
+  { unidade: "15º BPM", tipo: "SOP", numero: "21976300981" },
+  { unidade: "16º BPM", tipo: "SOP", numero: "21978901472" },
+  { unidade: "17º BPM", tipo: "SOP", numero: "21973457527" },
+  { unidade: "18º BPM", tipo: "SOP", numero: "21970607503" },
+  { unidade: "19º BPM", tipo: "SOP", numero: "21992715416" },
+  { unidade: "20º BPM", tipo: "SOP", numero: "21969081178" },
+  { unidade: "21º BPM", tipo: "SOP", numero: "21974459796" },
+  { unidade: "22º BPM", tipo: "SOP", numero: "21970287308" },
+  { unidade: "23º BPM", tipo: "SOP", numero: "21974052554" },
+  { unidade: "24º BPM", tipo: "SOP", numero: "21978821077" },
+  { unidade: "25º BPM", tipo: "SOP", numero: "22992322440" },
+  { unidade: "26º BPM", tipo: "SOP", numero: "24992241096" },
+  { unidade: "27º BPM", tipo: "SOP", numero: "21973540465" },
+  { unidade: "27º BPM", tipo: "SOP", numero: "21970368066" },
+  { unidade: "28º BPM", tipo: "SOP", numero: "24992418760" },
+  { unidade: "29º BPM", tipo: "SOP", numero: "2238241190" },
+  { unidade: "30º BPM", tipo: "SOP", numero: "21976233478" },
+  { unidade: "31º BPM", tipo: "SOP", numero: "21972265592" },
+  { unidade: "32º BPM", tipo: "SOP", numero: "22997825853" },
+  { unidade: "33º BPM", tipo: "SOP", numero: "24992281382" },
+  { unidade: "34º BPM", tipo: "SOP", numero: "21988570770" },
+  { unidade: "35º BPM", tipo: "SOP", numero: "21991049238" },
+  { unidade: "36º BPM", tipo: "SOP", numero: "22992282252" },
+  { unidade: "37º BPM", tipo: "SOP", numero: "2433548998" },
+  { unidade: "38º BPM", tipo: "SOP", numero: "2422524961" },
+  { unidade: "39º BPM", tipo: "SOP", numero: "21973394763" },
+  { unidade: "40º BPM", tipo: "SOP", numero: "21998580916" },
+  { unidade: "41º BPM", tipo: "SOP", numero: "2123338415" },
+  { unidade: "CPP", tipo: "OF. DE DIA", numero: "21991804741" },
+  { unidade: "CPP", tipo: "SOP", numero: "21974616408" },
+  { unidade: "BPTUR", tipo: "OF. DE DIA", numero: "21974904152" },
+  { unidade: "BPTUR", tipo: "SOP", numero: "21991018618" },
+  { unidade: "BPVE", tipo: "OF. DE DIA", numero: "21978743428" },
+  { unidade: "CPRV", tipo: "SOP", numero: "21991717071" },
+  { unidade: "RECOM", tipo: "SOP", numero: "21990396534" },
+  { unidade: "CPAM", tipo: "SOP", numero: "21991539063" },
+  { unidade: "1ª CIPM", tipo: "OF. DE DIA", numero: "21976122498" },
+  { unidade: "2ª CIPM", tipo: "SOP", numero: "24992192071" },
+  { unidade: "HCPM", tipo: "OF. DE DIA", numero: "21991262797" },
+];
+
+function formatarTelefone(numero) {
+  const d = numero.replace(/\D/g, "");
+  if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return numero;
+}
+
+// ---------- Ícones da navegação (SVG inline, sem dependência externa) ----------
+function TabIcon({ id, active }) {
+  const cor = active ? "#e8ecef" : "#7d8894";
+  const props = { width: 20, height: 20, viewBox: "0 0 24 24", fill: "none", stroke: cor, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" };
+  switch (id) {
+    case "redacao":
+      return (
+        <svg {...props}>
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <path d="M14 2v6h6" />
+          <path d="M9 13h6" /><path d="M9 17h6" />
+        </svg>
+      );
+    case "avisos":
+      return (
+        <svg {...props}>
+          <path d="M12 3v2" /><path d="M5.5 7 4 5.5" /><path d="M18.5 7 20 5.5" />
+          <path d="M4 14a8 8 0 0 1 16 0c0 3-1 4-2 5H6c-1-1-2-2-2-5Z" />
+          <path d="M9 21h6" />
+        </svg>
+      );
+    case "consultas":
+      return (
+        <svg {...props}>
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </svg>
+      );
+    case "telefones":
+      return (
+        <svg {...props}>
+          <path d="M4.5 4h4l1.5 4.5-2.2 1.8a13 13 0 0 0 6.4 6.4l1.8-2.2 4.5 1.5v4c0 1-1 2-2.2 1.9C10.8 20.8 3.2 13.2 2.6 5.2 2.5 4 3.5 4 4.5 4Z" />
+        </svg>
+      );
+    case "legislacao":
+      return (
+        <svg {...props}>
+          <path d="M12 4v16" />
+          <path d="M4 6l4-1.5L12 6l4-1.5L20 6" />
+          <path d="M4 6 2 11a2.5 2.5 0 0 0 5 0L4 6Z" />
+          <path d="M20 6l-2 5a2.5 2.5 0 0 0 5 0l-3-5Z" />
+          <path d="M7 21h10" />
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
+
+const PROFILE_KEY = "mike-assist:perfil-policial";
+const AVISOS_KEY = "mike-assist:avisos-cache";
+const DEVICE_ID_STORAGE = "mike-assist:device-id";
+const TEMA_KEY = "mike-assist:tema";
+
+const MENSAGENS_DO_DIA = [
+  "Atenção redobrada na abordagem, guarnição segura é guarnição que volta inteira.",
+  "Confira o material antes de sair da unidade — detalhe simples, diferença grande.",
+  "Hidrate-se e faça as pausas possíveis durante o turno.",
+  "Reforço: comunicação clara com a central evita mal-entendido em qualquer ocorrência.",
+  "Cuidado redobrado com vias de fuga e posicionamento em cada abordagem.",
+  "Um bom histórico começa com atenção aos detalhes ainda na cena.",
+  "Trabalho em equipe: mantenha contato visual e verbal com o parceiro de guarnição.",
+];
+
+function mensagemDoDia() {
+  const inicioDoAno = new Date(new Date().getFullYear(), 0, 0);
+  const diffMs = new Date() - inicioDoAno;
+  const diaDoAno = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  return MENSAGENS_DO_DIA[diaDoAno % MENSAGENS_DO_DIA.length];
+}
+
+const emptyProfile = {
+  nome: "", rg: "", unidade: "", setor: "", horario: "", cop: "", componentes: [],
+};
+
+const CATEGORIAS_AVISOS = [
+  {
+    id: "juridico", label: "Jurídico", cor: "#a13b46",
+    query: "decisões recentes do STF e da ALERJ sobre atuação da polícia militar, segurança pública e uso da força no Rio de Janeiro",
+  },
+  {
+    id: "institucional", label: "Institucional PMERJ", cor: "#5b8bc9",
+    query: "notícias institucionais recentes da PMERJ: RAS, PROEIS, editais, capacitações, resultados operacionais (fonte: site oficial sepm.rj.gov.br)",
+  },
+  {
+    id: "normas", label: "Normas internas", cor: "#4f8f6d",
+    query: "atualizações públicas de boletins internos, Vade Mecum de Ocorrências ou normas de procedimento da PMERJ",
+  },
+];
+
+// ---------- Armazenamento local (substitui o window.storage do Claude) ----------
+function storageGet(key) {
+  const v = localStorage.getItem(key);
+  return Promise.resolve(v === null ? null : { value: v });
+}
+function storageSet(key, value) {
+  localStorage.setItem(key, value);
+  return Promise.resolve({ value });
+}
+
+function Field({ label, value, onChange, placeholder, mono }) {
+  return (
+    <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <span style={styles.fieldLabel}>{label}</span>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        style={{ ...styles.input, fontFamily: mono ? "'IBM Plex Mono', monospace" : "inherit" }}
+      />
+    </label>
+  );
+}
+
+// ---------- Chamada ao backend (proxy) em vez de direto à Anthropic ----------
+async function callClaude(deviceId, { system, messages, tools, maxTokens = 1000, model }) {
+  const response = await fetch(WORKER_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ system, messages, tools, maxTokens, deviceId, model }),
+  });
+  return response.json();
+}
+
+function getOrCreateDeviceId() {
+  let id = localStorage.getItem(DEVICE_ID_STORAGE);
+  if (!id) {
+    id = (crypto.randomUUID ? crypto.randomUUID() : `dev-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    localStorage.setItem(DEVICE_ID_STORAGE, id);
+  }
+  return id;
+}
+
+function extractJsonFromResponse(data) {
+  // Se a Anthropic devolveu um erro (ex: modelo inválido, tool não habilitada,
+  // limite de crédito), o formato é {"type":"error","error":{"message":...}}
+  if (data.type === "error" || data.error) {
+    const msg = typeof data.error === "string" ? data.error : (data.error?.message || "erro desconhecido");
+    throw new Error(msg);
+  }
+  const textBlocks = (data.content || []).filter((b) => b.type === "text");
+  if (textBlocks.length === 0) throw new Error("A resposta não trouxe texto (verifique o console do navegador para mais detalhes).");
+  // Junta TODOS os blocos de texto (quando a IA usa busca com citações, a
+  // resposta pode vir fragmentada em vários blocos intercalados).
+  const joined = textBlocks.map((b) => b.text).join("\n");
+  const cleaned = joined.replace(/```json|```/g, "").trim();
+  // Extrai só o trecho entre a primeira { e a última }, ignorando qualquer
+  // texto de comentário que a IA tenha colocado antes/depois do JSON.
+  const inicio = cleaned.indexOf("{");
+  const fim = cleaned.lastIndexOf("}");
+  if (inicio === -1 || fim === -1 || fim < inicio) {
+    throw new Error("A resposta não continha um JSON reconhecível.");
+  }
+  const jsonBruto = cleaned.slice(inicio, fim + 1);
+  try {
+    return JSON.parse(jsonBruto);
+  } catch (e) {
+    throw new Error("Não consegui interpretar a resposta da IA como JSON.");
+  }
+}
+
+function extractPlainText(data) {
+  if (data.type === "error" || data.error) {
+    const msg = typeof data.error === "string" ? data.error : (data.error?.message || "erro desconhecido");
+    throw new Error(msg);
+  }
+  const textBlocks = (data.content || []).filter((b) => b.type === "text");
+  if (textBlocks.length === 0) throw new Error("A busca não retornou nenhum texto.");
+  return textBlocks.map((b) => b.text).join("\n").trim();
+}
+
+// Ícone do app: quadrado arredondado dividido na diagonal (navy/dourado,
+// cores da PMERJ) com um ícone de boletim ao centro. Puro CSS/SVG — sem
+// nenhuma imagem externa — pra funcionar tanto no cabeçalho (pequeno)
+// quanto na splash de abertura (grande), só mudando o "size".
+function MikeIcon({ size = 40 }) {
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: size * 0.28, position: "relative", overflow: "hidden",
+      background: "#101b34", flexShrink: 0,
+      boxShadow: `inset 0 0 0 1px rgba(255,255,255,0.06), 0 ${size * 0.08}px ${size * 0.22}px rgba(0,0,0,0.35)`,
+    }}>
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "#c9a24a",
+        clipPath: "polygon(100% 0, 100% 100%, 0 100%)",
+      }} />
+      <svg
+        viewBox="0 0 24 24" width={size * 0.5} height={size * 0.5}
+        style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.35))" }}
+      >
+        <rect x="4" y="2.5" width="16" height="19" rx="2.2" fill="#f4f1e8" />
+        <rect x="7" y="6" width="10" height="1.6" rx="0.8" fill="#101b34" opacity="0.55" />
+        <rect x="7" y="10" width="10" height="1.6" rx="0.8" fill="#101b34" opacity="0.55" />
+        <rect x="7" y="14" width="6.5" height="1.6" rx="0.8" fill="#101b34" opacity="0.55" />
+      </svg>
+    </div>
+  );
+}
+
+// Tela de abertura — mostrada enquanto os dados locais carregam (rápido) e
+// por um tempo mínimo fixo, pra ter a mesma sensação de "app de verdade
+// abrindo" de outros apps de referência, com barra de carregamento animada.
+function SplashScreen() {
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "var(--bg)",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 18,
+    }}>
+      <MikeIcon size={84} />
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: 26, fontWeight: 800, color: "var(--text)", letterSpacing: -0.3 }}>111 Série Gold</div>
+        <div style={{ fontSize: 11.5, fontWeight: 600, color: "var(--text-dim)", letterSpacing: 2, marginTop: 4 }}>
+          ASSISTENTE DE BOPM · PMERJ
+        </div>
+      </div>
+      <div style={{
+        position: "absolute", bottom: "calc(env(safe-area-inset-bottom, 0px) + 40px)",
+        width: 120, height: 3, borderRadius: 3, background: "var(--bg-chip)", overflow: "hidden",
+      }}>
+        <div style={{
+          width: "45%", height: "100%", borderRadius: 3, background: "#c9a24a",
+          animation: "mkSplashBar 1.1s ease-in-out infinite",
+        }} />
+      </div>
+    </div>
+  );
+}
+
+function MikeAssist() {
+  const [activeTab, setActiveTab] = useState("redacao");
+  const [loaded, setLoaded] = useState(false);
+
+  // Tema claro/escuro — preferência salva só no aparelho (localStorage),
+  // nunca em servidor. Padrão escuro (paleta PMERJ azul-marinho).
+  const [tema, setTema] = useState(() => {
+    try { return localStorage.getItem(TEMA_KEY) === "light" ? "light" : "dark"; }
+    catch (e) { return "dark"; }
+  });
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", tema);
+    try { localStorage.setItem(TEMA_KEY, tema); } catch (e) {}
+  }, [tema]);
+  function alternarTema() {
+    setTema((t) => (t === "dark" ? "light" : "dark"));
+  }
+
+  const [deviceId] = useState(getOrCreateDeviceId);
+
+  const [profile, setProfile] = useState(emptyProfile);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [draftProfile, setDraftProfile] = useState(emptyProfile);
+
+  const [relato, setRelato] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [resultado, setResultado] = useState(null);
+  const [error, setError] = useState("");
+  const [copyLabel, setCopyLabel] = useState("Copiar");
+  const [pixCopyLabel, setPixCopyLabel] = useState("Copiar chave Pix");
+
+  const [avisos, setAvisos] = useState({});
+  const [avisosLoading, setAvisosLoading] = useState(false);
+  const [avisosError, setAvisosError] = useState("");
+  const [forcandoAtualizacao, setForcandoAtualizacao] = useState(false);
+  const [forcarMensagem, setForcarMensagem] = useState("");
+
+  const [buscaTelefone, setBuscaTelefone] = useState("");
+
+  const [legislacaoQuery, setLegislacaoQuery] = useState("");
+  const [legislacaoLoading, setLegislacaoLoading] = useState(false);
+  const [legislacaoFase, setLegislacaoFase] = useState("");
+  const [legislacaoResultado, setLegislacaoResultado] = useState(null);
+  const [legislacaoError, setLegislacaoError] = useState("");
+
+  // Tempo mínimo de exibição da splash, pra não "piscar" quando os dados
+  // locais carregam rápido demais — só efeito visual, não afeta velocidade
+  // real do app (os dados já carregam em paralelo, isso só atrasa a troca
+  // de tela por uma fração de segundo pra parecer intencional).
+  const [splashMinDone, setSplashMinDone] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setSplashMinDone(true), 700);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const res = await storageGet(PROFILE_KEY);
+      if (res) {
+        const parsed = JSON.parse(res.value);
+        setProfile(parsed);
+        setDraftProfile(parsed);
+      } else {
+        setEditingProfile(true);
+      }
+
+      const resAvisos = await storageGet(AVISOS_KEY);
+      if (resAvisos) {
+        const parsedAvisos = JSON.parse(resAvisos.value);
+        Object.keys(parsedAvisos).forEach((k) => {
+          if (parsedAvisos[k].atualizadoEm) parsedAvisos[k].atualizadoEm = new Date(parsedAvisos[k].atualizadoEm);
+        });
+        setAvisos(parsedAvisos);
+      }
+      setLoaded(true);
+      carregarAvisos();
+    })();
+  }, []);
+
+  async function saveProfile() {
+    setProfile(draftProfile);
+    setEditingProfile(false);
+    await storageSet(PROFILE_KEY, JSON.stringify(draftProfile));
+  }
+
+  const profileComplete = profile.nome && profile.rg;
+
+  async function gerarHistorico() {
+    if (!relato.trim()) return;
+    setLoading(true); setError(""); setResultado(null);
+
+    const systemPrompt = `Você é um assistente que ajuda policiais militares do Rio de Janeiro (PMERJ) a redigir o histórico de um BOPM (Boletim de Ocorrência da Polícia Militar) a partir de um relato informal.
+
+Regras estritas:
+- O relato do policial virá em linguagem informal, com gírias, abreviações e possíveis erros de gramática/digitação — normal para um relato rápido de campo. Sua função é corrigir a forma (gramática, formalidade, clareza) sem alterar os fatos narrados.
+- Use linguagem natural de histórico policial, mas juridicamente correta — direto no fato, sem formalismo excessivo ou "encher linguiça". Narrativa em terceira pessoa, tempo verbal correto.
+- NÃO inclua nome, graduação, RG, unidade ou dados da guarnição no texto do histórico. Esses dados já existem em campos próprios do portal oficial da PMERJ; o histórico deve focar exclusivamente na dinâmica do fato (o que aconteceu, como, quando, onde, com quem).
+- NUNCA invente informação que o usuário não forneceu. Se um dado costuma ajudar a fundamentar esse tipo de ocorrência e não veio no relato, apenas sugira mencioná-lo — nunca em tom de exigência ou cobrança, é uma dica opcional, o policial decide se quer incluir.
+- NUNCA invente nomes de sistemas, centrais ou jargões que não sejam reais. Se precisar referenciar a central de despacho, use "central 190", "CECOPOM" ou "Maré Zero" (apelido real usado por guarnições para o CECOPOM) — nunca invente nomenclatura. Na dúvida sobre algum termo técnico ou institucional, prefira uma descrição genérica e correta em vez de arriscar um nome que pode não existir.
+- Use os exemplos abaixo (histórico de BOPM reais, com identificadores removidos) só como referência de ESTILO — vocabulário, tom, forma de estruturar o texto e de fechar a ocorrência. NUNCA copie nomes de setor (ex: "Setor Fox"), números de RO/BAM/matrícula/viatura ou qualquer outro dado desses exemplos para o histórico atual — cada ocorrência é única, use apenas o que veio no relato do policial:
+${EXEMPLOS_HISTORICO_REAL}
+- Prefira voz ativa a construções passivas. Ao final do histórico, quando fizer sentido, feche mencionando o encerramento e o destino (PTR, delegacia, hospital etc.) — mas NUNCA repita a expressão "patrulhamento de rotina" ou "PTR" duas vezes no mesmo texto.
+- CASO ESPECIAL — relato genérico de patrulhamento sem nenhuma intercorrência: gere um histórico curto e direto informando que a guarnição patrulhou o local citado e nada foi constatado, sugerindo o código 80.004 (Nada constatado). Não alongue artificialmente.
+- Seja objetivo e factual, sem opiniões.
+- O texto gerado é um RASCUNHO de apoio; não é o BOPM oficial.
+- Use como referência esta tabela de códigos de ocorrência da PMERJ (organizada por categoria) para sugerir o código mais apropriado. Algumas famílias de código aparecem como faixa (ex: "27.1xx") quando o documento oficial não detalha cada código individualmente — nesse caso, cite a faixa e oriente o policial a confirmar o número exato no Vade Mecum ou com a central, sem inventar um código específico:
+${VADE_MECUM_SAMPLE}
+- Se nenhum código da lista combinar bem, retorne o campo "codigo" como o valor JSON null (não a palavra "null" como texto).
+
+Responda APENAS com um JSON válido, sem markdown, sem crases, no formato exato:
+{"historico": "texto do histórico formatado", "codigo": "00.000 ou null", "codigo_descricao": "descrição do código ou null", "alertas": ["lista de sugestões opcionais do que poderia reforçar o histórico, cada uma uma frase curta e não-imperativa"]}`;
+
+    try {
+      const data = await callClaude(deviceId, { system: systemPrompt, messages: [{ role: "user", content: relato }] });
+      setResultado(extractJsonFromResponse(data));
+    } catch (e) {
+      setError(`Não consegui gerar o histórico agora. ${e.message || ""}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function copiarHistorico() {
+    if (!resultado?.historico) return;
+    try {
+      await navigator.clipboard.writeText(resultado.historico);
+      setCopyLabel("Copiado");
+    } catch (e) {
+      setCopyLabel("Erro ao copiar");
+    }
+    setTimeout(() => setCopyLabel("Copiar"), 1500);
+  }
+
+  async function copiarChavePix() {
+    if (!PIX_KEY_DOACAO) return;
+    try {
+      await navigator.clipboard.writeText(PIX_KEY_DOACAO);
+      setPixCopyLabel("Chave copiada!");
+    } catch (e) {
+      setPixCopyLabel("Erro ao copiar");
+    }
+    setTimeout(() => setPixCopyLabel("Copiar chave Pix"), 1500);
+  }
+
+  // As atualizações jurídicas agora são pré-calculadas no próprio Worker (via
+  // Cron Trigger, algumas vezes ao dia) e guardadas prontas no KV — o app só
+  // lê o resultado já pronto, então abre instantâneo em vez de disparar uma
+  // busca + IA a cada pessoa que abre a aba.
+  async function carregarAvisos() {
+    setAvisosLoading(true);
+    setAvisosError("");
+    try {
+      const resp = await fetch(`${WORKER_URL}/avisos`);
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error);
+
+      const novoEstado = {};
+      CATEGORIAS_AVISOS.forEach((categoria) => {
+        const item = data[categoria.id];
+        novoEstado[categoria.id] = {
+          itens: (item && item.itens) || [],
+          atualizadoEm: item && item.atualizadoEm ? new Date(item.atualizadoEm) : null,
+          error: "",
+        };
+      });
+      setAvisos(novoEstado);
+      storageSet(AVISOS_KEY, JSON.stringify(novoEstado));
+    } catch (e) {
+      setAvisosError(`Não consegui carregar as atualizações agora. ${e.message || ""}`);
+    } finally {
+      setAvisosLoading(false);
+    }
+  }
+
+  // Dispara uma geração nova agora (não espera o Cron Trigger), útil pra
+  // testar a base pela primeira vez ou forçar uma atualização fora do
+  // horário programado. Depois de disparar, espera um pouco e recarrega.
+  async function forcarAtualizacao() {
+    setForcandoAtualizacao(true);
+    setForcarMensagem("");
+    try {
+      const resp = await fetch(`${WORKER_URL}/avisos/atualizar`, { method: "POST" });
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error);
+
+      // As 3 categorias são geradas uma de cada vez no Worker (busca + IA +
+      // pausa entre elas), então pode levar até ~1 minuto no total. Em vez de
+      // recarregar uma única vez cedo demais, tenta a cada 10s por até 80s.
+      setForcarMensagem("Atualização disparada — pode levar até 1 minuto. Pode navegar por outras abas enquanto isso, a busca continua rodando em segundo plano.");
+      let tentativas = 0;
+      const maxTentativas = 8;
+      const verificar = async () => {
+        tentativas += 1;
+        await carregarAvisos();
+        // Depois do carregarAvisos, o estado só é atualizado no próximo
+        // render — então lemos direto da resposta pra decidir se já pronto.
+        const resp2 = await fetch(`${WORKER_URL}/avisos`);
+        const data2 = await resp2.json();
+        const pronto = CATEGORIAS_AVISOS.every((c) => data2[c.id] && data2[c.id].atualizadoEm);
+        if (pronto) {
+          setForcarMensagem("Pronto! Atualizações geradas.");
+          setTimeout(() => setForcarMensagem(""), 4000);
+        } else if (tentativas < maxTentativas) {
+          setForcarMensagem(`Ainda gerando… verificando de novo (${tentativas}/${maxTentativas}). Pode navegar por outras abas enquanto isso.`);
+          setTimeout(verificar, 10000);
+        } else {
+          setForcarMensagem("Demorou mais que o esperado. Toque em \"Atualizar\" daqui a pouco pra conferir.");
+        }
+      };
+      setTimeout(verificar, 10000);
+    } catch (e) {
+      setForcarMensagem(`Não consegui disparar a atualização. ${e.message || ""}`);
+    } finally {
+      setForcandoAtualizacao(false);
+    }
+  }
+
+  async function buscarLegislacao() {
+    if (!legislacaoQuery.trim()) return;
+    setLegislacaoLoading(true); setLegislacaoFase("Pesquisando…"); setLegislacaoError(""); setLegislacaoResultado(null);
+
+    const systemBusca = `Você ajuda um policial militar a consultar rapidamente qualquer legislação brasileira em vigor (federal ou estadual) relevante para sua atuação — não se limite a um código específico.
+
+Use a ferramenta de busca para localizar a informação em fontes oficiais (prioridade: planalto.gov.br/ccivil_03, ou o site oficial do respectivo diploma legal).
+
+Identifique corretamente de qual lei/código se trata (ex.: "Lei 11.343/2006 (Lei de Drogas)", não apenas "lei de drogas"). Traga o texto do artigo na ÍNTEGRA e literalmente — textos de lei são atos normativos oficiais, sem direito autoral. Depois, adicione uma explicação curta e prática (2-3 frases) do que isso significa na prática operacional do PM. Confirme que está em vigor; mencione alterações recentes relevantes. Escreva em texto livre, sem se preocupar com formato JSON aqui.
+
+Se não encontrar nada confiável, diga isso claramente.`;
+
+    const systemFormatar = (textoBruto) => `Converta o texto abaixo em um JSON válido (sem markdown, sem crases), no formato exato:
+{"fonte": "nome da lei/código", "artigo": "número do(s) artigo(s)", "texto_lei": "texto literal do artigo (ou string vazia se não encontrado)", "explicacao": "explicação prática curta (ou a explicação de que não foi encontrado)"}
+
+Texto para converter:
+"""
+${textoBruto}
+"""`;
+
+    try {
+      const dataBusca = await callClaude(deviceId, {
+        system: systemBusca,
+        messages: [{ role: "user", content: legislacaoQuery }],
+        tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 1 }],
+        maxTokens: 1200,
+      });
+      const textoBruto = extractPlainText(dataBusca);
+
+      setLegislacaoFase("Organizando…");
+
+      try {
+        const dataFormatada = await callClaude(deviceId, {
+          system: systemFormatar(textoBruto),
+          messages: [{ role: "user", content: "Converta agora." }],
+          maxTokens: 800,
+          model: "claude-haiku-4-5-20251001",
+        });
+        setLegislacaoResultado(extractJsonFromResponse(dataFormatada));
+      } catch (erroFormatacao) {
+        // Se não conseguir estruturar em JSON, mostra o texto puro da busca
+        setLegislacaoResultado({ fonte: "Busca", artigo: "", texto_lei: "", explicacao: textoBruto });
+      }
+    } catch (e) {
+      setLegislacaoError(`Não consegui buscar agora. ${e.message || ""}`);
+    } finally {
+      setLegislacaoLoading(false);
+    }
+  }
+
+  if (!loaded || !splashMinDone) return <SplashScreen />;
+
+  return (
+    <div style={styles.page}>
+      <header style={styles.header}>
+        <MikeIcon size={40} />
+        <div>
+          <div style={styles.appTitle}>111 Série Gold</div>
+          <div style={styles.appSubtitle}>assistente de BOPM &middot; PMERJ</div>
+        </div>
+        <button style={styles.themeToggle} onClick={alternarTema} title={tema === "dark" ? "Mudar para tema claro" : "Mudar para tema escuro"}>
+          {tema === "dark" ? "☀️" : "🌙"}
+        </button>
+      </header>
+
+      <nav style={styles.tabBar}>
+        {[
+          { id: "redacao", label: "BOPM" },
+          { id: "avisos", label: "Jurídico" },
+          { id: "consultas", label: "Consultas" },
+          { id: "telefones", label: "Telefones" },
+          { id: "legislacao", label: "Leis" },
+        ].map((tab) => (
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+            style={{ ...styles.tabButton, ...(activeTab === tab.id ? styles.tabButtonActive : {}) }}>
+            <TabIcon id={tab.id} active={activeTab === tab.id} />
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      {activeTab === "redacao" && (
+        <>
+          <div className="mk-panel" style={styles.greetingBanner}>
+            <div style={styles.greetingIcon}>📋</div>
+            <div>
+              <div style={styles.greetingTitle}>Bom serviço{profile.nome ? `, ${profile.nome}` : ""}!</div>
+              <div style={styles.greetingMessage}>{mensagemDoDia()}</div>
+            </div>
+          </div>
+
+          <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
+            {!editingProfile ? (
+              <div>
+                <div style={styles.panelLabel}>Guarnição do dia</div>
+                {profileComplete ? (
+                  <>
+                    <div style={styles.profileRow}>
+                      <span style={styles.profileName}>{profile.nome}</span>
+                      <span style={styles.mono}>RG {profile.rg}</span>
+                    </div>
+                    <div style={styles.chipsRow}>
+                      {[profile.unidade, profile.setor, profile.cop && `COP ${profile.cop}`, profile.horario]
+                        .filter(Boolean).map((v, i) => <span key={i} style={styles.chip}>{v}</span>)}
+                    </div>
+                    {profile.componentes && profile.componentes.length > 0 && (
+                      <div style={{ marginBottom: 12 }}>
+                        <div style={styles.suggestionsLabel}>Demais componentes</div>
+                        {profile.componentes.map((c, i) => (
+                          <div key={i} style={styles.componenteRow}>
+                            <span>{c.nome}</span>
+                            {c.rg && <span style={styles.mono}>RG {c.rg}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : <p style={styles.emptyText}>Nenhum perfil preenchido ainda.</p>}
+                <button style={styles.ghostButton} onClick={() => { setDraftProfile(profile); setEditingProfile(true); }}>
+                  Editar guarnição
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={styles.panelLabel}>Editar guarnição do dia</div>
+                <Field label="Nome" value={draftProfile.nome} onChange={(v) => setDraftProfile({ ...draftProfile, nome: v })} placeholder="Sgt. Ricardo Almeida" />
+                <Field label="RG / Matrícula" value={draftProfile.rg} onChange={(v) => setDraftProfile({ ...draftProfile, rg: v })} placeholder="123.456" mono />
+                <Field label="Unidade" value={draftProfile.unidade} onChange={(v) => setDraftProfile({ ...draftProfile, unidade: v })} placeholder="3º BPM" />
+                <Field label="Setor / guarnição" value={draftProfile.setor} onChange={(v) => setDraftProfile({ ...draftProfile, setor: v })} placeholder="Setor Fox · Moto Patrulha 1" />
+                <Field label="Número da COP" value={draftProfile.cop} onChange={(v) => setDraftProfile({ ...draftProfile, cop: v })} placeholder="Ex.: 2130" mono />
+                <Field label="Horário" value={draftProfile.horario} onChange={(v) => setDraftProfile({ ...draftProfile, horario: v })} placeholder="07h–19h" />
+                <div style={{ marginTop: 4 }}>
+                  <span style={styles.fieldLabel}>Demais componentes da guarnição</span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 6 }}>
+                    {(draftProfile.componentes || []).map((c, i) => (
+                      <div key={i} style={{ display: "flex", gap: 6 }}>
+                        <input value={c.nome} onChange={(e) => { const novos = [...draftProfile.componentes]; novos[i] = { ...novos[i], nome: e.target.value }; setDraftProfile({ ...draftProfile, componentes: novos }); }} placeholder="Nome" style={{ ...styles.input, flex: 2 }} />
+                        <input value={c.rg} onChange={(e) => { const novos = [...draftProfile.componentes]; novos[i] = { ...novos[i], rg: e.target.value }; setDraftProfile({ ...draftProfile, componentes: novos }); }} placeholder="RG" style={{ ...styles.input, flex: 1, fontFamily: "'IBM Plex Mono', monospace" }} />
+                        <button style={styles.removeButton} onClick={() => { const novos = draftProfile.componentes.filter((_, idx) => idx !== i); setDraftProfile({ ...draftProfile, componentes: novos }); }} aria-label="Remover">&#10005;</button>
+                      </div>
+                    ))}
+                    <button style={styles.ghostButton} onClick={() => setDraftProfile({ ...draftProfile, componentes: [...(draftProfile.componentes || []), { nome: "", rg: "" }] })}>
+                      + Adicionar componente
+                    </button>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                  <button style={styles.primaryButton} onClick={saveProfile}>Salvar</button>
+                  {profileComplete && <button style={styles.ghostButton} onClick={() => setEditingProfile(false)}>Cancelar</button>}
+                </div>
+              </div>
+            )}
+          </section>
+
+          <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#4f8f6d" }}>
+            <div style={styles.panelLabel}>Descreva a ocorrência</div>
+            <textarea value={relato} onChange={(e) => setRelato(e.target.value)}
+              placeholder="Ex.: abordagem na Rua das Palmeiras, dois suspeitos, um estava com uma porção de maconha, resistência leve, conduzidos à 14ª DP."
+              style={styles.textarea} rows={5} />
+            <button style={{ ...styles.primaryButton, width: "100%", marginTop: 10, opacity: loading || !relato.trim() ? 0.6 : 1 }}
+              onClick={gerarHistorico} disabled={loading || !relato.trim()}>
+              {loading ? (<><span className="mk-spinner"></span>Gerando…</>) : "Gerar histórico"}
+            </button>
+            {error && <p style={styles.errorText}>{error}</p>}
+          </section>
+
+          {resultado && (
+            <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#5b8bc9" }}>
+              <div style={styles.panelLabel}>Histórico gerado</div>
+              <textarea value={resultado.historico} onChange={(e) => setResultado({ ...resultado, historico: e.target.value })} style={{ ...styles.textarea, minHeight: 140 }} />
+              {resultado.codigo && resultado.codigo !== "null" && (
+                <div style={styles.codeTag}>
+                  <span style={styles.mono}>{resultado.codigo}</span>
+                  <span style={{ opacity: 0.75 }}>{resultado.codigo_descricao}</span>
+                </div>
+              )}
+              {resultado.alertas && resultado.alertas.length > 0 && (
+                <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+                  <div style={styles.suggestionsLabel}>Pode valer reforçar (opcional)</div>
+                  {resultado.alertas.map((a, i) => (
+                    <div key={i} style={styles.alertRow}><span style={{ color: "#7d9bb0" }}>&#9679;</span><span>{a}</span></div>
+                  ))}
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                <button style={styles.primaryButton} onClick={copiarHistorico}>{copyLabel}</button>
+                <button style={styles.ghostButton} onClick={gerarHistorico}>Regerar</button>
+              </div>
+              <p style={styles.disclaimer}>Rascunho de apoio. Revise e transcreva ao sistema oficial da corporação antes de formalizar.</p>
+            </section>
+          )}
+        </>
+      )}
+
+      {activeTab === "avisos" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+            <button style={styles.smallGhostButton} onClick={forcarAtualizacao} disabled={forcandoAtualizacao}>
+              {forcandoAtualizacao ? (<><span className="mk-spinner"></span>Disparando…</>) : "Forçar geração agora"}
+            </button>
+            <button style={styles.smallGhostButton} onClick={() => carregarAvisos()} disabled={avisosLoading}>
+              {avisosLoading ? (<><span className="mk-spinner"></span>Carregando…</>) : "Atualizar"}
+            </button>
+          </div>
+          {forcarMensagem && <p style={styles.timestamp}>{forcarMensagem}</p>}
+          {avisosError && <p style={styles.errorText}>{avisosError}</p>}
+          {CATEGORIAS_AVISOS.map((categoria) => {
+            const estado = avisos[categoria.id] || {};
+            return (
+              <section key={categoria.id} className="mk-panel" style={{ ...styles.panel, borderLeftColor: categoria.cor }}>
+                <div style={styles.sectionHeaderRow}>
+                  <div style={styles.panelLabel}>{categoria.label}</div>
+                  {estado.atualizadoEm && (
+                    <span style={styles.sectionHeaderMeta}>Atualizado às {estado.atualizadoEm.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+                  )}
+                </div>
+                {!estado.itens && avisosLoading && <p style={styles.emptyText}>Carregando…</p>}
+                {estado.itens && estado.itens.length === 0 && !estado.atualizadoEm && (
+                  <div style={styles.emptyBox}>Ainda não geramos essa categoria pela primeira vez. Toque em "Forçar geração agora" acima.</div>
+                )}
+                {estado.itens && estado.itens.length === 0 && estado.atualizadoEm && (
+                  <div style={styles.emptyBox}>Nada de relevante encontrado por agora.</div>
+                )}
+                {estado.itens && estado.itens.length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {estado.itens.map((item, i) => (
+                      <div key={i} className="mk-card" style={styles.avisoCard}>
+                        <span style={{ ...styles.avisoTag, background: categoria.cor }}>{item.fonte}</span>
+                        <p style={styles.avisoTitulo}>{item.titulo}</p>
+                        <p style={styles.avisoResumo}>{item.resumo}</p>
+                        {item.url && item.url !== "null" && <a href={item.url} target="_blank" rel="noreferrer" style={styles.sourceLink}>Ver fonte →</a>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            );
+          })}
+        </div>
+      )}
+
+      {activeTab === "consultas" && (
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#8a8f98" }}>
+          <div style={styles.panelLabel}>Consultas oficiais</div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <a href="https://portalbnmp.cnj.jus.br/#/captcha//pesquisa-peca" target="_blank" rel="noreferrer" style={styles.linkButton}>BNMP</a>
+            <a href="https://play.google.com/store/apps/details?id=br.gov.sinesp.cidadao.android" target="_blank" rel="noreferrer" style={styles.linkButton}>SINESP Cidadão</a>
+          </div>
+          <p style={styles.disclaimer}>As consultas acontecem no site/app oficial, autenticadas por você. Nenhum dado passa pelo 111 Série Gold.</p>
+        </section>
+      )}
+
+      {activeTab === "consultas" && (
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#4f8f6d" }}>
+          <div style={styles.panelLabel}>Sugestões</div>
+          <a
+            href="mailto:mikeassist.suporte@gmail.com?subject=Sugest%C3%A3o%20-%20Mike%20Assist&body=Sugest%C3%A3o%2Fideia%3A%0A%0A"
+            style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "var(--text)", marginTop: 10 }}
+          >
+            <div style={{
+              width: 42, height: 42, borderRadius: "50%", flexShrink: 0,
+              background: "rgba(79,143,109,0.16)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19,
+            }}>
+              🛡️
+            </div>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 15, fontWeight: 700 }}>
+                Suporte
+                <span style={{
+                  display: "inline-flex", alignItems: "center", justifyContent: "center",
+                  width: 15, height: 15, borderRadius: "50%", background: "#5b8bc9",
+                  color: "#fff", fontSize: 9, fontWeight: 700, lineHeight: 1,
+                }}>✓</span>
+              </div>
+              <div style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 1 }}>Fale com o suporte</div>
+            </div>
+          </a>
+        </section>
+      )}
+
+      {activeTab === "consultas" && PIX_KEY_DOACAO && (
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
+          <div style={styles.panelLabel}>Apoie o projeto</div>
+          <p style={{ fontSize: 13, color: "#c3cbd3", lineHeight: 1.6, margin: "6px 0 10px" }}>
+            Se isso te ajudou, deixe um café pro guarda ☕
+          </p>
+          <button style={{ ...styles.primaryButton, width: "100%" }} onClick={copiarChavePix}>
+            {pixCopyLabel}
+          </button>
+          <p style={styles.disclaimer}>Doação totalmente opcional, via Pix. Nenhum recurso do app é liberado em troca — é só um cafezinho, se você quiser.</p>
+        </section>
+      )}
+
+      {activeTab === "telefones" && (
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#5b8bc9" }}>
+          <div style={styles.panelLabel}>Telefones das unidades</div>
+          <div style={{ ...styles.emptyBox, padding: "26px 12px" }}>
+            <div style={{ fontSize: 26, marginBottom: 8 }}>☎️</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text)" }}>Em breve</div>
+            <p style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.6 }}>
+              Estamos conferindo os contatos das unidades antes de disponibilizar essa lista.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {activeTab === "legislacao" && (
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#a13b46" }}>
+          <div style={styles.panelLabel}>Consultar legislação em vigor</div>
+          <input value={legislacaoQuery} onChange={(e) => setLegislacaoQuery(e.target.value)}
+            placeholder="Ex.: art. 302 CPP, porte de droga, Lei Maria da Penha, ECA guarda"
+            style={{ ...styles.input, width: "100%", marginTop: 8 }}
+            onKeyDown={(e) => e.key === "Enter" && buscarLegislacao()} />
+          <button style={{ ...styles.primaryButton, width: "100%", marginTop: 10, opacity: legislacaoLoading || !legislacaoQuery.trim() ? 0.6 : 1 }}
+            onClick={buscarLegislacao} disabled={legislacaoLoading || !legislacaoQuery.trim()}>
+            {legislacaoLoading ? (<><span className="mk-spinner"></span>{legislacaoFase || "Buscando…"}</>) : "Buscar"}
+          </button>
+          {legislacaoError && <p style={styles.errorText}>{legislacaoError}</p>}
+          {legislacaoResultado && (
+            <div style={{ marginTop: 12 }}>
+              {legislacaoResultado.texto_lei ? (
+                <>
+                  <div style={styles.codeTag}>
+                    <span style={styles.mono}>{legislacaoResultado.fonte}</span>
+                    <span style={{ opacity: 0.75 }}>{legislacaoResultado.artigo}</span>
+                  </div>
+                  <div style={styles.leiTexto}>{legislacaoResultado.texto_lei}</div>
+                  {legislacaoResultado.explicacao && (
+                    <div style={{ marginTop: 10 }}>
+                      <div style={styles.suggestionsLabel}>Na prática</div>
+                      <p style={styles.avisoResumo}>{legislacaoResultado.explicacao}</p>
+                    </div>
+                  )}
+                </>
+              ) : <p style={styles.emptyText}>{legislacaoResultado.explicacao}</p>}
+            </div>
+          )}
+          <p style={styles.disclaimer}>Busca abrange qualquer lei federal ou estadual em vigor, em fontes oficiais. Sempre confira a redação vigente antes de citar formalmente.</p>
+        </section>
+      )}
+    </div>
+  );
+}
+
+// Fonte nativa de cada plataforma — sem carregar arquivo nenhum.
+const SYSTEM_FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
+const styles = {
+  page: {
+    minHeight: "100vh", background: "transparent", color: "var(--text)", fontFamily: SYSTEM_FONT,
+    padding: "calc(env(safe-area-inset-top, 0px) + 18px) 16px calc(env(safe-area-inset-bottom, 0px) + 92px)",
+    maxWidth: 460, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16,
+  },
+  header: { display: "flex", alignItems: "center", gap: 12, marginBottom: -2 },
+  badgeIcon: { width: 40, height: 40, borderRadius: 12, background: "#c9a24a", color: "#12181f", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontFamily: "'IBM Plex Mono', monospace", fontSize: 16, flexShrink: 0 },
+  appTitle: { fontSize: 18, fontWeight: 700, letterSpacing: -0.2 },
+  appSubtitle: { fontSize: 12, color: "var(--text-muted)", marginTop: 1 },
+  themeToggle: { marginLeft: "auto", width: 34, height: 34, borderRadius: 10, background: "var(--bg-ghost)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 },
+  // Barra inferior reta e opaca (sem flutuar/blur) — referência: app de agenda
+  // de um colega da turma, focado em ser simples e ultra rápido de usar.
+  tabBar: {
+    position: "fixed", left: 0, right: 0, bottom: 0,
+    width: "100%", display: "flex", margin: "0 auto", maxWidth: 460,
+    background: "var(--bg-tabbar)", borderTop: "1px solid var(--border)",
+    padding: "8px 4px calc(env(safe-area-inset-bottom, 0px) + 8px)", zIndex: 20,
+  },
+  tabButton: {
+    flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
+    background: "transparent", border: "none", color: "var(--text-dim)", fontSize: 10.5, padding: "6px 2px", borderRadius: 10, fontWeight: 500, lineHeight: 1.15,
+  },
+  tabButtonActive: { color: "#c9a24a" },
+  // Cartão de destaque no topo — mesmo padrão do "Resumo do mês" de
+  // referência: fundo tingido na cor de marca, ícone em quadrado arredondado
+  // ao lado do título, texto de apoio abaixo.
+  greetingBanner: { display: "flex", alignItems: "flex-start", gap: 12, background: "rgba(201,162,74,0.14)", borderRadius: 16, padding: "14px 16px" },
+  greetingIcon: { width: 34, height: 34, borderRadius: 10, background: "rgba(201,162,74,0.28)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 },
+  greetingTitle: { fontSize: 14.5, fontWeight: 700, color: "#c9a24a", marginBottom: 4 },
+  greetingMessage: { fontSize: 12.5, color: "var(--text-muted)", lineHeight: 1.5 },
+  panel: { background: "var(--bg-panel)", borderLeftWidth: 3, borderLeftStyle: "solid", borderRadius: 16, padding: 16 },
+  panelLabel: { fontSize: 11, color: "var(--text-muted)", letterSpacing: 0.4, fontWeight: 700, textTransform: "uppercase" },
+  profileRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8, marginTop: 10 },
+  profileName: { fontSize: 15, fontWeight: 500 },
+  mono: { fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, color: "var(--text-muted)" },
+  chipsRow: { display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 },
+  chip: { fontSize: 12, fontWeight: 600, background: "var(--bg-chip)", borderRadius: 8, padding: "4px 9px", color: "var(--text-muted)" },
+  componenteRow: { display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "var(--text-muted)", padding: "6px 0", borderBottom: "1px solid var(--border)" },
+  removeButton: { background: "var(--bg-ghost)", border: "none", borderRadius: 8, color: "var(--text-muted)", width: 34, fontSize: 13, flexShrink: 0 },
+  emptyText: { fontSize: 13, color: "var(--text-muted)", marginTop: 8, marginBottom: 4 },
+  // Caixa de estado vazio com borda — padrão "Nenhum lançamento neste mês".
+  emptyBox: { border: "1px solid var(--border)", borderRadius: 12, padding: "14px 12px", textAlign: "center", color: "var(--text-muted)", fontSize: 12.5, lineHeight: 1.5, marginTop: 6 },
+  sectionHeaderRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
+  sectionHeaderMeta: { fontSize: 11, color: "var(--text-dim)", fontWeight: 500 },
+  fieldLabel: { fontSize: 11, color: "var(--text-muted)" },
+  input: { background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 11px", color: "var(--text)", fontSize: 14, outline: "none" },
+  textarea: { width: "100%", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 10, padding: 11, color: "var(--text)", fontSize: 13.5, lineHeight: 1.6, resize: "vertical", outline: "none", marginTop: 6 },
+  primaryButton: { background: "#c9a24a", color: "#161006", border: "none", borderRadius: 10, padding: "11px 15px", fontWeight: 700, fontSize: 13.5 },
+  ghostButton: { background: "var(--bg-ghost)", color: "var(--text-muted)", border: "none", borderRadius: 10, padding: "9px 13px", fontSize: 13, marginTop: 8, fontWeight: 600 },
+  smallGhostButton: { background: "var(--bg-ghost)", color: "var(--text-muted)", border: "none", borderRadius: 9, padding: "6px 11px", fontSize: 11.5, fontWeight: 600 },
+  dashedButton: { width: "100%", padding: 13, border: "1.5px dashed var(--border)", background: "transparent", borderRadius: 12, color: "var(--text-muted)", fontSize: 13 },
+  linkButton: { flex: 1, textAlign: "center", padding: "11px 0", borderRadius: 10, border: "none", background: "var(--bg-ghost)", color: "var(--text-muted)", fontSize: 13, fontWeight: 600, textDecoration: "none" },
+  telefoneRow: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "11px 13px", borderRadius: 12, border: "none", background: "var(--bg-tabbar)" },
+  telefoneUnidade: { fontSize: 13, color: "var(--text)", fontWeight: 600 },
+  telefoneTipo: { fontSize: 11.5, color: "var(--text-muted)", marginTop: 2 },
+  telefoneBotao: { width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 10, background: "var(--bg-chip)", textDecoration: "none", fontSize: 15 },
+  codeTag: { marginTop: 10, display: "inline-flex", gap: 8, alignItems: "center", background: "var(--bg-chip)", borderRadius: 10, padding: "6px 11px", fontSize: 12.5, fontWeight: 600 },
+  suggestionsLabel: { fontSize: 11, color: "var(--text-muted)", marginBottom: 2 },
+  alertRow: { display: "flex", gap: 6, fontSize: 12.5, color: "var(--text-muted)", background: "var(--bg-chip)", borderRadius: 10, padding: "7px 9px" },
+  errorText: { color: "#e3877a", fontSize: 12.5, marginTop: 8 },
+  disclaimer: { fontSize: 11, color: "var(--text-muted)", marginTop: 10, lineHeight: 1.5 },
+  timestamp: { fontSize: 10.5, color: "var(--text-dim)", marginBottom: 8 },
+  avisoCard: { background: "var(--bg)", borderRadius: 12, padding: 12 },
+  avisoTag: { display: "inline-block", fontSize: 10, fontWeight: 700, borderRadius: 8, padding: "3px 8px", marginBottom: 6, letterSpacing: 0.3, color: "#12181f" },
+  avisoTitulo: { fontSize: 13, fontWeight: 500, margin: "0 0 3px" },
+  avisoResumo: { fontSize: 12, color: "var(--text-muted)", margin: 0, lineHeight: 1.5 },
+  sourceLink: { display: "inline-block", fontSize: 11.5, color: "#5b8bc9", marginTop: 6, textDecoration: "none" },
+  leiTexto: { marginTop: 8, background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 10, padding: 13, fontSize: 13, lineHeight: 1.7, color: "var(--text)", whiteSpace: "pre-wrap" },
+};
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<MikeAssist />);
+</script>
+
+</body>
+</html>
