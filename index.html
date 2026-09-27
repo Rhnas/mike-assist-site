@@ -772,7 +772,10 @@ function SplashScreen() {
       <MikeIcon size={84} />
       <div style={{ textAlign: "center" }}>
         <div style={{ fontSize: 26, fontWeight: 800, color: "var(--text)", letterSpacing: -0.3 }}>Mike Assist</div>
-        <div style={{ fontSize: 11.5, fontWeight: 600, color: "var(--text-dim)", letterSpacing: 2, marginTop: 4 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#c9a24a", letterSpacing: 2.5, marginTop: 6 }}>
+          111 SÉRIE GOLD
+        </div>
+        <div style={{ fontSize: 11.5, fontWeight: 600, color: "var(--text-dim)", letterSpacing: 2, marginTop: 6 }}>
           ASSISTENTE DE BOPM · PMERJ
         </div>
       </div>
@@ -1063,7 +1066,13 @@ ${textoBruto}
       <header style={styles.header}>
         <MikeIcon size={40} />
         <div>
-          <div style={styles.appTitle}>Mike Assist</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={styles.appTitle}>Mike Assist</div>
+            <span style={{
+              fontSize: 10, fontWeight: 800, letterSpacing: 0.6, color: "#0c1424",
+              background: "#c9a24a", borderRadius: 999, padding: "2px 8px", whiteSpace: "nowrap",
+            }}>111 SÉRIE GOLD</span>
+          </div>
           <div style={styles.appSubtitle}>assistente de BOPM &middot; PMERJ</div>
         </div>
         <button style={styles.themeToggle} onClick={alternarTema} title={tema === "dark" ? "Mudar para tema claro" : "Mudar para tema escuro"}>
