@@ -825,7 +825,7 @@ Responda APENAS com um JSON válido, sem markdown, sem crases, no formato exato:
       // As 3 categorias são geradas uma de cada vez no Worker (busca + IA +
       // pausa entre elas), então pode levar até ~1 minuto no total. Em vez de
       // recarregar uma única vez cedo demais, tenta a cada 10s por até 80s.
-      setForcarMensagem("Atualização disparada — isso pode levar até 1 minuto (busca + IA para cada categoria). Verificando…");
+      setForcarMensagem("Atualização disparada — pode levar até 1 minuto. Pode navegar por outras abas enquanto isso, a busca continua rodando em segundo plano.");
       let tentativas = 0;
       const maxTentativas = 8;
       const verificar = async () => {
@@ -840,7 +840,7 @@ Responda APENAS com um JSON válido, sem markdown, sem crases, no formato exato:
           setForcarMensagem("Pronto! Atualizações geradas.");
           setTimeout(() => setForcarMensagem(""), 4000);
         } else if (tentativas < maxTentativas) {
-          setForcarMensagem(`Ainda gerando… verificando de novo (${tentativas}/${maxTentativas})`);
+          setForcarMensagem(`Ainda gerando… verificando de novo (${tentativas}/${maxTentativas}). Pode navegar por outras abas enquanto isso.`);
           setTimeout(verificar, 10000);
         } else {
           setForcarMensagem("Demorou mais que o esperado. Toque em \"Atualizar\" daqui a pouco pra conferir.");
