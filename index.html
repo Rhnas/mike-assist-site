@@ -670,6 +670,8 @@ function MikeAssist() {
   const [pixCopyLabel, setPixCopyLabel] = useState("Copiar chave Pix");
 
   const [avisos, setAvisos] = useState({});
+  const [avisosLoading, setAvisosLoading] = useState(false);
+  const [avisosError, setAvisosError] = useState("");
 
   const [buscaTelefone, setBuscaTelefone] = useState("");
 
@@ -699,6 +701,7 @@ function MikeAssist() {
         setAvisos(parsedAvisos);
       }
       setLoaded(true);
+      carregarAvisos();
     })();
   }, []);
 
@@ -765,76 +768,33 @@ Responda APENAS com um JSON válido, sem markdown, sem crases, no formato exato:
     setTimeout(() => setPixCopyLabel("Copiar chave Pix"), 1500);
   }
 
-  async function buscarAvisos(categoriaId, forcar) {
-    const categoria = CATEGORIAS_AVISOS.find((c) => c.id === categoriaId);
-    if (!categoria) return;
-
-    const estadoAtual = avisos[categoriaId];
-    if (!forcar && estadoAtual?.atualizadoEm) {
-      const minutosDesdeUltima = (new Date() - estadoAtual.atualizadoEm) / 1000 / 60;
-      if (minutosDesdeUltima < 60) {
-        setAvisos((prev) => ({
-          ...prev,
-          [categoriaId]: { ...prev[categoriaId], avisoRecente: true },
-        }));
-        return;
-      }
-    }
-
-    setAvisos((prev) => ({ ...prev, [categoriaId]: { ...(prev[categoriaId] || {}), loading: true, fase: "Pesquisando…", error: "", avisoRecente: false } }));
-
-    const systemBusca = `Você pesquisa notícias atuais sobre: ${categoria.query}.
-
-Use a ferramenta de busca disponível para encontrar informações recentes e confiáveis.
-Depois de pesquisar, escreva um resumo em texto livre com no máximo 4 itens, cada um com: a fonte/origem, um título curto, um resumo de 1-2 frases em suas PRÓPRIAS PALAVRAS (nunca cite trechos literais), e a URL da matéria quando disponível. Não se preocupe com formato JSON aqui, apenas escreva de forma clara e organizada.
-
-Se não encontrar nada relevante e recente, diga isso claramente.`;
-
-    const systemFormatar = (textoBruto) => `Converta o texto abaixo em um JSON válido (sem markdown, sem crases), no formato exato:
-{"itens": [{"fonte": "nome curto da fonte/origem", "titulo": "título curto do item", "resumo": "resumo de 1-2 frases", "url": "link da matéria original, ou null"}]}
-
-Se o texto indicar que nada foi encontrado, responda {"itens": []}.
-
-Texto para converter:
-"""
-${textoBruto}
-"""`;
-
+  // As atualizações jurídicas agora são pré-calculadas no próprio Worker (via
+  // Cron Trigger, algumas vezes ao dia) e guardadas prontas no KV — o app só
+  // lê o resultado já pronto, então abre instantâneo em vez de disparar uma
+  // busca + IA a cada pessoa que abre a aba.
+  async function carregarAvisos() {
+    setAvisosLoading(true);
+    setAvisosError("");
     try {
-      const dataBusca = await callClaude(deviceId, {
-        system: systemBusca,
-        messages: [{ role: "user", content: "Busque e resuma agora." }],
-        tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 1 }],
-        maxTokens: 1200,
+      const resp = await fetch(`${WORKER_URL}/avisos`);
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error);
+
+      const novoEstado = {};
+      CATEGORIAS_AVISOS.forEach((categoria) => {
+        const item = data[categoria.id];
+        novoEstado[categoria.id] = {
+          itens: (item && item.itens) || [],
+          atualizadoEm: item && item.atualizadoEm ? new Date(item.atualizadoEm) : null,
+          error: "",
+        };
       });
-      const textoBruto = extractPlainText(dataBusca);
-
-      setAvisos((prev) => ({ ...prev, [categoriaId]: { ...(prev[categoriaId] || {}), fase: "Organizando…" } }));
-
-      let itens;
-      try {
-        const dataFormatada = await callClaude(deviceId, {
-          system: systemFormatar(textoBruto),
-          messages: [{ role: "user", content: "Converta agora." }],
-          maxTokens: 800,
-          model: "claude-haiku-4-5-20251001",
-        });
-        const parsed = extractJsonFromResponse(dataFormatada);
-        itens = parsed.itens || [];
-      } catch (erroFormatacao) {
-        // Se não conseguir estruturar em JSON, mostra o texto puro da busca
-        // em vez de esconder o resultado atrás de um erro.
-        itens = [{ fonte: categoria.label, titulo: "Resultado da busca", resumo: textoBruto, url: null }];
-      }
-
-      const novoEstado = { loading: false, error: "", itens, atualizadoEm: new Date() };
-      setAvisos((prev) => {
-        const atualizado = { ...prev, [categoriaId]: novoEstado };
-        storageSet(AVISOS_KEY, JSON.stringify(atualizado));
-        return atualizado;
-      });
+      setAvisos(novoEstado);
+      storageSet(AVISOS_KEY, JSON.stringify(novoEstado));
     } catch (e) {
-      setAvisos((prev) => ({ ...prev, [categoriaId]: { ...(prev[categoriaId] || {}), loading: false, error: `Não consegui buscar agora. ${e.message || ""}` } }));
+      setAvisosError(`Não consegui carregar as atualizações agora. ${e.message || ""}`);
+    } finally {
+      setAvisosLoading(false);
     }
   }
 
@@ -1028,29 +988,23 @@ ${textoBruto}
 
       {activeTab === "avisos" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button style={styles.smallGhostButton} onClick={() => carregarAvisos()} disabled={avisosLoading}>
+              {avisosLoading ? "Carregando…" : "Atualizar"}
+            </button>
+          </div>
+          {avisosError && <p style={styles.errorText}>{avisosError}</p>}
           {CATEGORIAS_AVISOS.map((categoria) => {
             const estado = avisos[categoria.id] || {};
             return (
               <section key={categoria.id} style={{ ...styles.panel, borderLeftColor: categoria.cor }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                   <div style={styles.panelLabel}>{categoria.label}</div>
-                  <button style={styles.smallGhostButton} onClick={() => buscarAvisos(categoria.id)} disabled={estado.loading}>
-                    {estado.loading ? (estado.fase || "Buscando…") : "Atualizar"}
-                  </button>
+                  {estado.atualizadoEm && (
+                    <p style={styles.timestamp}>Atualizado às {estado.atualizadoEm.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</p>
+                  )}
                 </div>
-                {estado.atualizadoEm && (
-                  <p style={styles.timestamp}>Atualizado às {estado.atualizadoEm.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</p>
-                )}
-                {estado.avisoRecente && (
-                  <div style={styles.warningBox}>
-                    <span>Já atualizado há menos de 1h — buscar de novo gasta crédito à toa.</span>
-                    <button style={styles.smallGhostButton} onClick={() => buscarAvisos(categoria.id, true)}>
-                      Buscar mesmo assim
-                    </button>
-                  </div>
-                )}
-                {estado.error && <p style={styles.errorText}>{estado.error}</p>}
-                {!estado.itens && !estado.loading && !estado.error && <p style={styles.emptyText}>Toque em "Atualizar" para buscar as novidades de hoje.</p>}
+                {!estado.itens && avisosLoading && <p style={styles.emptyText}>Carregando…</p>}
                 {estado.itens && estado.itens.length === 0 && <p style={styles.emptyText}>Nada de relevante encontrado por agora.</p>}
                 {estado.itens && estado.itens.length > 0 && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
