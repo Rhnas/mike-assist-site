@@ -13,10 +13,25 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mike Assist">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
-  html, body { margin: 0; padding: 0; background: #0c1424; }
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+  /* Fonte do sistema — nada pra baixar, cada aparelho usa a fonte nativa
+     dele: SF Pro no iPhone, Roboto no Android, Segoe no Windows. É o que dá
+     aquela cara "app de fábrica" em vez de fonte "de web importada". */
+  /* Tema escuro (padrão) — tons de azul-marinho da PMERJ */
+  :root, :root[data-theme="dark"] {
+    --bg: #0c1424; --bg-panel: #162545; --bg-chip: #1d2c4d; --bg-ghost: #1c2c4d;
+    --bg-input: #0e1830; --bg-tabbar: #101b34; --border: #2a3d63;
+    --text: #e8ecef; --text-muted: #9aa7b2; --text-muted-2: #7d8894; --text-dim: #5c6875;
+  }
+  /* Tema claro */
+  :root[data-theme="light"] {
+    --bg: #eef1f6; --bg-panel: #ffffff; --bg-chip: #e6ebf2; --bg-ghost: #e6ebf2;
+    --bg-input: #ffffff; --bg-tabbar: #ffffff; --border: #d6dde6;
+    --text: #16202e; --text-muted: #4d5866; --text-muted-2: #5f6b78; --text-dim: #8791a0;
+  }
+  html, body { margin: 0; padding: 0; background: var(--bg); transition: background .15s ease; }
   * { box-sizing: border-box; }
-  ::placeholder { color: #5c6875; }
+  ::placeholder { color: var(--text-dim); }
   button { cursor: pointer; font-family: inherit; transition: transform .12s ease, filter .12s ease, background .15s ease, border-color .15s ease; }
   button:active { transform: scale(0.96); filter: brightness(0.94); }
   textarea, input { font-family: inherit; transition: border-color .15s ease, box-shadow .15s ease; }
@@ -24,6 +39,7 @@
   @keyframes mkFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes mkPop { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
   @keyframes mkSpin { to { transform: rotate(360deg); } }
+  @keyframes mkSplashBar { 0% { transform: translateX(-120%); } 100% { transform: translateX(320%); } }
   .mk-panel { animation: mkFadeIn .16s ease-out both; }
   .mk-tabpage { animation: mkFadeIn .16s ease-out both; }
   .mk-card { animation: mkPop .14s ease-out both; }
@@ -430,6 +446,57 @@ OUTRAS LEIS ESPECIAIS (citar sempre a lei/artigo específico no histórico quand
 37.001-37.006 - Fraude/violência em competição esportiva; revenda irregular de ingressos
 `.trim();
 
+// Exemplos reais de histórico de BOPM, cedidos pelo próprio usuário (Sd PM,
+// 40º BPM) para calibrar o ESTILO do texto gerado (vocabulário, estrutura,
+// jargão real de batalhão). Identificadores que pareciam reais (nomes
+// completos, RG, matrícula de perito, números de viatura/RO/BAM) foram
+// substituídos por placeholders — o que importa aqui é a forma, não o caso
+// específico. Isso é conteúdo estático do app (igual à tabela de códigos),
+// nunca é preenchido com ocorrências reais de quem usa o Mike Assist.
+const EXEMPLOS_HISTORICO_REAL = `
+--- exemplo 1 (desentendimento familiar) ---
+Guarnição do Setor Fox procedeu à ocorrência paga por Maré Zero, inicialmente relacionada a desentendimento familiar. No local, após contato com os envolvidos, verificou-se tratar de divergência familiar envolvendo questões relacionadas a imóvel, herança e obra realizada em terreno onde existe uma servidão utilizada para acesso a quatro residências.
+Segundo informado, um dos envolvidos alega possuir procuração com assinatura do pai da solicitante, relacionada às questões envolvendo o imóvel. A solicitante, moradora da primeira residência, informou que seu pai atualmente se encontra em estado de demência, havendo divergências entre os familiares acerca da situação patrimonial e da utilização do terreno.
+A solicitante informou ainda possuir medida protetiva em face de um dos envolvidos. Cabe ressaltar que as partes residem em imóveis contíguos, lado a lado, havendo apenas a própria estrutura/muro das residências como separação física entre elas. No documento apresentado à guarnição, não foi observada especificação de distância mínima de afastamento ou outra determinação específica relacionada à proximidade entre as respectivas residências.
+Durante a atuação da guarnição, a situação apresentada restringiu-se a atrito verbal decorrente das divergências familiares, não sendo constatada agressão física ou outra situação que demandasse intervenção imediata naquele momento.
+Diante dos fatos, as partes foram devidamente orientadas quanto à necessidade de buscar os meios legais competentes para resolução das questões relativas ao imóvel, herança, procuração, servidão e obra. Cessado o atrito verbal e não sendo constatada, naquele momento, outra situação que exigisse providência imediata da guarnição, a ocorrência foi encerrada no local após as devidas orientações.
+
+--- exemplo 2 (possíveis maus-tratos a menor) ---
+Guarnição do Setor Fox procedeu ao local para averiguar ocorrência inicialmente informada como possível situação envolvendo maus-tratos a menor de 9 anos, tendo sido relatado na solicitação que a tia teria colocado a criança para fora da residência, impedido seu retorno e que supostamente a agrediria.
+No local, a guarnição fez contato com os envolvidos, constatando que a tia reside no mesmo imóvel que a mãe do menor e auxilia nos cuidados da família. Segundo relato da tia, tanto a mãe quanto o menor apresentam distúrbios, sendo ainda informado por ela que a criança já teria saído da residência sem autorização em outras oportunidades e que, em razão de sua condição, por vezes apresentaria relatos que, segundo a declarante, não corresponderiam à realidade. Ressalta-se que tais informações correspondem exclusivamente à versão apresentada pela tia.
+Durante o atendimento, a guarnição manteve contato com o menor, não sendo visualizadas naquele momento lesões ou marcas aparentes que indicassem agressão física, tampouco foram percebidas manifestações aparentes de temor da criança em relação à tia. O menor retornou ao interior da residência, não havendo resistência por parte da tia quanto à sua entrada.
+Diante das circunstâncias efetivamente constatadas pela guarnição naquele momento, não foram identificados elementos aparentes que confirmassem a situação de agressão narrada inicialmente na solicitação. As partes foram devidamente orientadas, permanecendo o menor no interior da residência juntamente com seus familiares, sendo a ocorrência encerrada no local, sem outras alterações observadas pela guarnição.
+
+--- exemplo 3 (acidente de trânsito com vítima, envolve perícia/DP — identificadores anonimizados) ---
+Guarnição do Setor Fox foi empenhada em ocorrência de acidente de trânsito com vítima, tratando-se de colisão com veículo parado.
+Ao chegar, constatou-se que o cenário do acidente já se encontrava desfeito, não sendo possível verificar a posição original dos veículos ou outros elementos relacionados à dinâmica do fato. Encontrava-se presente equipe do CBMERJ, viatura [nº da ASE], tendo como mais antigo o [posto/graduação e nome], RG [nº].
+O condutor da motocicleta, [nome], qualificado neste BOPM, estava sob os cuidados do CBMERJ, sendo posteriormente conduzido ao [hospital], onde foi gerado o BAM nº [nº]. [Familiar], também qualificado(a), permaneceu como seu(sua) representante. A motocicleta envolvida ficou acautelada sob a responsabilidade de [nome], [grau de parentesco] do condutor.
+Quanto ao [outro veículo envolvido], foi constatado que este se encontrava enguiçado. [Nome] apresentou-se à guarnição como seu condutor, acompanhado de [nome], que se identificou como proprietário do veículo e empregador do condutor. O veículo permaneceu sob a responsabilidade de seu proprietário.
+Após as providências iniciais, a equipe deslocou-se ao [hospital], onde, em contato com os profissionais responsáveis pelo atendimento, foi informada de que a vítima se encontrava fora de risco de vida.
+Em seguida, os fatos foram apresentados na [nº]ª DP, sendo confeccionado o RO nº [nº]. Embora não houvesse vítima fatal e o cenário já estivesse desfeito quando da chegada da equipe, o inspetor responsável solicitou a realização de perícia.
+Em cumprimento à solicitação, a guarnição retornou ao local. Às [hora], compareceu o perito [nome], matrícula nº [nº], na viatura nº [nº], realizando os procedimentos periciais, já sem a presença dos veículos envolvidos.
+Ressalta-se que a guarnição não presenciou o acidente e encontrou o cenário já desfeito, não sendo possível estabelecer sua dinâmica ou atribuir responsabilidade aos envolvidos, limitando-se às constatações realizadas, às informações prestadas e às providências adotadas.
+Concluídos os trabalhos periciais e não havendo outras providências a cargo da guarnição, a ocorrência foi encerrada.
+
+--- exemplo 4 (perturbação do sossego) ---
+Guarnição do Setor Fox procedeu ao local para atendimento de ocorrência de perturbação do trabalho e do sossego. Ao chegar ao endereço indicado, o solicitante não se apresentou à guarnição.
+No local, foi identificado o responsável pelo evento, sendo realizada a devida orientação quanto ao volume do som e aos possíveis transtornos causados à vizinhança. O responsável mostrou-se receptivo às orientações, comprometendo-se a reduzir imediatamente o volume e a encerrar o evento em breve.
+Diante da situação e não havendo outras alterações no momento, a ocorrência foi encerrada no local após as devidas orientações.
+
+--- exemplo 5 (possível violência doméstica, sem lesão relatada) ---
+Guarnição do Setor Fox recebeu solicitação para atendimento de ocorrência inicialmente informada como violência doméstica contra a mulher, com possível lesão corporal.
+Ao chegar ao local, a guarnição fez contato com a solicitante, a qual relatou que desejava que seu ex-marido deixasse a residência, mencionando apenas a ocorrência de atrito verbal entre as partes. Durante o atendimento, não foi relatada pela solicitante qualquer agressão física.
+Após contato e orientação de ambas as partes, o homem retirou alguns de seus pertences pessoais e deixou a residência voluntariamente, cessando o desentendimento.
+Diante da situação constatada no local e não havendo outras alterações naquele momento, a ocorrência foi encerrada no local após as devidas orientações às partes.
+
+--- exemplo 6 (possível lesão corporal contra mulher, sem lesão constatada) ---
+Guarnição do Setor Fox procedeu ao local para averiguar ocorrência inicialmente informada como lesão corporal contra mulher.
+Ao chegar ao endereço, a guarnição deparou-se com o casal em atrito verbal, sendo relatado por ambas as partes que houve troca de insultos durante a discussão.
+A solicitante manifestou não se sentir confortável com a permanência de seu marido na residência, solicitando que ele deixasse o imóvel. O referido, que se encontrava no local, concordou em sair voluntariamente, cessando, naquele momento, o atrito entre as partes.
+A solicitante recebeu as devidas orientações e informou que, pela manhã, acompanhada de sua mãe, compareceria à Delegacia de Atendimento à Mulher para relatar os fatos e adotar as providências que entendesse cabíveis.
+Diante da saída voluntária do marido e da cessação do conflito naquele momento, a ocorrência foi encerrada no local, após as devidas orientações.
+`.trim();
+
 // Telefones de unidades (SOP / Oficial de Dia). Lista estática, mantida manualmente —
 // nenhum dado de contato é buscado ou enviado a terceiros pelo app.
 const TELEFONES_UNIDADES = [
@@ -545,6 +612,7 @@ function TabIcon({ id, active }) {
 const PROFILE_KEY = "mike-assist:perfil-policial";
 const AVISOS_KEY = "mike-assist:avisos-cache";
 const DEVICE_ID_STORAGE = "mike-assist:device-id";
+const TEMA_KEY = "mike-assist:tema";
 
 const MENSAGENS_DO_DIA = [
   "Atenção redobrada na abordagem, guarnição segura é guarnição que volta inteira.",
@@ -663,9 +731,81 @@ function extractPlainText(data) {
   return textBlocks.map((b) => b.text).join("\n").trim();
 }
 
+// Ícone do app: quadrado arredondado dividido na diagonal (navy/dourado,
+// cores da PMERJ) com um ícone de boletim ao centro. Puro CSS/SVG — sem
+// nenhuma imagem externa — pra funcionar tanto no cabeçalho (pequeno)
+// quanto na splash de abertura (grande), só mudando o "size".
+function MikeIcon({ size = 40 }) {
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: size * 0.28, position: "relative", overflow: "hidden",
+      background: "#101b34", flexShrink: 0,
+      boxShadow: `inset 0 0 0 1px rgba(255,255,255,0.06), 0 ${size * 0.08}px ${size * 0.22}px rgba(0,0,0,0.35)`,
+    }}>
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "#c9a24a",
+        clipPath: "polygon(100% 0, 100% 100%, 0 100%)",
+      }} />
+      <svg
+        viewBox="0 0 24 24" width={size * 0.5} height={size * 0.5}
+        style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.35))" }}
+      >
+        <rect x="4" y="2.5" width="16" height="19" rx="2.2" fill="#f4f1e8" />
+        <rect x="7" y="6" width="10" height="1.6" rx="0.8" fill="#101b34" opacity="0.55" />
+        <rect x="7" y="10" width="10" height="1.6" rx="0.8" fill="#101b34" opacity="0.55" />
+        <rect x="7" y="14" width="6.5" height="1.6" rx="0.8" fill="#101b34" opacity="0.55" />
+      </svg>
+    </div>
+  );
+}
+
+// Tela de abertura — mostrada enquanto os dados locais carregam (rápido) e
+// por um tempo mínimo fixo, pra ter a mesma sensação de "app de verdade
+// abrindo" de outros apps de referência, com barra de carregamento animada.
+function SplashScreen() {
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "var(--bg)",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 18,
+    }}>
+      <MikeIcon size={84} />
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: 26, fontWeight: 800, color: "var(--text)", letterSpacing: -0.3 }}>Mike Assist</div>
+        <div style={{ fontSize: 11.5, fontWeight: 600, color: "var(--text-dim)", letterSpacing: 2, marginTop: 4 }}>
+          ASSISTENTE DE BOPM · PMERJ
+        </div>
+      </div>
+      <div style={{
+        position: "absolute", bottom: "calc(env(safe-area-inset-bottom, 0px) + 40px)",
+        width: 120, height: 3, borderRadius: 3, background: "var(--bg-chip)", overflow: "hidden",
+      }}>
+        <div style={{
+          width: "45%", height: "100%", borderRadius: 3, background: "#c9a24a",
+          animation: "mkSplashBar 1.1s ease-in-out infinite",
+        }} />
+      </div>
+    </div>
+  );
+}
+
 function MikeAssist() {
   const [activeTab, setActiveTab] = useState("redacao");
   const [loaded, setLoaded] = useState(false);
+
+  // Tema claro/escuro — preferência salva só no aparelho (localStorage),
+  // nunca em servidor. Padrão escuro (paleta PMERJ azul-marinho).
+  const [tema, setTema] = useState(() => {
+    try { return localStorage.getItem(TEMA_KEY) === "light" ? "light" : "dark"; }
+    catch (e) { return "dark"; }
+  });
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", tema);
+    try { localStorage.setItem(TEMA_KEY, tema); } catch (e) {}
+  }, [tema]);
+  function alternarTema() {
+    setTema((t) => (t === "dark" ? "light" : "dark"));
+  }
 
   const [deviceId] = useState(getOrCreateDeviceId);
 
@@ -693,6 +833,16 @@ function MikeAssist() {
   const [legislacaoFase, setLegislacaoFase] = useState("");
   const [legislacaoResultado, setLegislacaoResultado] = useState(null);
   const [legislacaoError, setLegislacaoError] = useState("");
+
+  // Tempo mínimo de exibição da splash, pra não "piscar" quando os dados
+  // locais carregam rápido demais — só efeito visual, não afeta velocidade
+  // real do app (os dados já carregam em paralelo, isso só atrasa a troca
+  // de tela por uma fração de segundo pra parecer intencional).
+  const [splashMinDone, setSplashMinDone] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setSplashMinDone(true), 700);
+    return () => clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -737,7 +887,9 @@ Regras estritas:
 - Use linguagem natural de histórico policial, mas juridicamente correta — direto no fato, sem formalismo excessivo ou "encher linguiça". Narrativa em terceira pessoa, tempo verbal correto.
 - NÃO inclua nome, graduação, RG, unidade ou dados da guarnição no texto do histórico. Esses dados já existem em campos próprios do portal oficial da PMERJ; o histórico deve focar exclusivamente na dinâmica do fato (o que aconteceu, como, quando, onde, com quem).
 - NUNCA invente informação que o usuário não forneceu. Se um dado costuma ajudar a fundamentar esse tipo de ocorrência e não veio no relato, apenas sugira mencioná-lo — nunca em tom de exigência ou cobrança, é uma dica opcional, o policial decide se quer incluir.
-- NUNCA invente nomes de sistemas, centrais ou jargões que não sejam reais. Se precisar referenciar a central de despacho, use "central 190" ou "CECOPOM" (nome real do centro de operações), nunca invente nomenclatura. Na dúvida sobre algum termo técnico ou institucional, prefira uma descrição genérica e correta em vez de arriscar um nome que pode não existir.
+- NUNCA invente nomes de sistemas, centrais ou jargões que não sejam reais. Se precisar referenciar a central de despacho, use "central 190", "CECOPOM" ou "Maré Zero" (apelido real usado por guarnições para o CECOPOM) — nunca invente nomenclatura. Na dúvida sobre algum termo técnico ou institucional, prefira uma descrição genérica e correta em vez de arriscar um nome que pode não existir.
+- Use os exemplos abaixo (histórico de BOPM reais, com identificadores removidos) só como referência de ESTILO — vocabulário, tom, forma de estruturar o texto e de fechar a ocorrência. NUNCA copie nomes de setor (ex: "Setor Fox"), números de RO/BAM/matrícula/viatura ou qualquer outro dado desses exemplos para o histórico atual — cada ocorrência é única, use apenas o que veio no relato do policial:
+${EXEMPLOS_HISTORICO_REAL}
 - Prefira voz ativa a construções passivas. Ao final do histórico, quando fizer sentido, feche mencionando o encerramento e o destino (PTR, delegacia, hospital etc.) — mas NUNCA repita a expressão "patrulhamento de rotina" ou "PTR" duas vezes no mesmo texto.
 - CASO ESPECIAL — relato genérico de patrulhamento sem nenhuma intercorrência: gere um histórico curto e direto informando que a guarnição patrulhou o local citado e nada foi constatado, sugerindo o código 80.004 (Nada constatado). Não alongue artificialmente.
 - Seja objetivo e factual, sem opiniões.
@@ -904,16 +1056,19 @@ ${textoBruto}
     }
   }
 
-  if (!loaded) return <div style={styles.page} />;
+  if (!loaded || !splashMinDone) return <SplashScreen />;
 
   return (
     <div style={styles.page}>
       <header style={styles.header}>
-        <div style={styles.badgeIcon}>M</div>
+        <MikeIcon size={40} />
         <div>
           <div style={styles.appTitle}>Mike Assist</div>
           <div style={styles.appSubtitle}>assistente de BOPM &middot; PMERJ</div>
         </div>
+        <button style={styles.themeToggle} onClick={alternarTema} title={tema === "dark" ? "Mudar para tema claro" : "Mudar para tema escuro"}>
+          {tema === "dark" ? "☀️" : "🌙"}
+        </button>
       </header>
 
       <nav style={styles.tabBar}>
@@ -935,8 +1090,11 @@ ${textoBruto}
       {activeTab === "redacao" && (
         <>
           <div className="mk-panel" style={styles.greetingBanner}>
-            <div style={styles.greetingTitle}>Bom serviço{profile.nome ? `, ${profile.nome}` : ""}!</div>
-            <div style={styles.greetingMessage}>{mensagemDoDia()}</div>
+            <div style={styles.greetingIcon}>📋</div>
+            <div>
+              <div style={styles.greetingTitle}>Bom serviço{profile.nome ? `, ${profile.nome}` : ""}!</div>
+              <div style={styles.greetingMessage}>{mensagemDoDia()}</div>
+            </div>
           </div>
 
           <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
@@ -1058,17 +1216,19 @@ ${textoBruto}
             const estado = avisos[categoria.id] || {};
             return (
               <section key={categoria.id} className="mk-panel" style={{ ...styles.panel, borderLeftColor: categoria.cor }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <div style={styles.sectionHeaderRow}>
                   <div style={styles.panelLabel}>{categoria.label}</div>
                   {estado.atualizadoEm && (
-                    <p style={styles.timestamp}>Atualizado às {estado.atualizadoEm.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</p>
+                    <span style={styles.sectionHeaderMeta}>Atualizado às {estado.atualizadoEm.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
                   )}
                 </div>
                 {!estado.itens && avisosLoading && <p style={styles.emptyText}>Carregando…</p>}
                 {estado.itens && estado.itens.length === 0 && !estado.atualizadoEm && (
-                  <p style={styles.emptyText}>Ainda não geramos essa categoria pela primeira vez. Toque em "Forçar geração agora" acima.</p>
+                  <div style={styles.emptyBox}>Ainda não geramos essa categoria pela primeira vez. Toque em "Forçar geração agora" acima.</div>
                 )}
-                {estado.itens && estado.itens.length === 0 && estado.atualizadoEm && <p style={styles.emptyText}>Nada de relevante encontrado por agora.</p>}
+                {estado.itens && estado.itens.length === 0 && estado.atualizadoEm && (
+                  <div style={styles.emptyBox}>Nada de relevante encontrado por agora.</div>
+                )}
                 {estado.itens && estado.itens.length > 0 && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     {estado.itens.map((item, i) => (
@@ -1098,6 +1258,34 @@ ${textoBruto}
         </section>
       )}
 
+      {activeTab === "consultas" && (
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#4f8f6d" }}>
+          <div style={styles.panelLabel}>Sugestões</div>
+          <a
+            href="mailto:raphaelhnas@gmail.com?subject=Sugest%C3%A3o%20-%20Mike%20Assist&body=Sugest%C3%A3o%2Fideia%3A%0A%0A"
+            style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "var(--text)", marginTop: 10 }}
+          >
+            <div style={{
+              width: 42, height: 42, borderRadius: "50%", flexShrink: 0,
+              background: "rgba(79,143,109,0.16)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19,
+            }}>
+              🛡️
+            </div>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 15, fontWeight: 700 }}>
+                Suporte
+                <span style={{
+                  display: "inline-flex", alignItems: "center", justifyContent: "center",
+                  width: 15, height: 15, borderRadius: "50%", background: "#5b8bc9",
+                  color: "#fff", fontSize: 9, fontWeight: 700, lineHeight: 1,
+                }}>✓</span>
+              </div>
+              <div style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 1 }}>Fale com o suporte</div>
+            </div>
+          </a>
+        </section>
+      )}
+
       {activeTab === "consultas" && PIX_KEY_DOACAO && (
         <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
           <div style={styles.panelLabel}>Apoie o projeto</div>
@@ -1114,9 +1302,9 @@ ${textoBruto}
       {activeTab === "telefones" && (
         <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#5b8bc9" }}>
           <div style={styles.panelLabel}>Telefones das unidades</div>
-          <div style={{ padding: "28px 10px", textAlign: "center", color: "#8a97a3" }}>
-            <div style={{ fontSize: 28, marginBottom: 8 }}>☎️</div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: "#c3cbd3" }}>Em breve</div>
+          <div style={{ ...styles.emptyBox, padding: "26px 12px" }}>
+            <div style={{ fontSize: 26, marginBottom: 8 }}>☎️</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text)" }}>Em breve</div>
             <p style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.6 }}>
               Estamos conferindo os contatos das unidades antes de disponibilizar essa lista.
             </p>
@@ -1162,66 +1350,78 @@ ${textoBruto}
   );
 }
 
+// Fonte nativa de cada plataforma — sem carregar arquivo nenhum.
+const SYSTEM_FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
 const styles = {
   page: {
-    minHeight: "100vh", background: "transparent", color: "#e8ecef", fontFamily: "'IBM Plex Sans', sans-serif",
+    minHeight: "100vh", background: "transparent", color: "var(--text)", fontFamily: SYSTEM_FONT,
     padding: "calc(env(safe-area-inset-top, 0px) + 18px) 16px calc(env(safe-area-inset-bottom, 0px) + 92px)",
     maxWidth: 460, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16,
   },
   header: { display: "flex", alignItems: "center", gap: 12, marginBottom: -2 },
-  badgeIcon: { width: 40, height: 40, borderRadius: 12, background: "#c9a24a", color: "#0c1424", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontFamily: "'IBM Plex Mono', monospace", fontSize: 16, flexShrink: 0 },
+  badgeIcon: { width: 40, height: 40, borderRadius: 12, background: "#c9a24a", color: "#12181f", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontFamily: "'IBM Plex Mono', monospace", fontSize: 16, flexShrink: 0 },
   appTitle: { fontSize: 18, fontWeight: 700, letterSpacing: -0.2 },
-  appSubtitle: { fontSize: 12, color: "#7d8894", marginTop: 1 },
+  appSubtitle: { fontSize: 12, color: "var(--text-muted)", marginTop: 1 },
+  themeToggle: { marginLeft: "auto", width: 34, height: 34, borderRadius: 10, background: "var(--bg-ghost)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 },
   // Barra inferior reta e opaca (sem flutuar/blur) — referência: app de agenda
   // de um colega da turma, focado em ser simples e ultra rápido de usar.
   tabBar: {
     position: "fixed", left: 0, right: 0, bottom: 0,
     width: "100%", display: "flex", margin: "0 auto", maxWidth: 460,
-    background: "#101b34", borderTop: "1px solid #1d2c4d",
+    background: "var(--bg-tabbar)", borderTop: "1px solid var(--border)",
     padding: "8px 4px calc(env(safe-area-inset-bottom, 0px) + 8px)", zIndex: 20,
   },
   tabButton: {
     flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
-    background: "transparent", border: "none", color: "#727f8a", fontSize: 10.5, padding: "6px 2px", borderRadius: 10, fontWeight: 500, lineHeight: 1.15,
+    background: "transparent", border: "none", color: "var(--text-dim)", fontSize: 10.5, padding: "6px 2px", borderRadius: 10, fontWeight: 500, lineHeight: 1.15,
   },
-  tabButtonActive: { color: "#e0b458" },
-  greetingBanner: { background: "#162545", borderRadius: 16, padding: "14px 16px" },
-  greetingTitle: { fontSize: 14.5, fontWeight: 700, color: "#e0b458", marginBottom: 4 },
-  greetingMessage: { fontSize: 12.5, color: "#9aa7b2", lineHeight: 1.5 },
-  panel: { background: "#162545", borderLeftWidth: 3, borderLeftStyle: "solid", borderRadius: 16, padding: 16 },
-  panelLabel: { fontSize: 11, color: "#93a0ac", letterSpacing: 0.4, fontWeight: 700, textTransform: "uppercase" },
+  tabButtonActive: { color: "#c9a24a" },
+  // Cartão de destaque no topo — mesmo padrão do "Resumo do mês" de
+  // referência: fundo tingido na cor de marca, ícone em quadrado arredondado
+  // ao lado do título, texto de apoio abaixo.
+  greetingBanner: { display: "flex", alignItems: "flex-start", gap: 12, background: "rgba(201,162,74,0.14)", borderRadius: 16, padding: "14px 16px" },
+  greetingIcon: { width: 34, height: 34, borderRadius: 10, background: "rgba(201,162,74,0.28)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 },
+  greetingTitle: { fontSize: 14.5, fontWeight: 700, color: "#c9a24a", marginBottom: 4 },
+  greetingMessage: { fontSize: 12.5, color: "var(--text-muted)", lineHeight: 1.5 },
+  panel: { background: "var(--bg-panel)", borderLeftWidth: 3, borderLeftStyle: "solid", borderRadius: 16, padding: 16 },
+  panelLabel: { fontSize: 11, color: "var(--text-muted)", letterSpacing: 0.4, fontWeight: 700, textTransform: "uppercase" },
   profileRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8, marginTop: 10 },
   profileName: { fontSize: 15, fontWeight: 500 },
-  mono: { fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, color: "#b7c0ca" },
+  mono: { fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, color: "var(--text-muted)" },
   chipsRow: { display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 },
-  chip: { fontSize: 12, fontWeight: 600, background: "#1d2c4d", borderRadius: 8, padding: "4px 9px", color: "#c3cbd3" },
-  componenteRow: { display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "#c3cbd3", padding: "6px 0", borderBottom: "1px solid #1f2e52" },
-  removeButton: { background: "#1f2e52", border: "none", borderRadius: 8, color: "#8a929c", width: 34, fontSize: 13, flexShrink: 0 },
-  emptyText: { fontSize: 13, color: "#7d8894", marginTop: 8, marginBottom: 4 },
-  fieldLabel: { fontSize: 11, color: "#7d8894" },
-  input: { background: "#0c1424", border: "1px solid #2a3d63", borderRadius: 10, padding: "10px 11px", color: "#e8ecef", fontSize: 14, outline: "none" },
-  textarea: { width: "100%", background: "#0c1424", border: "1px solid #2a3d63", borderRadius: 10, padding: 11, color: "#e8ecef", fontSize: 13.5, lineHeight: 1.6, resize: "vertical", outline: "none", marginTop: 6 },
+  chip: { fontSize: 12, fontWeight: 600, background: "var(--bg-chip)", borderRadius: 8, padding: "4px 9px", color: "var(--text-muted)" },
+  componenteRow: { display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "var(--text-muted)", padding: "6px 0", borderBottom: "1px solid var(--border)" },
+  removeButton: { background: "var(--bg-ghost)", border: "none", borderRadius: 8, color: "var(--text-muted)", width: 34, fontSize: 13, flexShrink: 0 },
+  emptyText: { fontSize: 13, color: "var(--text-muted)", marginTop: 8, marginBottom: 4 },
+  // Caixa de estado vazio com borda — padrão "Nenhum lançamento neste mês".
+  emptyBox: { border: "1px solid var(--border)", borderRadius: 12, padding: "14px 12px", textAlign: "center", color: "var(--text-muted)", fontSize: 12.5, lineHeight: 1.5, marginTop: 6 },
+  sectionHeaderRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
+  sectionHeaderMeta: { fontSize: 11, color: "var(--text-dim)", fontWeight: 500 },
+  fieldLabel: { fontSize: 11, color: "var(--text-muted)" },
+  input: { background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 11px", color: "var(--text)", fontSize: 14, outline: "none" },
+  textarea: { width: "100%", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 10, padding: 11, color: "var(--text)", fontSize: 13.5, lineHeight: 1.6, resize: "vertical", outline: "none", marginTop: 6 },
   primaryButton: { background: "#c9a24a", color: "#161006", border: "none", borderRadius: 10, padding: "11px 15px", fontWeight: 700, fontSize: 13.5 },
-  ghostButton: { background: "#1c2c4d", color: "#c3cbd3", border: "none", borderRadius: 10, padding: "9px 13px", fontSize: 13, marginTop: 8, fontWeight: 600 },
-  smallGhostButton: { background: "#1c2c4d", color: "#c3cbd3", border: "none", borderRadius: 9, padding: "6px 11px", fontSize: 11.5, fontWeight: 600 },
-  dashedButton: { width: "100%", padding: 13, border: "1.5px dashed #37424f", background: "transparent", borderRadius: 12, color: "#9aa7b2", fontSize: 13 },
-  linkButton: { flex: 1, textAlign: "center", padding: "11px 0", borderRadius: 10, border: "none", background: "#1c2c4d", color: "#c3cbd3", fontSize: 13, fontWeight: 600, textDecoration: "none" },
-  telefoneRow: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "11px 13px", borderRadius: 12, border: "none", background: "#101b34" },
-  telefoneUnidade: { fontSize: 13, color: "#e8ecef", fontWeight: 600 },
-  telefoneTipo: { fontSize: 11.5, color: "#8a97a3", marginTop: 2 },
-  telefoneBotao: { width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 10, background: "#1d2c4d", textDecoration: "none", fontSize: 15 },
-  codeTag: { marginTop: 10, display: "inline-flex", gap: 8, alignItems: "center", background: "#1b2c52", borderRadius: 10, padding: "6px 11px", fontSize: 12.5, fontWeight: 600 },
-  suggestionsLabel: { fontSize: 11, color: "#7d8894", marginBottom: 2 },
-  alertRow: { display: "flex", gap: 6, fontSize: 12.5, color: "#c3cbd3", background: "#182543", borderRadius: 10, padding: "7px 9px" },
+  ghostButton: { background: "var(--bg-ghost)", color: "var(--text-muted)", border: "none", borderRadius: 10, padding: "9px 13px", fontSize: 13, marginTop: 8, fontWeight: 600 },
+  smallGhostButton: { background: "var(--bg-ghost)", color: "var(--text-muted)", border: "none", borderRadius: 9, padding: "6px 11px", fontSize: 11.5, fontWeight: 600 },
+  dashedButton: { width: "100%", padding: 13, border: "1.5px dashed var(--border)", background: "transparent", borderRadius: 12, color: "var(--text-muted)", fontSize: 13 },
+  linkButton: { flex: 1, textAlign: "center", padding: "11px 0", borderRadius: 10, border: "none", background: "var(--bg-ghost)", color: "var(--text-muted)", fontSize: 13, fontWeight: 600, textDecoration: "none" },
+  telefoneRow: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "11px 13px", borderRadius: 12, border: "none", background: "var(--bg-tabbar)" },
+  telefoneUnidade: { fontSize: 13, color: "var(--text)", fontWeight: 600 },
+  telefoneTipo: { fontSize: 11.5, color: "var(--text-muted)", marginTop: 2 },
+  telefoneBotao: { width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 10, background: "var(--bg-chip)", textDecoration: "none", fontSize: 15 },
+  codeTag: { marginTop: 10, display: "inline-flex", gap: 8, alignItems: "center", background: "var(--bg-chip)", borderRadius: 10, padding: "6px 11px", fontSize: 12.5, fontWeight: 600 },
+  suggestionsLabel: { fontSize: 11, color: "var(--text-muted)", marginBottom: 2 },
+  alertRow: { display: "flex", gap: 6, fontSize: 12.5, color: "var(--text-muted)", background: "var(--bg-chip)", borderRadius: 10, padding: "7px 9px" },
   errorText: { color: "#e3877a", fontSize: 12.5, marginTop: 8 },
-  disclaimer: { fontSize: 11, color: "#7d8894", marginTop: 10, lineHeight: 1.5 },
-  timestamp: { fontSize: 10.5, color: "#5c6875", marginBottom: 8 },
-  avisoCard: { background: "#0c1424", borderRadius: 12, padding: 12 },
-  avisoTag: { display: "inline-block", fontSize: 10, fontWeight: 700, borderRadius: 8, padding: "3px 8px", marginBottom: 6, letterSpacing: 0.3, color: "#0c1424" },
+  disclaimer: { fontSize: 11, color: "var(--text-muted)", marginTop: 10, lineHeight: 1.5 },
+  timestamp: { fontSize: 10.5, color: "var(--text-dim)", marginBottom: 8 },
+  avisoCard: { background: "var(--bg)", borderRadius: 12, padding: 12 },
+  avisoTag: { display: "inline-block", fontSize: 10, fontWeight: 700, borderRadius: 8, padding: "3px 8px", marginBottom: 6, letterSpacing: 0.3, color: "#12181f" },
   avisoTitulo: { fontSize: 13, fontWeight: 500, margin: "0 0 3px" },
-  avisoResumo: { fontSize: 12, color: "#9aa7b2", margin: 0, lineHeight: 1.5 },
+  avisoResumo: { fontSize: 12, color: "var(--text-muted)", margin: 0, lineHeight: 1.5 },
   sourceLink: { display: "inline-block", fontSize: 11.5, color: "#5b8bc9", marginTop: 6, textDecoration: "none" },
-  leiTexto: { marginTop: 8, background: "#0e1830", border: "1px solid #243a63", borderRadius: 10, padding: 13, fontSize: 13, lineHeight: 1.7, color: "#dfe4e8", whiteSpace: "pre-wrap" },
+  leiTexto: { marginTop: 8, background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 10, padding: 13, fontSize: 13, lineHeight: 1.7, color: "var(--text)", whiteSpace: "pre-wrap" },
 };
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
