@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "dev.pages.mikeassist.twa",
+        "sha256_cert_fingerprints": ["B1:C8:D0:12:AE:DB:F1:EF:BA:E6:87:4B:0E:7F:E3:E6:4B:14:81:0F:9A:36:F6:28:46:55:3C:AC:61:54:A7:7C"]
+      }
+    }]
