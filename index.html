@@ -13,12 +13,29 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mike Assist">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
-  html, body { margin: 0; padding: 0; background: #12181f; }
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+  html, body {
+    margin: 0; padding: 0;
+    background: radial-gradient(circle at 18% 0%, #1b2a3a 0%, #12181f 42%), #12181f;
+    background-attachment: fixed;
+  }
   * { box-sizing: border-box; }
   ::placeholder { color: #5c6875; }
-  button { cursor: pointer; font-family: inherit; }
-  textarea, input { font-family: inherit; }
+  button { cursor: pointer; font-family: inherit; transition: transform .12s ease, filter .12s ease, background .15s ease, border-color .15s ease; }
+  button:active { transform: scale(0.96); filter: brightness(0.94); }
+  textarea, input { font-family: inherit; transition: border-color .15s ease, box-shadow .15s ease; }
+  textarea:focus, input:focus { border-color: #c9a24a !important; box-shadow: 0 0 0 3px rgba(201,162,74,0.15); outline: none; }
+  @keyframes mkFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes mkPop { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+  @keyframes mkSpin { to { transform: rotate(360deg); } }
+  .mk-panel { animation: mkFadeIn .32s cubic-bezier(.2,.8,.3,1) both; }
+  .mk-panel:nth-of-type(2) { animation-delay: .04s; }
+  .mk-panel:nth-of-type(3) { animation-delay: .08s; }
+  .mk-tabpage { animation: mkFadeIn .28s cubic-bezier(.2,.8,.3,1) both; }
+  .mk-card { animation: mkPop .3s cubic-bezier(.2,.8,.3,1) both; }
+  .mk-spinner { display: inline-block; width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(232,236,239,0.25); border-top-color: currentColor; animation: mkSpin .7s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #2c3742; border-radius: 8px; }
 </style>
 </head>
 <body>
@@ -672,6 +689,8 @@ function MikeAssist() {
   const [avisos, setAvisos] = useState({});
   const [avisosLoading, setAvisosLoading] = useState(false);
   const [avisosError, setAvisosError] = useState("");
+  const [forcandoAtualizacao, setForcandoAtualizacao] = useState(false);
+  const [forcarMensagem, setForcarMensagem] = useState("");
 
   const [buscaTelefone, setBuscaTelefone] = useState("");
 
@@ -798,6 +817,28 @@ Responda APENAS com um JSON válido, sem markdown, sem crases, no formato exato:
     }
   }
 
+  // Dispara uma geração nova agora (não espera o Cron Trigger), útil pra
+  // testar a base pela primeira vez ou forçar uma atualização fora do
+  // horário programado. Depois de disparar, espera um pouco e recarrega.
+  async function forcarAtualizacao() {
+    setForcandoAtualizacao(true);
+    setForcarMensagem("");
+    try {
+      const resp = await fetch(`${WORKER_URL}/avisos/atualizar`, { method: "POST" });
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error);
+      setForcarMensagem("Atualização disparada. Isso leva ~15-30s (busca + IA para cada categoria). Recarregando automaticamente…");
+      setTimeout(() => {
+        carregarAvisos();
+        setForcarMensagem("");
+      }, 20000);
+    } catch (e) {
+      setForcarMensagem(`Não consegui disparar a atualização. ${e.message || ""}`);
+    } finally {
+      setForcandoAtualizacao(false);
+    }
+  }
+
   async function buscarLegislacao() {
     if (!legislacaoQuery.trim()) return;
     setLegislacaoLoading(true); setLegislacaoFase("Pesquisando…"); setLegislacaoError(""); setLegislacaoResultado(null);
@@ -878,12 +919,12 @@ ${textoBruto}
 
       {activeTab === "redacao" && (
         <>
-          <div style={styles.greetingBanner}>
+          <div className="mk-panel" style={styles.greetingBanner}>
             <div style={styles.greetingTitle}>Bom serviço{profile.nome ? `, ${profile.nome}` : ""}!</div>
             <div style={styles.greetingMessage}>{mensagemDoDia()}</div>
           </div>
 
-          <section style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
+          <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
             {!editingProfile ? (
               <div>
                 <div style={styles.panelLabel}>Guarnição do dia</div>
@@ -946,20 +987,20 @@ ${textoBruto}
             )}
           </section>
 
-          <section style={{ ...styles.panel, borderLeftColor: "#4f8f6d" }}>
+          <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#4f8f6d" }}>
             <div style={styles.panelLabel}>Descreva a ocorrência</div>
             <textarea value={relato} onChange={(e) => setRelato(e.target.value)}
               placeholder="Ex.: abordagem na Rua das Palmeiras, dois suspeitos, um estava com uma porção de maconha, resistência leve, conduzidos à 14ª DP."
               style={styles.textarea} rows={5} />
             <button style={{ ...styles.primaryButton, width: "100%", marginTop: 10, opacity: loading || !relato.trim() ? 0.6 : 1 }}
               onClick={gerarHistorico} disabled={loading || !relato.trim()}>
-              {loading ? "Gerando…" : "Gerar histórico"}
+              {loading ? (<><span className="mk-spinner"></span>Gerando…</>) : "Gerar histórico"}
             </button>
             {error && <p style={styles.errorText}>{error}</p>}
           </section>
 
           {resultado && (
-            <section style={{ ...styles.panel, borderLeftColor: "#5b8bc9" }}>
+            <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#5b8bc9" }}>
               <div style={styles.panelLabel}>Histórico gerado</div>
               <textarea value={resultado.historico} onChange={(e) => setResultado({ ...resultado, historico: e.target.value })} style={{ ...styles.textarea, minHeight: 140 }} />
               {resultado.codigo && resultado.codigo !== "null" && (
@@ -988,16 +1029,20 @@ ${textoBruto}
 
       {activeTab === "avisos" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+            <button style={styles.smallGhostButton} onClick={forcarAtualizacao} disabled={forcandoAtualizacao}>
+              {forcandoAtualizacao ? (<><span className="mk-spinner"></span>Disparando…</>) : "Forçar geração agora"}
+            </button>
             <button style={styles.smallGhostButton} onClick={() => carregarAvisos()} disabled={avisosLoading}>
-              {avisosLoading ? "Carregando…" : "Atualizar"}
+              {avisosLoading ? (<><span className="mk-spinner"></span>Carregando…</>) : "Atualizar"}
             </button>
           </div>
+          {forcarMensagem && <p style={styles.timestamp}>{forcarMensagem}</p>}
           {avisosError && <p style={styles.errorText}>{avisosError}</p>}
           {CATEGORIAS_AVISOS.map((categoria) => {
             const estado = avisos[categoria.id] || {};
             return (
-              <section key={categoria.id} style={{ ...styles.panel, borderLeftColor: categoria.cor }}>
+              <section key={categoria.id} className="mk-panel" style={{ ...styles.panel, borderLeftColor: categoria.cor }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                   <div style={styles.panelLabel}>{categoria.label}</div>
                   {estado.atualizadoEm && (
@@ -1005,11 +1050,14 @@ ${textoBruto}
                   )}
                 </div>
                 {!estado.itens && avisosLoading && <p style={styles.emptyText}>Carregando…</p>}
-                {estado.itens && estado.itens.length === 0 && <p style={styles.emptyText}>Nada de relevante encontrado por agora.</p>}
+                {estado.itens && estado.itens.length === 0 && !estado.atualizadoEm && (
+                  <p style={styles.emptyText}>Ainda não geramos essa categoria pela primeira vez. Toque em "Forçar geração agora" acima.</p>
+                )}
+                {estado.itens && estado.itens.length === 0 && estado.atualizadoEm && <p style={styles.emptyText}>Nada de relevante encontrado por agora.</p>}
                 {estado.itens && estado.itens.length > 0 && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     {estado.itens.map((item, i) => (
-                      <div key={i} style={styles.avisoCard}>
+                      <div key={i} className="mk-card" style={styles.avisoCard}>
                         <span style={{ ...styles.avisoTag, color: categoria.cor, borderColor: categoria.cor }}>{item.fonte}</span>
                         <p style={styles.avisoTitulo}>{item.titulo}</p>
                         <p style={styles.avisoResumo}>{item.resumo}</p>
@@ -1025,7 +1073,7 @@ ${textoBruto}
       )}
 
       {activeTab === "consultas" && (
-        <section style={{ ...styles.panel, borderLeftColor: "#8a8f98" }}>
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#8a8f98" }}>
           <div style={styles.panelLabel}>Consultas oficiais</div>
           <div style={{ display: "flex", gap: 8 }}>
             <a href="https://portalbnmp.cnj.jus.br/#/captcha//pesquisa-peca" target="_blank" rel="noreferrer" style={styles.linkButton}>BNMP</a>
@@ -1036,7 +1084,7 @@ ${textoBruto}
       )}
 
       {activeTab === "consultas" && PIX_KEY_DOACAO && (
-        <section style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
           <div style={styles.panelLabel}>Apoie o projeto</div>
           <p style={{ fontSize: 13, color: "#c3cbd3", lineHeight: 1.6, margin: "6px 0 10px" }}>
             Se isso te ajudou, deixe um café pro guarda ☕
@@ -1049,7 +1097,7 @@ ${textoBruto}
       )}
 
       {activeTab === "telefones" && (
-        <section style={{ ...styles.panel, borderLeftColor: "#5b8bc9" }}>
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#5b8bc9" }}>
           <div style={styles.panelLabel}>Telefones das unidades</div>
           <div style={{ padding: "28px 10px", textAlign: "center", color: "#8a97a3" }}>
             <div style={{ fontSize: 28, marginBottom: 8 }}>☎️</div>
@@ -1062,7 +1110,7 @@ ${textoBruto}
       )}
 
       {activeTab === "legislacao" && (
-        <section style={{ ...styles.panel, borderLeftColor: "#a13b46" }}>
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#a13b46" }}>
           <div style={styles.panelLabel}>Consultar legislação em vigor</div>
           <input value={legislacaoQuery} onChange={(e) => setLegislacaoQuery(e.target.value)}
             placeholder="Ex.: art. 302 CPP, porte de droga, Lei Maria da Penha, ECA guarda"
@@ -1070,7 +1118,7 @@ ${textoBruto}
             onKeyDown={(e) => e.key === "Enter" && buscarLegislacao()} />
           <button style={{ ...styles.primaryButton, width: "100%", marginTop: 10, opacity: legislacaoLoading || !legislacaoQuery.trim() ? 0.6 : 1 }}
             onClick={buscarLegislacao} disabled={legislacaoLoading || !legislacaoQuery.trim()}>
-            {legislacaoLoading ? (legislacaoFase || "Buscando…") : "Buscar"}
+            {legislacaoLoading ? (<><span className="mk-spinner"></span>{legislacaoFase || "Buscando…"}</>) : "Buscar"}
           </button>
           {legislacaoError && <p style={styles.errorText}>{legislacaoError}</p>}
           {legislacaoResultado && (
@@ -1101,66 +1149,64 @@ ${textoBruto}
 
 const styles = {
   page: {
-    minHeight: "100vh", background: "#12181f", color: "#e8ecef", fontFamily: "'IBM Plex Sans', sans-serif",
-    padding: "calc(env(safe-area-inset-top, 0px) + 18px) 16px calc(env(safe-area-inset-bottom, 0px) + 88px)",
-    maxWidth: 460, margin: "0 auto", display: "flex", flexDirection: "column", gap: 14,
+    minHeight: "100vh", background: "transparent", color: "#e8ecef", fontFamily: "'IBM Plex Sans', sans-serif",
+    padding: "calc(env(safe-area-inset-top, 0px) + 18px) 16px calc(env(safe-area-inset-bottom, 0px) + 92px)",
+    maxWidth: 460, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16,
   },
   header: { display: "flex", alignItems: "center", gap: 12, marginBottom: -2 },
-  badgeIcon: { width: 38, height: 38, borderRadius: 10, background: "linear-gradient(135deg, #c9a24a, #a9833a)", color: "#12181f", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontFamily: "'IBM Plex Mono', monospace", fontSize: 15, flexShrink: 0, boxShadow: "0 2px 8px rgba(201,162,74,0.25)" },
-  appTitle: { fontSize: 18, fontWeight: 600, letterSpacing: -0.2 },
+  badgeIcon: { width: 42, height: 42, borderRadius: 13, background: "linear-gradient(135deg, #e0b458, #c9a24a 55%, #9c7a2e)", color: "#12181f", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontFamily: "'IBM Plex Mono', monospace", fontSize: 16, flexShrink: 0, boxShadow: "0 4px 14px rgba(201,162,74,0.35), inset 0 1px 0 rgba(255,255,255,0.25)" },
+  appTitle: { fontSize: 19, fontWeight: 700, letterSpacing: -0.3 },
   appSubtitle: { fontSize: 12, color: "#7d8894", marginTop: 1 },
   tabBar: {
     position: "fixed", left: "50%", bottom: 0, transform: "translateX(-50%)",
     width: "100%", maxWidth: 460, display: "flex", gap: 2,
-    background: "rgba(20,26,33,0.96)", backdropFilter: "blur(10px)",
-    borderTop: "1px solid #262f3a", borderLeft: "1px solid #1e262f", borderRight: "1px solid #1e262f",
-    borderRadius: "14px 14px 0 0", padding: "8px 6px calc(env(safe-area-inset-bottom, 0px) + 8px)",
-    boxShadow: "0 -6px 20px rgba(0,0,0,0.35)", zIndex: 20,
+    background: "linear-gradient(180deg, rgba(24,31,39,0.9), rgba(17,22,28,0.98))", backdropFilter: "blur(14px)",
+    borderTop: "1px solid #2c3742", borderLeft: "1px solid #1e262f", borderRight: "1px solid #1e262f",
+    borderRadius: "18px 18px 0 0", padding: "9px 6px calc(env(safe-area-inset-bottom, 0px) + 9px)",
+    boxShadow: "0 -10px 28px rgba(0,0,0,0.45)", zIndex: 20,
   },
   tabButton: {
-    flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
-    background: "transparent", border: "none", color: "#7d8894", fontSize: 10.5, padding: "6px 2px", borderRadius: 10, fontWeight: 500, lineHeight: 1.15,
+    flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4,
+    background: "transparent", border: "none", color: "#7d8894", fontSize: 10.5, padding: "7px 2px", borderRadius: 12, fontWeight: 500, lineHeight: 1.15,
   },
-  tabButtonActive: { background: "#232c37", color: "#e8ecef" },
-  greetingBanner: { background: "#1a222b", border: "1px solid #262f3a", borderRadius: 4, padding: "12px 14px" },
-  greetingTitle: { fontSize: 14, fontWeight: 600, color: "#c9a24a", marginBottom: 4 },
+  tabButtonActive: { background: "linear-gradient(160deg, rgba(201,162,74,0.22), rgba(201,162,74,0.06))", color: "#f0d9a0", boxShadow: "inset 0 0 0 1px rgba(201,162,74,0.35)" },
+  greetingBanner: { background: "linear-gradient(135deg, #1d2a38, #182029)", border: "1px solid #2c3a4a", borderRadius: 14, padding: "14px 16px", boxShadow: "0 6px 18px rgba(0,0,0,0.25)" },
+  greetingTitle: { fontSize: 14.5, fontWeight: 700, color: "#e0b458", marginBottom: 4 },
   greetingMessage: { fontSize: 12.5, color: "#9aa7b2", lineHeight: 1.5 },
-  panel: { background: "#1a222b", border: "1px solid #262f3a", borderLeftWidth: 3, borderRadius: 4, padding: 16 },
-  panelLabel: { fontSize: 11, color: "#7d8894", letterSpacing: 0.2 },
+  panel: { background: "linear-gradient(160deg, #1c2531, #171f28)", border: "1px solid #262f3a", borderLeftWidth: 3, borderRadius: 14, padding: 17, boxShadow: "0 6px 20px rgba(0,0,0,0.28)" },
+  panelLabel: { fontSize: 11, color: "#93a0ac", letterSpacing: 0.4, fontWeight: 600, textTransform: "uppercase" },
   profileRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8, marginTop: 10 },
   profileName: { fontSize: 15, fontWeight: 500 },
   mono: { fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, color: "#b7c0ca" },
   chipsRow: { display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 },
-  chip: { fontSize: 12, background: "#222c37", border: "1px solid #2c3742", borderRadius: 4, padding: "4px 8px", color: "#c3cbd3" },
-  componenteRow: { display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "#c3cbd3", padding: "5px 0", borderBottom: "1px solid #222c37" },
-  removeButton: { background: "transparent", border: "1px solid #2c3742", borderRadius: 4, color: "#8a929c", width: 34, fontSize: 13, flexShrink: 0 },
+  chip: { fontSize: 12, background: "linear-gradient(160deg, #26313e, #1e2732)", border: "1px solid #334252", borderRadius: 8, padding: "4px 9px", color: "#c3cbd3" },
+  componenteRow: { display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "#c3cbd3", padding: "6px 0", borderBottom: "1px solid #222c37" },
+  removeButton: { background: "transparent", border: "1px solid #2c3742", borderRadius: 8, color: "#8a929c", width: 34, fontSize: 13, flexShrink: 0 },
   emptyText: { fontSize: 13, color: "#7d8894", marginTop: 8, marginBottom: 4 },
   fieldLabel: { fontSize: 11, color: "#7d8894" },
-  input: { background: "#12181f", border: "1px solid #2c3742", borderRadius: 4, padding: "9px 10px", color: "#e8ecef", fontSize: 14, outline: "none" },
-  textarea: { width: "100%", background: "#12181f", border: "1px solid #2c3742", borderRadius: 4, padding: 10, color: "#e8ecef", fontSize: 13.5, lineHeight: 1.6, resize: "vertical", outline: "none", marginTop: 6 },
-  primaryButton: { background: "#c9a24a", color: "#12181f", border: "none", borderRadius: 4, padding: "10px 14px", fontWeight: 600, fontSize: 13.5 },
-  ghostButton: { background: "transparent", color: "#c3cbd3", border: "1px solid #2c3742", borderRadius: 4, padding: "9px 13px", fontSize: 13, marginTop: 8 },
-  smallGhostButton: { background: "transparent", color: "#c3cbd3", border: "1px solid #2c3742", borderRadius: 4, padding: "5px 10px", fontSize: 11.5 },
-  dashedButton: { width: "100%", padding: 12, border: "1.5px dashed #2c3742", background: "transparent", borderRadius: 4, color: "#9aa7b2", fontSize: 13 },
-  linkButton: { flex: 1, textAlign: "center", padding: "10px 0", borderRadius: 4, border: "1px solid #2c3742", color: "#c3cbd3", fontSize: 13, textDecoration: "none" },
-  telefoneRow: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", borderRadius: 6, border: "1px solid #212a33", background: "#161d25" },
+  input: { background: "#11161c", border: "1px solid #2c3742", borderRadius: 9, padding: "10px 11px", color: "#e8ecef", fontSize: 14, outline: "none" },
+  textarea: { width: "100%", background: "#11161c", border: "1px solid #2c3742", borderRadius: 9, padding: 11, color: "#e8ecef", fontSize: 13.5, lineHeight: 1.6, resize: "vertical", outline: "none", marginTop: 6 },
+  primaryButton: { background: "linear-gradient(135deg, #e0b458, #c9a24a 60%, #ab8636)", color: "#161006", border: "none", borderRadius: 9, padding: "11px 15px", fontWeight: 700, fontSize: 13.5, boxShadow: "0 4px 14px rgba(201,162,74,0.3)" },
+  ghostButton: { background: "rgba(255,255,255,0.02)", color: "#c3cbd3", border: "1px solid #2c3742", borderRadius: 9, padding: "9px 13px", fontSize: 13, marginTop: 8 },
+  smallGhostButton: { background: "rgba(255,255,255,0.02)", color: "#c3cbd3", border: "1px solid #2c3742", borderRadius: 8, padding: "6px 11px", fontSize: 11.5 },
+  dashedButton: { width: "100%", padding: 13, border: "1.5px dashed #37424f", background: "transparent", borderRadius: 10, color: "#9aa7b2", fontSize: 13 },
+  linkButton: { flex: 1, textAlign: "center", padding: "11px 0", borderRadius: 9, border: "1px solid #2c3742", background: "rgba(255,255,255,0.02)", color: "#c3cbd3", fontSize: 13, textDecoration: "none" },
+  telefoneRow: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "11px 13px", borderRadius: 10, border: "1px solid #212a33", background: "linear-gradient(160deg, #1a222c, #151c24)" },
   telefoneUnidade: { fontSize: 13, color: "#e8ecef", fontWeight: 600 },
   telefoneTipo: { fontSize: 11.5, color: "#8a97a3", marginTop: 2 },
-  telefoneBotao: { width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 6, border: "1px solid #2c3742", textDecoration: "none", fontSize: 15 },
-  codeTag: { marginTop: 10, display: "inline-flex", gap: 8, alignItems: "center", background: "#1c2836", border: "1px solid #2c3f52", borderRadius: 4, padding: "5px 10px", fontSize: 12.5 },
+  telefoneBotao: { width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 9, border: "1px solid #2c3742", textDecoration: "none", fontSize: 15 },
+  codeTag: { marginTop: 10, display: "inline-flex", gap: 8, alignItems: "center", background: "linear-gradient(135deg, #223247, #1c2836)", border: "1px solid #2c3f52", borderRadius: 8, padding: "6px 11px", fontSize: 12.5, boxShadow: "0 2px 8px rgba(91,139,201,0.12)" },
   suggestionsLabel: { fontSize: 11, color: "#7d8894", marginBottom: 2 },
-  alertRow: { display: "flex", gap: 6, fontSize: 12.5, color: "#c3cbd3", background: "#1c2530", border: "1px solid #2c3742", borderRadius: 4, padding: "6px 8px" },
+  alertRow: { display: "flex", gap: 6, fontSize: 12.5, color: "#c3cbd3", background: "#1c2530", border: "1px solid #2c3742", borderRadius: 8, padding: "7px 9px" },
   errorText: { color: "#e3877a", fontSize: 12.5, marginTop: 8 },
-  warningText: { color: "#c9a24a", fontSize: 11, marginTop: 4, lineHeight: 1.4 },
-  warningBox: { display: "flex", flexDirection: "column", gap: 6, background: "#2a2419", border: "1px solid #3d3521", borderRadius: 4, padding: "8px 10px", fontSize: 11.5, color: "#d9c39a", marginBottom: 8 },
   disclaimer: { fontSize: 11, color: "#7d8894", marginTop: 10, lineHeight: 1.5 },
   timestamp: { fontSize: 10.5, color: "#5c6875", marginBottom: 8 },
-  avisoCard: { background: "#12181f", border: "1px solid #262f3a", borderRadius: 4, padding: 10 },
-  avisoTag: { display: "inline-block", fontSize: 10, fontWeight: 600, border: "1px solid", borderRadius: 8, padding: "1px 7px", marginBottom: 5 },
+  avisoCard: { background: "linear-gradient(160deg, #141b23, #10151b)", border: "1px solid #262f3a", borderRadius: 10, padding: 12, boxShadow: "0 3px 10px rgba(0,0,0,0.2)" },
+  avisoTag: { display: "inline-block", fontSize: 10, fontWeight: 700, border: "1px solid", borderRadius: 8, padding: "2px 8px", marginBottom: 6, letterSpacing: 0.3 },
   avisoTitulo: { fontSize: 13, fontWeight: 500, margin: "0 0 3px" },
   avisoResumo: { fontSize: 12, color: "#9aa7b2", margin: 0, lineHeight: 1.5 },
   sourceLink: { display: "inline-block", fontSize: 11.5, color: "#5b8bc9", marginTop: 6, textDecoration: "none" },
-  leiTexto: { marginTop: 8, background: "#12181f", border: "1px solid #262f3a", borderRadius: 4, padding: 12, fontSize: 13, lineHeight: 1.7, color: "#dfe4e8", whiteSpace: "pre-wrap" },
+  leiTexto: { marginTop: 8, background: "#11161c", border: "1px solid #262f3a", borderRadius: 10, padding: 13, fontSize: 13, lineHeight: 1.7, color: "#dfe4e8", whiteSpace: "pre-wrap" },
 };
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
