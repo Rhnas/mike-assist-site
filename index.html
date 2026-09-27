@@ -1097,40 +1097,13 @@ ${textoBruto}
       {activeTab === "telefones" && (
         <section style={{ ...styles.panel, borderLeftColor: "#5b8bc9" }}>
           <div style={styles.panelLabel}>Telefones das unidades</div>
-          <input
-            value={buscaTelefone}
-            onChange={(e) => setBuscaTelefone(e.target.value)}
-            placeholder="Buscar por unidade (ex.: 40, BPTUR, CPP)"
-            style={{ ...styles.input, width: "100%", marginTop: 8, marginBottom: 12 }}
-          />
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 420, overflowY: "auto" }}>
-            {TELEFONES_UNIDADES
-              .filter((t) => {
-                const q = buscaTelefone.trim().toLowerCase();
-                if (!q) return true;
-                return t.unidade.toLowerCase().includes(q) || t.tipo.toLowerCase().includes(q);
-              })
-              .map((t, i) => (
-                <div key={i} style={styles.telefoneRow}>
-                  <div>
-                    <div style={styles.telefoneUnidade}>{t.unidade}</div>
-                    <div style={styles.telefoneTipo}>{t.tipo} &middot; {formatarTelefone(t.numero)}</div>
-                  </div>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    <a href={`tel:+55${t.numero}`} style={styles.telefoneBotao} title="Ligar">📞</a>
-                    <a href={`https://wa.me/55${t.numero}`} target="_blank" rel="noreferrer" style={styles.telefoneBotao} title="WhatsApp">💬</a>
-                  </div>
-                </div>
-              ))}
-            {TELEFONES_UNIDADES.filter((t) => {
-              const q = buscaTelefone.trim().toLowerCase();
-              if (!q) return true;
-              return t.unidade.toLowerCase().includes(q) || t.tipo.toLowerCase().includes(q);
-            }).length === 0 && (
-              <p style={{ fontSize: 13, color: "#7d8894" }}>Nenhuma unidade encontrada.</p>
-            )}
+          <div style={{ padding: "28px 10px", textAlign: "center", color: "#8a97a3" }}>
+            <div style={{ fontSize: 28, marginBottom: 8 }}>☎️</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "#c3cbd3" }}>Em breve</div>
+            <p style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.6 }}>
+              Estamos conferindo os contatos das unidades antes de disponibilizar essa lista.
+            </p>
           </div>
-          <p style={styles.disclaimer}>Lista mantida manualmente pelo autor do app; confira o número antes de repassar como oficial. Se algum contato estiver desatualizado, avise para correção.</p>
         </section>
       )}
 
