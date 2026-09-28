@@ -719,27 +719,34 @@ function QRCodeDonacao({ pixKey }) {
 
   React.useEffect(() => {
     if (!pixKey || !qrRef.current) return;
-    try {
-      // Limpa o container anterior
-      qrRef.current.innerHTML = "";
 
-      // Formata a chave Pix como texto simples (para copiar)
-      // Em produção, isso seria um payload EMV completo, mas por enquanto
-      // usamos a chave diretamente - o user escaneia e copia a chave
-      const qrText = `pix:${pixKey}`;
+    // Aguarda a biblioteca QRCode estar disponível
+    const waitForQRCode = setInterval(() => {
+      if (typeof window.QRCode === 'undefined') return;
+      clearInterval(waitForQRCode);
 
-      // Gera QR Code
-      new QRCode(qrRef.current, {
-        text: qrText,
-        width: 160,
-        height: 160,
-        colorDark: "#e8ecef",
-        colorLight: "#0c1424",
-        correctLevel: QRCode.CorrectLevel.H,
-      });
-    } catch (e) {
-      console.error("Erro ao gerar QR Code:", e);
-    }
+      try {
+        // Limpa o container anterior
+        qrRef.current.innerHTML = "";
+
+        // Formata a chave Pix como texto simples (para copiar)
+        const qrText = `pix:${pixKey}`;
+
+        // Gera QR Code
+        new window.QRCode(qrRef.current, {
+          text: qrText,
+          width: 160,
+          height: 160,
+          colorDark: "#e8ecef",
+          colorLight: "#0c1424",
+          correctLevel: window.QRCode.CorrectLevel.H,
+        });
+      } catch (e) {
+        console.error("Erro ao gerar QR Code:", e);
+      }
+    }, 100);
+
+    return () => clearInterval(waitForQRCode);
   }, [pixKey]);
 
   return (
