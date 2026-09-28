@@ -85,6 +85,7 @@
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode.js/1.5.3/qrcode.min.js"></script>
 
 <script type="text/babel" data-presets="react">
 const { useState, useEffect } = React;
@@ -95,7 +96,7 @@ const { useState, useEffect } = React;
 // abrir, e guardar no navegador para as próximas vezes.
 // ============================================================
 const WORKER_URL = "https://mikeassist.raphaelhnas.workers.dev"; // troque pela URL do seu Worker
-const PIX_KEY_DOACAO = ""; // cole aqui sua chave Pix aleatória para receber doações
+const PIX_KEY_DOACAO = "3b027d5e-d2ee-48c9-8add-f29426901558"; // cole aqui sua chave Pix aleatória para receber doações
 
 const VADE_MECUM_SAMPLE = `
 ASSISTENCIAIS / EMERGÊNCIAS / ATENDIMENTOS DIVERSOS
@@ -710,6 +711,38 @@ function Field({ label, value, onChange, placeholder, mono }) {
         style={{ ...styles.input, fontFamily: mono ? "'IBM Plex Mono', monospace" : "inherit" }}
       />
     </label>
+  );
+}
+
+function QRCodeDonacao({ pixKey }) {
+  const qrRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!pixKey || !qrRef.current) return;
+    try {
+      // Limpa o container anterior
+      qrRef.current.innerHTML = "";
+      // Gera QR Code com a chave Pix
+      new QRCode(qrRef.current, {
+        text: pixKey,
+        width: 160,
+        height: 160,
+        colorDark: "#e8ecef",
+        colorLight: "#0c1424",
+        correctLevel: QRCode.CorrectLevel.H,
+      });
+    } catch (e) {
+      console.error("Erro ao gerar QR Code:", e);
+    }
+  }, [pixKey]);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+      <div ref={qrRef} style={{ background: "#0c1424", padding: 8, borderRadius: 8 }} />
+      <div style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", maxWidth: 200 }}>
+        Escaneie o QR Code com seu app Pix ou banco
+      </div>
+    </div>
   );
 }
 
@@ -1328,12 +1361,15 @@ ${textoBruto}
       {activeTab === "consultas" && PIX_KEY_DOACAO && (
         <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
           <div style={styles.panelLabel}>Apoie o projeto</div>
-          <p style={{ fontSize: 13, color: "#c3cbd3", lineHeight: 1.6, margin: "6px 0 10px" }}>
+          <p style={{ fontSize: 13, color: "#c3cbd3", lineHeight: 1.6, margin: "6px 0 16px" }}>
             Se isso te ajudou, deixe um café pro guarda ☕
           </p>
-          <button style={{ ...styles.primaryButton, width: "100%" }} onClick={copiarChavePix}>
-            {pixCopyLabel}
-          </button>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, alignItems: "center" }}>
+            <QRCodeDonacao pixKey={PIX_KEY_DOACAO} />
+            <button style={{ ...styles.primaryButton, width: "100%" }} onClick={copiarChavePix}>
+              {pixCopyLabel}
+            </button>
+          </div>
           <p style={styles.disclaimer}>Doação totalmente opcional, via Pix. Nenhum recurso do app é liberado em troca — é só um cafezinho, se você quiser.</p>
         </section>
       )}
