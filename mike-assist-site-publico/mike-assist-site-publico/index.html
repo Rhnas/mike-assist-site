@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" />
+<title>Mike Assist</title>
+<link rel="manifest" href="mikeassist-manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="mikeassist-icon-192.png">
+<link rel="apple-touch-icon" href="mikeassist-icon-192.png">
+<meta name="theme-color" content="#0c1424">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mike Assist">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
+  /* Fonte do sistema — nada pra baixar, cada aparelho usa a fonte nativa
+     dele: SF Pro no iPhone, Roboto no Android, Segoe no Windows. É o que dá
+     aquela cara "app de fábrica" em vez de fonte "de web importada". */
+  /* Tema escuro (padrão) — tons de azul-marinho da PMERJ */
+  :root, :root[data-theme="dark"] {
+    --bg: #0c1424; --bg-panel: #162545; --bg-chip: #1d2c4d; --bg-ghost: #1c2c4d;
+    --bg-input: #0e1830; --bg-tabbar: #101b34; --border: #2a3d63;
+    --text: #e8ecef; --text-muted: #9aa7b2; --text-muted-2: #7d8894; --text-dim: #5c6875;
+  }
+  /* Tema claro */
+  :root[data-theme="light"] {
+    --bg: #eef1f6; --bg-panel: #ffffff; --bg-chip: #e6ebf2; --bg-ghost: #e6ebf2;
+    --bg-input: #ffffff; --bg-tabbar: #ffffff; --border: #d6dde6;
+    --text: #16202e; --text-muted: #4d5866; --text-muted-2: #5f6b78; --text-dim: #8791a0;
+  }
+  html, body { margin: 0; padding: 0; background: var(--bg); transition: background .15s ease; }
+  * { box-sizing: border-box; }
+  ::placeholder { color: var(--text-dim); }
+  button { cursor: pointer; font-family: inherit; transition: transform .12s ease, filter .12s ease, background .15s ease, border-color .15s ease; }
+  button:active { transform: scale(0.96); filter: brightness(0.94); }
+  textarea, input { font-family: inherit; transition: border-color .15s ease, box-shadow .15s ease; }
+  textarea:focus, input:focus { border-color: #c9a24a !important; box-shadow: 0 0 0 3px rgba(201,162,74,0.15); outline: none; }
+  @keyframes mkFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes mkPop { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+  @keyframes mkSpin { to { transform: rotate(360deg); } }
+  @keyframes mkSplashBar { 0% { transform: translateX(-120%); } 100% { transform: translateX(320%); } }
+  .mk-panel { animation: mkFadeIn .16s ease-out both; }
+  .mk-tabpage { animation: mkFadeIn .16s ease-out both; }
+  .mk-card { animation: mkPop .14s ease-out both; }
+  .mk-spinner { display: inline-block; width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(232,236,239,0.25); border-top-color: currentColor; animation: mkSpin .7s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #2a3d63; border-radius: 8px; }
+</style>
+</head>
+<body>
+<div id="root">
+  <div style="min-height:100vh;background:#0c1424;color:#e8ecef;font-family:sans-serif;padding:24px;font-size:14px;">
+    Carregando Mike Assist…
+  </div>
+</div>
+
+<script>
+  window.addEventListener("error", function (e) {
+    var root = document.getElementById("root");
+    if (root && root.textContent.indexOf("Carregando") !== -1) {
+      root.innerHTML =
+        '<div style="min-height:100vh;background:#0c1424;color:#e8ecef;font-family:sans-serif;padding:24px;font-size:14px;line-height:1.6;">' +
+        '<strong style="color:#e3877a;">Erro ao carregar o Mike Assist</strong><br/><br/>' +
+        'Mensagem: ' + (e.message || "desconhecida") + '<br/>' +
+        'Arquivo: ' + (e.filename || "?") + '<br/>' +
+        'Linha: ' + (e.lineno || "?") +
+        '<br/><br/>Tire um print desta tela e envie para ajuste.</div>';
+    }
+  });
+
+  setTimeout(function () {
+    var root = document.getElementById("root");
+    if (root && root.textContent.indexOf("Carregando") !== -1) {
+      root.innerHTML =
+        '<div style="min-height:100vh;background:#0c1424;color:#e8ecef;font-family:sans-serif;padding:24px;font-size:14px;line-height:1.6;">' +
+        '<strong style="color:#c9a24a;">Demorando mais que o esperado</strong><br/><br/>' +
+        'Os arquivos de suporte (React) podem estar bloqueados pela sua rede/operadora, ou a conexão está lenta.<br/><br/>' +
+        'Tente: trocar de Wi-Fi para dados móveis (ou vice-versa), ou abrir em outro navegador.<br/><br/>' +
+        'Se persistir, tire um print desta tela e envie para ajuste.</div>';
+    }
+  }, 8000);
+</script>
+
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect } = React;
+
+// ============================================================
+// CONFIGURAÇÃO — troque pela URL do seu backend (Etapa 2/README)
+// Pode deixar em branco aqui: o app vai pedir na primeira vez que
+// abrir, e guardar no navegador para as próximas vezes.
+// ============================================================
+const WORKER_URL = "https://mikeassist.raphaelhnas.workers.dev"; // troque pela URL do seu Worker
+const PIX_KEY_DOACAO = ""; // cole aqui sua chave Pix aleatória para receber doações
+
+const VADE_MECUM_SAMPLE = `
+ASSISTENCIAIS / EMERGÊNCIAS / ATENDIMENTOS DIVERSOS
+00.001 - Veículo abandonado em via pública
+00.002 - Acidente de trânsito sem vítima
+00.003 - Acidente de trânsito com vítima
+00.004 - Princípio de afogamento
+00.005 - Afogamento
+00.006 - Acidente náutico
+00.007 - Acidente aéreo
+00.008 - Acidente ferroviário
+00.009 - Acidente com veículo automotor
+00.010 - Acidente com veículo de tração animal
+00.011 - Desabamento / desmoronamento
+00.012 - Soterramento, deslizamento ou rompimento
+00.013 - Queda de árvore
+00.014 - Salvamento em cisterna ou poço
+00.015 - Salvamento em fossa
+00.016 - Salvamento em elevador
+00.017 - Salvamento em teleféricos
+00.018 - Salvamento em gruta ou caverna
+00.019 - Acidente vascular cerebral (AVC)
+00.020 - Convulsão
+00.021 - Dispneia
+00.022 - Distúrbio psiquiátrico
+00.023 - Dor precordial (coração)
+00.024 - Intoxicação exógena
+00.025 - Mal não definido (distúrbio)
+00.026 - Obstrução respiratória
+00.027 - Parada cardiorrespiratória
+00.028 - Parada respiratória
+00.029 - Parturiente
+00.030 - Síncope (desmaio)
+00.031 - Transporte interhospitalar
+00.032 - Acidente com motocicleta
+00.033 - Acidente com bicicleta
+00.034 - Vítima de atropelamento
+00.035 - Agressão física com arma branca
+00.036 - Agressão física com arma de fogo
+00.037 - Agressão física sem uso de armas
+00.038 - Queda de altura
+00.039 - Queda da própria altura
+00.040 - Vítima de eletrocussão
+00.041 - Vítima de explosão
+00.042 - Vítima de queimadura
+00.043 - Ataque de insetos
+00.044 - Ataque de animal peçonhento
+00.045 - Ataque de cães
+00.046 - Ataque de demais animais
+00.047 - Suicídio (tentativa)
+00.048 - Captura/resgate de animal em situação de risco
+00.049 - Captura de enxame
+00.050 - Corte ou poda de árvore
+00.051 - Pessoa extraviada/desaparecida em local de difícil acesso
+00.052 - Resgate de cadáver
+00.053 - Resgate de feto
+00.054 - Resgate de parte cadavérica (órgãos, ossada humana)
+00.055 - Assistência de pessoa indigente
+00.056 - Atrito verbal
+00.057 - Autoextermínio (suicídio consumado)
+00.058 - Averiguação de disparo de alarme
+00.059 - Averiguação de pessoa/veículo em atitude suspeita
+00.060 - Bloqueio de via por ação de populares/classe
+00.061 - Foragido da justiça
+00.062 - Fuga de preso
+00.063 - Pessoa localizada
+00.064 - Bem e/ou valor encontrado/localizado/recuperado
+00.064.A - Carga encontrada/localizada/recuperada
+00.065 - Tentativa de fuga
+00.066 - Veículo localizado/recuperado
+00.067 - Encontro de cadáver
+00.068 - Encontro de feto
+00.069 - Encontro de parte de cadáver/órgãos/ossada humana
+00.070 - Mediação de conflito
+00.071 - Resolução pacífica de conflitos
+00.072 - Crimes contra a mulher (a especificar tipo penal no histórico)
+00.073 - Violência doméstica
+00.074 - Reuniões comunitárias
+00.075 - Aula PROERD
+00.076 - Visitas domiciliares
+00.078 - Ações sociais e comunitárias
+00.079 - Visitas de acompanhamento pós-crime
+00.080 - Projetos desportivos, culturais e educacionais
+00.081 - Solicitante não encontrado
+00.082 - Endereço não localizado
+00.083 - Providência dispensada
+00.084 - Nada constatado
+00.085 - Duplicata
+00.086 - Teste
+00.087 - Trote
+00.000 - Outros tipos (busca/resgate de cadáver, salvamento em local de difícil acesso, infrações contra administração/fé pública, contra organização do trabalho, contra a família, ocorrência de trânsito, substâncias entorpecentes — sempre discriminar no histórico)
+
+LESÃO CORPORAL E MORTE DECORRENTES DE INTERVENÇÃO POLICIAL
+99.000 - Lesão corporal seguida de morte decorrente de intervenção policial
+99.000.A - Lesão corporal decorrente de intervenção policial
+90.002 - Lesão corporal gravíssima ou seguida de morte sofrida por agente público e familiares
+90.004 - Homicídio sofrido por agente público e familiares
+
+CRIMES CONTRA A PESSOA
+01.121 - Homicídio
+01.121.T - Tentativa de homicídio
+01.122 - Induzimento/instigação/auxílio a suicídio
+01.123 - Infanticídio
+01.124 - Aborto provocado pela gestante ou com seu consentimento
+01.125 - Aborto provocado por terceiro
+01.126 - Provocar aborto com o consentimento da gestante
+01.129 - Lesão corporal
+01.129.A - Lesão corporal seguida de morte
+01.130 - Perigo de contágio venéreo
+01.131 - Perigo de contágio de moléstia grave
+01.132 - Perigo para a vida ou saúde de outrem
+01.133 - Abandono de incapaz
+01.134 - Exposição ou abandono de recém-nascido
+01.135 - Omissão de socorro
+01.135.A - Condicionamento de atendimento médico-hospitalar emergencial
+01.136 - Maus-tratos
+01.137 - Rixa
+01.138 - Calúnia
+01.139 - Difamação
+01.140 - Injúria
+01.146 - Constrangimento ilegal
+01.147 - Ameaça
+01.148 - Sequestro e cárcere privado
+01.149 - Redução a condição análoga à de escravo
+01.150 - Violação de domicílio
+01.151 - Sonegação/destruição/violação de correspondência ou comunicação telefônica
+01.153 - Divulgação de segredo
+01.154 - Violação de segredo profissional
+01.154.A - Invasão de dispositivo de informática alheio
+01.502 - Assédio sexual
+
+CRIMES CONTRA O PATRIMÔNIO
+01.155 - Furto
+01.155.A - Furto a residência ou estabelecimento comercial
+01.155.B - Furto de veículo
+01.155.C - Furto em veículo
+01.155.D - Furto de animal
+01.155.E - Furto a estabelecimento comercial
+01.156 - Furto de coisa comum
+01.157 - Roubo
+01.157.A - Roubo a residência/estabelecimento comercial
+01.157.B - Roubo de veículo
+01.157.C - Roubo de animal
+01.157.D - Latrocínio
+01.157.E - Roubo a estabelecimento comercial
+01.158 - Extorsão
+01.159 - Extorsão mediante sequestro
+01.160 - Extorsão indireta
+01.161 - Esbulho possessório / usurpação de águas / alteração de limites
+01.163 - Dano
+01.164 - Introdução ou abandono de animal em propriedade alheia
+01.168 - Apropriação indébita de coisa alheia móvel
+01.169 - Apropriação de coisa havida por erro (coisa achada)
+01.171 - Estelionato
+01.172 - Duplicata simulada
+01.180 - Receptação
+
+CRIMES CONTRA A FAMÍLIA E COSTUMES
+01.213 - Estupro
+01.215 - Violação sexual mediante fraude
+01.217.A - Estupro de vulnerável
+01.218 - Corrupção de menores
+01.218.A - Satisfação da lascívia mediante presença de criança ou adolescente
+01.218.B - Favorecimento da prostituição ou exploração sexual
+01.227 - Mediação para servir à lascívia de outrem
+01.228 - Favorecimento à prostituição
+01.229 - Casa de prostituição
+01.230 - Rufianismo
+01.231 - Tráfico internacional de pessoas para fins de exploração sexual
+01.233 - Ato obsceno
+01.234 - Escrito ou objeto obsceno
+01.235 - Bigamia
+01.244 - Abandono material
+01.245 - Entrega de filho menor a pessoa idônea
+01.246 - Abandono intelectual (instrução fundamental)
+01.247 - Abandono intelectual
+01.248 - Induzimento a fuga, entrega arbitrária ou sonegação de incapazes
+01.249 - Subtração de incapazes
+
+CRIMES CONTRA A INCOLUMIDADE E SAÚDE PÚBLICA
+01.250 - Incêndio
+01.251 - Explosão
+01.252 - Uso de gás tóxico ou asfixiante
+01.253 - Fabricar/fornecer/adquirir/possuir substância explosiva
+01.254 - Inundação (risco de vida ou patrimônio)
+01.256 - Desabamento ou desmoronamento (risco de vida ou patrimônio)
+01.264 - Arremesso de projétil
+01.265 - Atentado contra segurança de serviço de utilidade pública
+01.270 - Envenenamento de água potável ou substância alimentícia/medicinal
+01.272 - Falsificação/corrupção/adulteração de substância ou produto alimentício
+01.273 - Falsificação/adulteração de produtos terapêuticos ou medicinais
+
+CRIMES CONTRA A FÉ PÚBLICA
+01.289 - Moeda falsa
+01.297 - Falsificação de documento público
+01.298 - Falsificação de documento particular
+01.299 - Falsidade ideológica
+01.304 - Uso de documento falso
+01.305 - Supressão de documento
+01.307 - Falsa identidade
+01.308 - Falsa identidade — usar como próprio documento alheio ou ceder a outrem
+01.311 - Adulteração de sinal identificador de veículo automotor (inclusive clonagem)
+
+CRIMES CONTRA A ADMINISTRAÇÃO PÚBLICA
+01.312 - Peculato
+01.316 - Concussão
+01.317 - Corrupção passiva
+01.319 - Prevaricação
+01.322 - Violência arbitrária
+01.325 - Violação de sigilo funcional
+01.328 - Usurpação de função
+01.329 - Resistência
+01.330 - Desobediência
+01.331 - Desacato
+01.332 - Tráfico de influência
+01.333 - Corrupção ativa
+01.334 - Contrabando ou descaminho
+01.339 - Denunciação caluniosa
+01.340 - Comunicação falsa de crime ou contravenção
+01.341 - Auto-acusação falsa
+01.342 - Falso testemunho ou falsa perícia
+01.344 - Coação no curso do processo
+01.350 - Exercício arbitrário ou abuso de poder
+01.351 - Facilitação/promoção de fuga de pessoa presa
+01.352 - Evasão mediante violência contra a pessoa
+01.353 - Arrebatamento de presos
+01.354 - Motim de presos
+11.030 / 11.040 - Crimes de abuso de autoridade (Lei 13.869/2019)
+
+CRIMES CONTRA A ORGANIZAÇÃO DO TRABALHO
+01.197 a 01.207 - Crimes contra a organização do trabalho (atentado à liberdade de trabalho/associação, paralisação, frustração de direito trabalhista, aliciamento — especificar tipo no histórico)
+
+CRIMES DE TORTURA, ARMAS E EXPLOSIVOS
+02.010 - Tortura
+03.120 - Posse irregular de arma de fogo de uso permitido
+03.140 - Porte ilegal de arma de fogo de uso permitido
+03.150 - Disparo de arma de fogo ou acionamento de munição
+03.160 - Posse ou porte ilegal de arma de fogo de uso restrito
+03.161 - Suprimir ou alterar marca/numeração/sinal de identificação de arma de fogo
+03.163 - Possuir/deter/fabricar/empregar artefato explosivo
+03.164 - Portar/possuir/adquirir/transportar/fornecer arma de fogo
+03.165 - Vender/entregar/fornecer arma de fogo
+03.170 - Comércio ilegal de arma de fogo, acessório ou munição
+03.180 - Tráfico internacional de arma de fogo
+08.190 - Porte ilegal de arma branca
+
+CRIMES E INFRAÇÕES DE DROGAS (LEI 11.343/2006)
+04.280 - Uso e consumo de drogas
+04.330 - Tráfico ilícito de drogas
+04.331 - Tráfico ilícito de matérias-primas para preparação de drogas
+04.332 - Cultivo de plantas utilizadas na preparação de drogas
+04.333 - Utilização/consentimento de uso de local ou bem para tráfico de drogas
+04.334 - Incentivo ao uso ou consumo de drogas
+04.335 - Oferecimento eventual ao consumo de drogas
+04.340 - Fabrico, venda ou posse de apetrechos para preparação de drogas
+04.350 - Associação para o tráfico de drogas
+04.351 - Associação para o financiamento ou custeio do tráfico de drogas
+04.360 - Financiamento ou custeio de tráfico de drogas
+04.370 - Colaboração como informante para o tráfico de drogas
+
+ESTATUTO DA CRIANÇA E DO ADOLESCENTE (ECA — LEI 8.069/90)
+05.228 a 05.244 - Infrações diversas do ECA (omissão de comunicação/atendimento, privação de liberdade sem flagrante, submissão a vexame, subtração de incapaz, tráfico de criança/adolescente, pornografia infantil — especificar artigo no histórico)
+05.501 a 05.505 - Exploração sexual, pornografia infantil e aliciamento de criança/adolescente por qualquer meio (arts. 240 a 241-D do ECA)
+
+CONTRAVENÇÕES PENAIS E INFRAÇÕES DIVERSAS
+08.200 - Anúncio de meio abortivo
+08.210 - Vias de fato/agressão
+08.240 - Instrumento de emprego usual na prática de furto
+08.260 - Violação de lugar ou objeto (chaveiro sem autorização)
+08.360 - Sinais de perigo (comunicação de perigo na via pública)
+08.370 - Arremesso ou colocação perigosa
+08.380 - Emissão abusiva de fumaça, vapor ou gás
+08.390 - Associação secreta
+08.400 - Provocação de tumulto/conduta inconveniente
+08.410 - Falso alarma — ameaça de bomba
+08.420 - Perturbação do trabalho ou do sossego alheios
+08.430 - Recusa de moeda de curso legal
+08.450 - Simulação da qualidade de funcionário público
+08.460 - Uso ilegítimo de uniforme ou distintivo
+08.470 - Exercício ilegal de profissão ou atividade
+08.480 - Exercício ilegal do comércio/obra de arte/coisas antigas
+08.500 - Jogos de azar
+08.510 - Loteria não autorizada
+08.580 - Jogo do bicho
+08.590 - Vadiagem
+08.600 - Mendicância
+08.610 - Importunação ofensiva ao pudor
+08.620 - Embriaguez (escândalo/perigo próprio ou alheio)
+08.630 - Servir bebida alcoólica a menores, incapazes ou embriagados
+08.640 - Crueldade contra animais
+08.650 - Perturbação da tranquilidade
+08.660 - Omissão de comunicação de crime
+08.670 - Inumação ou exumação de cadáver
+08.680 - Recusa de dados sobre a própria identificação ou qualificação
+08.700 - Violação do privilégio postal da União
+
+CRIMES DE TRÂNSITO (CTB)
+10.161 - Aplicação das medidas administrativas previstas no art. 269 do CTB
+10.302 - Homicídio culposo na direção de veículo automotor
+10.303 - Lesão corporal culposa na direção de veículo automotor
+10.304 - Omissão de socorro em acidente de trânsito
+10.305 - Abandono do local de acidente de trânsito
+10.306 - Dirigir sob influência de álcool ou substância psicoativa
+10.307 - Violar suspensão ou proibição de dirigir
+10.308 - Disputa de corrida não autorizada (racha)
+10.309 - Dirigir sem permissão/habilitação ou com habilitação cassada gerando perigo de dano
+10.310 - Entrega de direção a pessoa não habilitada
+10.311 - Transitar em velocidade incompatível em locais específicos ou com aglomeração
+10.312 - Alterar local de crime em acidente de trânsito
+
+ESTATUTO DO IDOSO (LEI 10.741/2003)
+13.096 a 13.109 - Crimes contra o idoso (discriminação, abandono, exposição a perigo, apropriação de bens/benefício, retenção de cartão, coação, exibição depreciativa — especificar artigo no histórico)
+
+CRIMES MILITARES E DE APOIO
+38.xxx - Crimes militares diversos (Código Penal Militar — especificar artigo no histórico)
+39.001/44.001 - Apoio a órgãos federais
+39.002/44.002 - Apoio a órgãos estaduais
+39.003/44.003 - Apoio a órgãos municipais
+39.004/44.004 - Apoio a órgãos privados
+39.005/44.005 - Apoio à Polícia Civil/Delegado de Polícia Civil
+39.006/44.006 - Apoio a militar/PM/BM
+39.007 - Apoio a órgãos judiciários
+40.001 a 40.004 - Descumprimento de sigilo/colaboração premiada em organização criminosa (Lei 12.850/2013)
+42.000 - Prática de ato por xenofobia, racismo, etnia ou religião com finalidade de terror social (Lei 13.260/2016)
+
+OUTRAS LEIS ESPECIAIS (citar sempre a lei/artigo específico no histórico quando identificado)
+06.xxx - Infrações ao Código de Defesa do Consumidor
+07.xxx - Crimes de preconceito de raça/cor/etnia/religião (Lei 7.716/89)
+09.18x/09.19x - Crimes contra propriedade industrial, marcas e patentes
+12.xxx - Crimes contra o sistema de estoque de combustível
+14.1xx - Crimes de responsabilidade de prefeitos e vereadores
+15.0xx - Crimes relativos a sonegação fiscal
+16.0xx-16.2xx - Crimes contra a segurança nacional
+17.0xx-17.2xx - Crimes contra o sistema financeiro nacional
+18.1xx-18.2xx - Crimes contra o sentimento religioso e respeito aos mortos
+19.5xx - Crimes relativos ao Estatuto do Índio
+20.2xx-34.1xx - Crimes eleitorais
+21.0xx - Crimes de lavagem ou ocultação de bens, direitos e valores
+22.120 / 36.05x - Violação de direito autoral (programa de computador, topografia de circuito integrado)
+23.0xx-23.0xx - Crimes contra a ordem tributária, econômica e relações de consumo
+24.0xx - Crimes relativos a serviços postais
+25.183 - Crimes relativos a serviços de telecomunicações
+26.0xx - Crimes relativos ao Código de Telecomunicações
+27.1xx/28.2xx - Crimes relativos ao meio ambiente
+29.0xx - Infrações contra ordenamento urbano/patrimônio cultural/administração ambiental
+30.4xx / 31.0xx / 32.3xx - Infrações ambientais relativas à fauna, flora, pesca
+35.089-35.098 - Crimes contra licitações e contratos da administração pública (Lei 8.666/93)
+37.001-37.006 - Fraude/violência em competição esportiva; revenda irregular de ingressos
+`.trim();
+
+// Exemplos reais de histórico de BOPM, cedidos pelo próprio usuário (Sd PM,
+// 40º BPM) para calibrar o ESTILO do texto gerado (vocabulário, estrutura,
+// jargão real de batalhão). Identificadores que pareciam reais (nomes
+// completos, RG, matrícula de perito, números de viatura/RO/BAM) foram
+// substituídos por placeholders — o que importa aqui é a forma, não o caso
+// específico. Isso é conteúdo estático do app (igual à tabela de códigos),
+// nunca é preenchido com ocorrências reais de quem usa o Mike Assist.
+const EXEMPLOS_HISTORICO_REAL = `
+--- exemplo 1 (desentendimento familiar) ---
+Guarnição do Setor Fox procedeu à ocorrência paga por Maré Zero, inicialmente relacionada a desentendimento familiar. No local, após contato com os envolvidos, verificou-se tratar de divergência familiar envolvendo questões relacionadas a imóvel, herança e obra realizada em terreno onde existe uma servidão utilizada para acesso a quatro residências.
+Segundo informado, um dos envolvidos alega possuir procuração com assinatura do pai da solicitante, relacionada às questões envolvendo o imóvel. A solicitante, moradora da primeira residência, informou que seu pai atualmente se encontra em estado de demência, havendo divergências entre os familiares acerca da situação patrimonial e da utilização do terreno.
+A solicitante informou ainda possuir medida protetiva em face de um dos envolvidos. Cabe ressaltar que as partes residem em imóveis contíguos, lado a lado, havendo apenas a própria estrutura/muro das residências como separação física entre elas. No documento apresentado à guarnição, não foi observada especificação de distância mínima de afastamento ou outra determinação específica relacionada à proximidade entre as respectivas residências.
+Durante a atuação da guarnição, a situação apresentada restringiu-se a atrito verbal decorrente das divergências familiares, não sendo constatada agressão física ou outra situação que demandasse intervenção imediata naquele momento.
+Diante dos fatos, as partes foram devidamente orientadas quanto à necessidade de buscar os meios legais competentes para resolução das questões relativas ao imóvel, herança, procuração, servidão e obra. Cessado o atrito verbal e não sendo constatada, naquele momento, outra situação que exigisse providência imediata da guarnição, a ocorrência foi encerrada no local após as devidas orientações.
+
+--- exemplo 2 (possíveis maus-tratos a menor) ---
+Guarnição do Setor Fox procedeu ao local para averiguar ocorrência inicialmente informada como possível situação envolvendo maus-tratos a menor de 9 anos, tendo sido relatado na solicitação que a tia teria colocado a criança para fora da residência, impedido seu retorno e que supostamente a agrediria.
+No local, a guarnição fez contato com os envolvidos, constatando que a tia reside no mesmo imóvel que a mãe do menor e auxilia nos cuidados da família. Segundo relato da tia, tanto a mãe quanto o menor apresentam distúrbios, sendo ainda informado por ela que a criança já teria saído da residência sem autorização em outras oportunidades e que, em razão de sua condição, por vezes apresentaria relatos que, segundo a declarante, não corresponderiam à realidade. Ressalta-se que tais informações correspondem exclusivamente à versão apresentada pela tia.
+Durante o atendimento, a guarnição manteve contato com o menor, não sendo visualizadas naquele momento lesões ou marcas aparentes que indicassem agressão física, tampouco foram percebidas manifestações aparentes de temor da criança em relação à tia. O menor retornou ao interior da residência, não havendo resistência por parte da tia quanto à sua entrada.
+Diante das circunstâncias efetivamente constatadas pela guarnição naquele momento, não foram identificados elementos aparentes que confirmassem a situação de agressão narrada inicialmente na solicitação. As partes foram devidamente orientadas, permanecendo o menor no interior da residência juntamente com seus familiares, sendo a ocorrência encerrada no local, sem outras alterações observadas pela guarnição.
+
+--- exemplo 3 (acidente de trânsito com vítima, envolve perícia/DP — identificadores anonimizados) ---
+Guarnição do Setor Fox foi empenhada em ocorrência de acidente de trânsito com vítima, tratando-se de colisão com veículo parado.
+Ao chegar, constatou-se que o cenário do acidente já se encontrava desfeito, não sendo possível verificar a posição original dos veículos ou outros elementos relacionados à dinâmica do fato. Encontrava-se presente equipe do CBMERJ, viatura [nº da ASE], tendo como mais antigo o [posto/graduação e nome], RG [nº].
+O condutor da motocicleta, [nome], qualificado neste BOPM, estava sob os cuidados do CBMERJ, sendo posteriormente conduzido ao [hospital], onde foi gerado o BAM nº [nº]. [Familiar], também qualificado(a), permaneceu como seu(sua) representante. A motocicleta envolvida ficou acautelada sob a responsabilidade de [nome], [grau de parentesco] do condutor.
+Quanto ao [outro veículo envolvido], foi constatado que este se encontrava enguiçado. [Nome] apresentou-se à guarnição como seu condutor, acompanhado de [nome], que se identificou como proprietário do veículo e empregador do condutor. O veículo permaneceu sob a responsabilidade de seu proprietário.
+Após as providências iniciais, a equipe deslocou-se ao [hospital], onde, em contato com os profissionais responsáveis pelo atendimento, foi informada de que a vítima se encontrava fora de risco de vida.
+Em seguida, os fatos foram apresentados na [nº]ª DP, sendo confeccionado o RO nº [nº]. Embora não houvesse vítima fatal e o cenário já estivesse desfeito quando da chegada da equipe, o inspetor responsável solicitou a realização de perícia.
+Em cumprimento à solicitação, a guarnição retornou ao local. Às [hora], compareceu o perito [nome], matrícula nº [nº], na viatura nº [nº], realizando os procedimentos periciais, já sem a presença dos veículos envolvidos.
+Ressalta-se que a guarnição não presenciou o acidente e encontrou o cenário já desfeito, não sendo possível estabelecer sua dinâmica ou atribuir responsabilidade aos envolvidos, limitando-se às constatações realizadas, às informações prestadas e às providências adotadas.
+Concluídos os trabalhos periciais e não havendo outras providências a cargo da guarnição, a ocorrência foi encerrada.
+
+--- exemplo 4 (perturbação do sossego) ---
+Guarnição do Setor Fox procedeu ao local para atendimento de ocorrência de perturbação do trabalho e do sossego. Ao chegar ao endereço indicado, o solicitante não se apresentou à guarnição.
+No local, foi identificado o responsável pelo evento, sendo realizada a devida orientação quanto ao volume do som e aos possíveis transtornos causados à vizinhança. O responsável mostrou-se receptivo às orientações, comprometendo-se a reduzir imediatamente o volume e a encerrar o evento em breve.
+Diante da situação e não havendo outras alterações no momento, a ocorrência foi encerrada no local após as devidas orientações.
+
+--- exemplo 5 (possível violência doméstica, sem lesão relatada) ---
+Guarnição do Setor Fox recebeu solicitação para atendimento de ocorrência inicialmente informada como violência doméstica contra a mulher, com possível lesão corporal.
+Ao chegar ao local, a guarnição fez contato com a solicitante, a qual relatou que desejava que seu ex-marido deixasse a residência, mencionando apenas a ocorrência de atrito verbal entre as partes. Durante o atendimento, não foi relatada pela solicitante qualquer agressão física.
+Após contato e orientação de ambas as partes, o homem retirou alguns de seus pertences pessoais e deixou a residência voluntariamente, cessando o desentendimento.
+Diante da situação constatada no local e não havendo outras alterações naquele momento, a ocorrência foi encerrada no local após as devidas orientações às partes.
+
+--- exemplo 6 (possível lesão corporal contra mulher, sem lesão constatada) ---
+Guarnição do Setor Fox procedeu ao local para averiguar ocorrência inicialmente informada como lesão corporal contra mulher.
+Ao chegar ao endereço, a guarnição deparou-se com o casal em atrito verbal, sendo relatado por ambas as partes que houve troca de insultos durante a discussão.
+A solicitante manifestou não se sentir confortável com a permanência de seu marido na residência, solicitando que ele deixasse o imóvel. O referido, que se encontrava no local, concordou em sair voluntariamente, cessando, naquele momento, o atrito entre as partes.
+A solicitante recebeu as devidas orientações e informou que, pela manhã, acompanhada de sua mãe, compareceria à Delegacia de Atendimento à Mulher para relatar os fatos e adotar as providências que entendesse cabíveis.
+Diante da saída voluntária do marido e da cessação do conflito naquele momento, a ocorrência foi encerrada no local, após as devidas orientações.
+`.trim();
+
+// Telefones de unidades (SOP / Oficial de Dia). Lista estática, mantida manualmente —
+// nenhum dado de contato é buscado ou enviado a terceiros pelo app.
+const TELEFONES_UNIDADES = [
+  { unidade: "2º BPM", tipo: "SOP", numero: "21978835012" },
+  { unidade: "3º BPM", tipo: "SOP", numero: "21982363076" },
+  { unidade: "4º BPM", tipo: "SOP", numero: "21978851210" },
+  { unidade: "5º BPM", tipo: "SOP", numero: "21970650119" },
+  { unidade: "6º BPM", tipo: "SOP", numero: "21973199064" },
+  { unidade: "7º BPM", tipo: "SOP", numero: "21975899101" },
+  { unidade: "8º BPM", tipo: "SOP", numero: "22992123810" },
+  { unidade: "9º BPM", tipo: "SOP", numero: "21999633892" },
+  { unidade: "10º BPM", tipo: "SOP", numero: "24992872278" },
+  { unidade: "11º BPM", tipo: "SOP", numero: "22992820192" },
+  { unidade: "12º BPM", tipo: "SOP", numero: "21981125792" },
+  { unidade: "14º BPM", tipo: "SOP", numero: "21976300981" },
+  { unidade: "15º BPM", tipo: "SOP", numero: "21976300981" },
+  { unidade: "16º BPM", tipo: "SOP", numero: "21978901472" },
+  { unidade: "17º BPM", tipo: "SOP", numero: "21973457527" },
+  { unidade: "18º BPM", tipo: "SOP", numero: "21970607503" },
+  { unidade: "19º BPM", tipo: "SOP", numero: "21992715416" },
+  { unidade: "20º BPM", tipo: "SOP", numero: "21969081178" },
+  { unidade: "21º BPM", tipo: "SOP", numero: "21974459796" },
+  { unidade: "22º BPM", tipo: "SOP", numero: "21970287308" },
+  { unidade: "23º BPM", tipo: "SOP", numero: "21974052554" },
+  { unidade: "24º BPM", tipo: "SOP", numero: "21978821077" },
+  { unidade: "25º BPM", tipo: "SOP", numero: "22992322440" },
+  { unidade: "26º BPM", tipo: "SOP", numero: "24992241096" },
+  { unidade: "27º BPM", tipo: "SOP", numero: "21973540465" },
+  { unidade: "27º BPM", tipo: "SOP", numero: "21970368066" },
+  { unidade: "28º BPM", tipo: "SOP", numero: "24992418760" },
+  { unidade: "29º BPM", tipo: "SOP", numero: "2238241190" },
+  { unidade: "30º BPM", tipo: "SOP", numero: "21976233478" },
+  { unidade: "31º BPM", tipo: "SOP", numero: "21972265592" },
+  { unidade: "32º BPM", tipo: "SOP", numero: "22997825853" },
+  { unidade: "33º BPM", tipo: "SOP", numero: "24992281382" },
+  { unidade: "34º BPM", tipo: "SOP", numero: "21988570770" },
+  { unidade: "35º BPM", tipo: "SOP", numero: "21991049238" },
+  { unidade: "36º BPM", tipo: "SOP", numero: "22992282252" },
+  { unidade: "37º BPM", tipo: "SOP", numero: "2433548998" },
+  { unidade: "38º BPM", tipo: "SOP", numero: "2422524961" },
+  { unidade: "39º BPM", tipo: "SOP", numero: "21973394763" },
+  { unidade: "40º BPM", tipo: "SOP", numero: "21998580916" },
+  { unidade: "41º BPM", tipo: "SOP", numero: "2123338415" },
+  { unidade: "CPP", tipo: "OF. DE DIA", numero: "21991804741" },
+  { unidade: "CPP", tipo: "SOP", numero: "21974616408" },
+  { unidade: "BPTUR", tipo: "OF. DE DIA", numero: "21974904152" },
+  { unidade: "BPTUR", tipo: "SOP", numero: "21991018618" },
+  { unidade: "BPVE", tipo: "OF. DE DIA", numero: "21978743428" },
+  { unidade: "CPRV", tipo: "SOP", numero: "21991717071" },
+  { unidade: "RECOM", tipo: "SOP", numero: "21990396534" },
+  { unidade: "CPAM", tipo: "SOP", numero: "21991539063" },
+  { unidade: "1ª CIPM", tipo: "OF. DE DIA", numero: "21976122498" },
+  { unidade: "2ª CIPM", tipo: "SOP", numero: "24992192071" },
+  { unidade: "HCPM", tipo: "OF. DE DIA", numero: "21991262797" },
+];
+
+// Apps oficiais mantidos pela SEPM/PMERJ (fonte: sepm.rj.gov.br/apps).
+// O Mike Assist não tem vínculo com eles — só linka pra loja oficial de cada um.
+const APPS_OFICIAIS_PMERJ = [
+  {
+    nome: "Portal",
+    icone: "data:image/png;base64,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",
+    descricao: "App interno do policial — arma de serviço, BOPM online, consulta de pessoa/veículo.",
+    link: "https://play.google.com/store/apps/details?id=oprj.pmerj.rj.gov.br",
+  },  {
+    nome: "190 RJ",
+    icone: "data:image/png;base64,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",
+    descricao: "Emergência, denúncia anônima, pessoas/animais desaparecidos, registro de bens.",
+    link: "https://play.google.com/store/apps/details?id=cidadao.pmerj.rj.gov.br.prod",
+  },
+  {
+    nome: "Rede Mulher",
+    icone: "data:image/png;base64,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",
+    descricao: "Apoio a mulheres em situação de violência doméstica — contato de confiança, B.O. online, medida protetiva.",
+    link: "https://play.google.com/store/apps/details?id=redemulher.pmerj.rj.gov.br",
+  },
+  {
+    nome: "Rede Escola",
+    icone: "data:image/png;base64,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",
+    descricao: "Conecta educadores à PM — botão de emergência, denúncia anônima, check-in de patrulha escolar.",
+    link: "https://play.google.com/store/apps/details?id=com.redeescola.pmerj.rj.gov.br",
+  },
+];
+
+// Apps de terceiros recomendados (não são oficiais da PMERJ/SEPM).
+const APPS_TERCEIROS = [
+  {
+    nome: "Escala Pro",
+    icone: "data:image/png;base64,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",
+    descricao: "Sua escala no controle — organização de escala de serviço.",
+    link: "https://play.google.com/store/apps/details?id=com.igorcastro1.escalaapp",
+  },
+];
+
+function formatarTelefone(numero) {
+  const d = numero.replace(/\D/g, "");
+  if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return numero;
+}
+
+// ---------- Ícones da navegação (SVG inline, sem dependência externa) ----------
+function TabIcon({ id, active }) {
+  const cor = active ? "#e8ecef" : "#7d8894";
+  const props = { width: 20, height: 20, viewBox: "0 0 24 24", fill: "none", stroke: cor, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" };
+  switch (id) {
+    case "redacao":
+      return (
+        <svg {...props}>
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <path d="M14 2v6h6" />
+          <path d="M9 13h6" /><path d="M9 17h6" />
+        </svg>
+      );
+    case "avisos":
+      return (
+        <svg {...props}>
+          <path d="M12 3v2" /><path d="M5.5 7 4 5.5" /><path d="M18.5 7 20 5.5" />
+          <path d="M4 14a8 8 0 0 1 16 0c0 3-1 4-2 5H6c-1-1-2-2-2-5Z" />
+          <path d="M9 21h6" />
+        </svg>
+      );
+    case "consultas":
+      return (
+        <svg {...props}>
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </svg>
+      );
+    case "telefones":
+      return (
+        <svg {...props}>
+          <rect x="6" y="2" width="12" height="20" rx="2.5" />
+          <path d="M10.5 18.5h3" />
+        </svg>
+      );
+    case "legislacao":
+      return (
+        <svg {...props}>
+          <path d="M12 4v16" />
+          <path d="M4 6l4-1.5L12 6l4-1.5L20 6" />
+          <path d="M4 6 2 11a2.5 2.5 0 0 0 5 0L4 6Z" />
+          <path d="M20 6l-2 5a2.5 2.5 0 0 0 5 0l-3-5Z" />
+          <path d="M7 21h10" />
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
+
+const PROFILE_KEY = "mike-assist:perfil-policial";
+const AVISOS_KEY = "mike-assist:avisos-cache";
+const DEVICE_ID_STORAGE = "mike-assist:device-id";
+const TEMA_KEY = "mike-assist:tema";
+
+const MENSAGENS_DO_DIA = [
+  "Atenção redobrada na abordagem, guarnição segura é guarnição que volta inteira.",
+  "Confira o material antes de sair da unidade — detalhe simples, diferença grande.",
+  "Hidrate-se e faça as pausas possíveis durante o turno.",
+  "Reforço: comunicação clara com a central evita mal-entendido em qualquer ocorrência.",
+  "Cuidado redobrado com vias de fuga e posicionamento em cada abordagem.",
+  "Um bom histórico começa com atenção aos detalhes ainda na cena.",
+  "Trabalho em equipe: mantenha contato visual e verbal com o parceiro de guarnição.",
+];
+
+function mensagemDoDia() {
+  const inicioDoAno = new Date(new Date().getFullYear(), 0, 0);
+  const diffMs = new Date() - inicioDoAno;
+  const diaDoAno = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  return MENSAGENS_DO_DIA[diaDoAno % MENSAGENS_DO_DIA.length];
+}
+
+const emptyProfile = {
+  nome: "", rg: "", unidade: "", setor: "", horario: "", cop: "", componentes: [],
+};
+
+const CATEGORIAS_AVISOS = [
+  {
+    id: "juridico", label: "Jurídico", cor: "#a13b46",
+    query: "decisões recentes do STF e da ALERJ sobre atuação da polícia militar, segurança pública e uso da força no Rio de Janeiro",
+  },
+  {
+    id: "institucional", label: "Institucional PMERJ", cor: "#5b8bc9",
+    query: "notícias institucionais recentes da PMERJ: RAS, PROEIS, editais, capacitações, resultados operacionais (fonte: site oficial sepm.rj.gov.br)",
+  },
+  {
+    id: "normas", label: "Normas internas", cor: "#4f8f6d",
+    query: "atualizações públicas de boletins internos, Vade Mecum de Ocorrências ou normas de procedimento da PMERJ",
+  },
+];
+
+// ---------- Armazenamento local (substitui o window.storage do Claude) ----------
+function storageGet(key) {
+  const v = localStorage.getItem(key);
+  return Promise.resolve(v === null ? null : { value: v });
+}
+function storageSet(key, value) {
+  localStorage.setItem(key, value);
+  return Promise.resolve({ value });
+}
+
+function Field({ label, value, onChange, placeholder, mono }) {
+  return (
+    <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <span style={styles.fieldLabel}>{label}</span>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        style={{ ...styles.input, fontFamily: mono ? "'IBM Plex Mono', monospace" : "inherit" }}
+      />
+    </label>
+  );
+}
+
+// ---------- Chamada ao backend (proxy) em vez de direto à Anthropic ----------
+async function callClaude(deviceId, { system, messages, tools, maxTokens = 1000, model }) {
+  const response = await fetch(WORKER_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ system, messages, tools, maxTokens, deviceId, model }),
+  });
+  return response.json();
+}
+
+function getOrCreateDeviceId() {
+  let id = localStorage.getItem(DEVICE_ID_STORAGE);
+  if (!id) {
+    id = (crypto.randomUUID ? crypto.randomUUID() : `dev-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    localStorage.setItem(DEVICE_ID_STORAGE, id);
+  }
+  return id;
+}
+
+function extractJsonFromResponse(data) {
+  // Se a Anthropic devolveu um erro (ex: modelo inválido, tool não habilitada,
+  // limite de crédito), o formato é {"type":"error","error":{"message":...}}
+  if (data.type === "error" || data.error) {
+    const msg = typeof data.error === "string" ? data.error : (data.error?.message || "erro desconhecido");
+    throw new Error(msg);
+  }
+  const textBlocks = (data.content || []).filter((b) => b.type === "text");
+  if (textBlocks.length === 0) throw new Error("A resposta não trouxe texto (verifique o console do navegador para mais detalhes).");
+  // Junta TODOS os blocos de texto (quando a IA usa busca com citações, a
+  // resposta pode vir fragmentada em vários blocos intercalados).
+  const joined = textBlocks.map((b) => b.text).join("\n");
+  const cleaned = joined.replace(/```json|```/g, "").trim();
+  // Extrai só o trecho entre a primeira { e a última }, ignorando qualquer
+  // texto de comentário que a IA tenha colocado antes/depois do JSON.
+  const inicio = cleaned.indexOf("{");
+  const fim = cleaned.lastIndexOf("}");
+  if (inicio === -1 || fim === -1 || fim < inicio) {
+    throw new Error("A resposta não continha um JSON reconhecível.");
+  }
+  const jsonBruto = cleaned.slice(inicio, fim + 1);
+  try {
+    return JSON.parse(jsonBruto);
+  } catch (e) {
+    throw new Error("Não consegui interpretar a resposta da IA como JSON.");
+  }
+}
+
+function extractPlainText(data) {
+  if (data.type === "error" || data.error) {
+    const msg = typeof data.error === "string" ? data.error : (data.error?.message || "erro desconhecido");
+    throw new Error(msg);
+  }
+  const textBlocks = (data.content || []).filter((b) => b.type === "text");
+  if (textBlocks.length === 0) throw new Error("A busca não retornou nenhum texto.");
+  return textBlocks.map((b) => b.text).join("\n").trim();
+}
+
+// Ícone do app: quadrado arredondado dividido na diagonal (navy/dourado,
+// cores da PMERJ) com um ícone de boletim ao centro. Puro CSS/SVG — sem
+// nenhuma imagem externa — pra funcionar tanto no cabeçalho (pequeno)
+// quanto na splash de abertura (grande), só mudando o "size".
+function MikeIcon({ size = 40 }) {
+  return (
+    <img
+      src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTAyNCIgaGVpZ2h0PSIxMDI0IiB2aWV3Qm94PSIwIDAgMTAyNCAxMDI0Ij48cGF0aCBmaWxsPSIjMDcxNDI2IiBkPSJNMCAwTDEzNy43MDMgMEw4ODYuNzYzIDBMMTAyNCAwTDEwMjQgMTQxLjU2MUwxMDI0IDcxMy44NzhMMTAyNCA3NTYuMjQ5TDEwMjQgODc5LjgyN0wxMDI0IDEwMjRMODgzLjIyOCAxMDI0TDEzOC43MTcgMTAyNEMxMzIuMTcyIDEwMjIuMjEgMTIyLjgyMiAxMDIxLjM5IDExNS4wMTcgMTAxOS4yOUM4NS4zNDg0IDEwMTEuMiA1OC44MTM1IDk5NC4zNCAzOC44ODIyIDk3MC45MjFDMzcuOTUxIDk2OS44MDcgMzcuMTI0MSA5NjguODUyIDM2LjEzNjcgOTY3Ljc4OUMyOS41NzUyIDk2MS40MzIgMTUuNzIyOCA5MzcuNzg0IDEyLjIwMDIgOTI4LjY3MUM0LjEyNjc4IDkwOS42MDMgMy4wOTg4MiA4OTguOTczIDAgODc5LjI5NEwwIDE0NS4wNzRMMCAwWiIvPjxwYXRoIGZpbGw9IiMwNzE0MjYiIGQ9Ik0xMDI0IDcxMy44NzhMMTAyNCA3NTYuMjQ5TDEwMjQgODc5LjgyN0wxMDI0IDEwMjRMODgzLjIyOCAxMDI0TDEzOC43MTcgMTAyNEMxMzIuMTcyIDEwMjIuMjEgMTIyLjgyMiAxMDIxLjM5IDExNS4wMTcgMTAxOS4yOUM4NS4zNDg0IDEwMTEuMiA1OC44MTM1IDk5NC4zNCAzOC44ODIyIDk3MC45MjFDMzcuOTUxIDk2OS44MDcgMzcuMTI0MSA5NjguODUyIDM2LjEzNjcgOTY3Ljc4OUMyOS41NzUyIDk2MS40MzIgMTUuNzIyOCA5MzcuNzg0IDEyLjIwMDIgOTI4LjY3MUMxNy42OTIgOTI3Ljg5NCAyNi4wMTE0IDkyNS44OTIgMzEuNjEzMSA5MjQuNzA2TDY2LjU4ODggOTE3LjI5MkM4NS40NTgzIDkxMy4yOTYgMTA5LjMwNSA5MDkuMTc0IDEyNy40MTcgOTA0LjQ3NUMxNTUuNzg5IDg5OC44NTkgMTg0LjA4NSA4OTIuODY3IDIxMi4yOTkgODg2LjUwMkMyMjAuMjg1IDg4NC43NzEgMjQxLjMxNCA4NzkuNDg3IDI0OC40NTggODc4Ljk1M0MyNTMuMjg0IDg3OC4xMzggMjg1LjEzNyA4NzEuNzg1IDI4Ni43MDIgODcwLjU0NEMyODkuNjQ0IDg3MC40NzIgMjk5LjYzNCA4NjguMzY1IDMwMy4xMzMgODY3LjYyN0MzMTcuMDY1IDg2NC42OSAzMzEuMDA3IDg2MS41NjkgMzQ0Ljk0IDg1OC41OEw0ODQuMjA3IDgyOC44NTRMNjc2LjkwMSA3ODcuOTkyQzY4OS40MDIgNzg1LjE0NiA3MDEuOTMgNzgyLjQyIDcxNC40ODMgNzc5LjgxM0M3MTkuOTY4IDc3OC42OTcgNzI2LjE2NCA3NzcuNjU1IDczMS42NSA3NzYuMzgxQzczMi44MDQgNzc2LjExMyA3MzIuNzU5IDc3NS41ODkgNzMzLjE3MyA3NzQuNjE5QzczMy41OTUgNzc1LjI2MiA3MzMuMjk1IDc3NC45MSA3MzQuMjIgNzc1LjUyOUM3MzguODc2IDc3NC42OTkgNzcxLjEzMSA3NjguNDQ5IDc3Mi43MDUgNzY2Ljg2M0w3NzIuOTY2IDc2Ny4wMzFDNzc1Ljg4OCA3NjcuMjk1IDg2OC4zNzggNzQ3LjYxIDg3Ni4zMTEgNzQ0Ljk1M0M4ODIuNTM2IDc0My4zODkgODkxLjYxMiA3NDEuODQ0IDg5OC4xNzIgNzQwLjQ1Mkw5NTEuMzEgNzI5LjIzMkM5NzQuNjc2IDcyNC4yODQgMTAwMC42NSA3MTcuNjU3IDEwMjQgNzEzLjg3OFoiLz48cGF0aCBmaWxsPSIjRDdBQTMyIiBkPSJNMTAyNCA3MTMuODc4TDEwMjQgNzU2LjI0OUwzMTUuODg3IDkwNy4zMDNMMTI0LjcyNSA5NDguNzY1TDY2LjU2NzEgOTYxLjMyNEM2MS43OTggOTYyLjM1NSA0NS4wNDM1IDk2NS41NDQgNDEuMjY0MyA5NjYuODNDMzkuNTU1MiA5NjkuMTM1IDM5LjcwMyA5NjcuMzE2IDM4Ljg4MjIgOTcwLjkyMUMzNy45NTEgOTY5LjgwNyAzNy4xMjQxIDk2OC44NTIgMzYuMTM2NyA5NjcuNzg5QzI5LjU3NTIgOTYxLjQzMiAxNS43MjI4IDkzNy43ODQgMTIuMjAwMiA5MjguNjcxQzE3LjY5MiA5MjcuODk0IDI2LjAxMTQgOTI1Ljg5MiAzMS42MTMxIDkyNC43MDZMNjYuNTg4OCA5MTcuMjkyQzg1LjQ1ODMgOTEzLjI5NiAxMDkuMzA1IDkwOS4xNzQgMTI3LjQxNyA5MDQuNDc1QzE1NS43ODkgODk4Ljg1OSAxODQuMDg1IDg5Mi44NjcgMjEyLjI5OSA4ODYuNTAyQzIyMC4yODUgODg0Ljc3MSAyNDEuMzE0IDg3OS40ODcgMjQ4LjQ1OCA4NzguOTUzQzI1My4yODQgODc4LjEzOCAyODUuMTM3IDg3MS43ODUgMjg2LjcwMiA4NzAuNTQ0QzI4OS42NDQgODcwLjQ3MiAyOTkuNjM0IDg2OC4zNjUgMzAzLjEzMyA4NjcuNjI3QzMxNy4wNjUgODY0LjY5IDMzMS4wMDcgODYxLjU2OSAzNDQuOTQgODU4LjU4TDQ4NC4yMDcgODI4Ljg1NEw2NzYuOTAxIDc4Ny45OTJDNjg5LjQwMiA3ODUuMTQ2IDcwMS45MyA3ODIuNDIgNzE0LjQ4MyA3NzkuODEzQzcxOS45NjggNzc4LjY5NyA3MjYuMTY0IDc3Ny42NTUgNzMxLjY1IDc3Ni4zODFDNzMyLjgwNCA3NzYuMTEzIDczMi43NTkgNzc1LjU4OSA3MzMuMTczIDc3NC42MTlDNzMzLjU5NSA3NzUuMjYyIDczMy4yOTUgNzc0LjkxIDczNC4yMiA3NzUuNTI5QzczOC44NzYgNzc0LjY5OSA3NzEuMTMxIDc2OC40NDkgNzcyLjcwNSA3NjYuODYzTDc3Mi45NjYgNzY3LjAzMUM3NzUuODg4IDc2Ny4yOTUgODY4LjM3OCA3NDcuNjEgODc2LjMxMSA3NDQuOTUzQzg4Mi41MzYgNzQzLjM4OSA4OTEuNjEyIDc0MS44NDQgODk4LjE3MiA3NDAuNDUyTDk1MS4zMSA3MjkuMjMyQzk3NC42NzYgNzI0LjI4NCAxMDAwLjY1IDcxNy42NTcgMTAyNCA3MTMuODc4WiIvPjxwYXRoIGZpbGw9IiMwNzE0MjYiIGQ9Ik0zNi4xMzY3IDk2Ny43ODlDMzguMTM0NiA5NjcuNDE0IDM5LjE4NTkgOTY3LjA2IDQxLjI2NDMgOTY2LjgzQzM5LjU1NTIgOTY5LjEzNSAzOS43MDMgOTY3LjMxNiAzOC44ODIyIDk3MC45MjFDMzcuOTUxIDk2OS44MDcgMzcuMTI0MSA5NjguODUyIDM2LjEzNjcgOTY3Ljc4OVoiLz48cGF0aCBmaWxsPSIjRjVGNUYyIiBkPSJNODgzLjIyOCAxMDI0Qzg4OC43NzIgMTAyMi41NiA4OTcuMDcxIDEwMjEuOTggOTAzLjM0NCAxMDIwLjUyQzkyMS42NTggMTAxNi4yNyA5NDEuNjY1IDEwMDcuNzEgOTU2Ljk3NCA5OTYuODAxQzk4Ni43OCA5NzUuNTI1IDEwMDguNDggOTQ0Ljc2MiAxMDE4LjUzIDkwOS41NDZDMTAyMS41NCA4OTguNjQzIDEwMjIuMTQgODkwLjcyNyAxMDI0IDg3OS44MjdMMTAyNCAxMDI0TDg4My4yMjggMTAyNFoiLz48cGF0aCBmaWxsPSIjRjVGNUYyIiBkPSJNMjg2LjcwMiA4NzAuNTQ0QzI5NS43NTUgODE2LjE1NSAyOTEuNzYxIDc2MS45NzggMjc2LjI2OSA3MDkuMDYyQzI3MS4zMjYgNjkyLjE3OCAyNjUgNjc1LjE4NCAyNTcuMTc2IDY1OS40MTVDMjUzLjA2NyA2NTEuMTMzIDI0Ni45MDQgNjQzLjM1NCAyNDQuMTMyIDYzNC40OTRDMjQyLjU1MyA2MjkuNDQ0IDI0Mi4zMzIgNjIzLjc1MyAyNDMuMDYgNjE4LjUzQzI0NC40NiA2MDguNDkyIDI0OS43MTkgNTk4LjkwMyAyNTcuOTAyIDU5Mi44MjRDMjYzLjYxMSA1ODguNTgzIDMxNS43NjYgNTY1LjEwOCAzMjQuMDI1IDU2Mi45MjlDMzI4Ljg0NCA1NjEuNjU3IDMzNC4wMTQgNTYxLjU1IDMzOC45MjUgNTYyLjMzM0MzNjMuMzYzIDU2Ni4yMjcgMzY5LjcxOCA1ODUuMjMzIDM3OS4zNDUgNjA0LjU4NEMzODMuMzA3IDYxMi41MzEgMzg3LjkwNSA2MjAuMTQ0IDM5My4wOTUgNjI3LjM0OUM0MTYuMjgzIDY1OS4yNTkgNDUwLjQ1MiA2ODEuMjU5IDQ4OS43NDggNjg3LjAxM0M1NTAuNjMzIDY5Ni4yNzYgNjA4LjI5NSA2NjYuNDU4IDYzOS41MTQgNjE0LjI2MUM2NDkuNjI5IDU5OS4xNTggNjUxLjk1NiA1NzkuNTY0IDY2Ny44MDIgNTY4Ljc2QzY3OC44MTQgNTYxLjI1MiA2OTEuNTQ0IDU1OS4wMTUgNzAzLjc5IDU2NC4zMThDNzE5LjM5MiA1NzEuMDc0IDczNC40NjUgNTc4LjI0NiA3NTAuMDc2IDU4NC45MThDNzU0LjQwNSA1ODYuNzY4IDc1OS43NzMgNTg4Ljk1MSA3NjMuNjY4IDU5MS4zNzdDNzY3Ljg0OCA1OTMuOTM3IDc3MS40NjcgNTk3LjMxNSA3NzQuMzA4IDYwMS4zMDlDNzgwLjA1OSA2MDkuNDUzIDc4Mi4zMjggNjE5LjU1MyA3ODAuNjE0IDYyOS4zNzRDNzc4LjE5MyA2NDIuNzI1IDc2Ni4wNTQgNjU4LjI1MiA3NjAuNDg0IDY3Mi4yNDNDNzQ2LjkwNSA3MDYuMzUxIDczOS41MDQgNzM4Ljc3OCA3MzMuMTczIDc3NC42MTlDNzMyLjc1OSA3NzUuNTg5IDczMi44MDQgNzc2LjExMyA3MzEuNjUgNzc2LjM4MUM3MjYuMTY0IDc3Ny42NTUgNzE5Ljk2OCA3NzguNjk3IDcxNC40ODMgNzc5LjgxM0M3MDEuOTMgNzgyLjQyIDY4OS40MDIgNzg1LjE0NiA2NzYuOTAxIDc4Ny45OTJMNDg0LjIwNyA4MjguODU0TDM0NC45NCA4NTguNThDMzMxLjAwNyA4NjEuNTY5IDMxNy4wNjUgODY0LjY5IDMwMy4xMzMgODY3LjYyN0MyOTkuNjM0IDg2OC4zNjUgMjg5LjY0NCA4NzAuNDcyIDI4Ni43MDIgODcwLjU0NFoiLz48cGF0aCBmaWxsPSIjRjVGNUYyIiBkPSJNMTI3LjQxNyA5MDQuNDc1QzEyNi42NyA4OTkuOTAzIDEyNi4zNTQgODkyLjQ2NCAxMjYuMTM5IDg4Ny43MDNDMTI0LjMyNSA4NDcuNjIyIDEzMC4xNSA4MDQuOTQxIDE0MS40NTMgNzY2LjU0N0MxNTQuMjU3IDcyMy4wNTQgMTgzLjAwNSA2OTEuODgyIDIyMi44NCA2NzEuMDE1QzIyNC41NDUgNjc2LjkzIDIyNy41ODYgNjg0LjI4IDIyOS43MDMgNjkwLjI0MUMyMzIuOTgxIDY5OS41NzEgMjM1Ljk5MSA3MDguOTkzIDIzOC43MjggNzE4LjQ5NkMyNTMuMzY3IDc2OC44MTQgMjU5LjAzIDgyNy4yNzQgMjQ4LjQ1OCA4NzguOTUzQzI0MS4zMTQgODc5LjQ4NyAyMjAuMjg1IDg4NC43NzEgMjEyLjI5OSA4ODYuNTAyQzE4NC4wODUgODkyLjg2NyAxNTUuNzg5IDg5OC44NTkgMTI3LjQxNyA5MDQuNDc1WiIvPjxwYXRoIGZpbGw9IiNGNUY1RjIiIGQ9Ik04MDEuOTg5IDY2OS4xNTVDODA2LjcwNCA2NzEuNzgxIDgxMy41MzEgNjc2LjU4NiA4MTcuOTg3IDY3OS43NzZDODQyLjg3OSA2OTcuNTk4IDg2My4yNTIgNzE2LjYyNCA4NzYuMzExIDc0NC45NTNDODY4LjM3OCA3NDcuNjEgNzc1Ljg4OCA3NjcuMjk1IDc3Mi45NjYgNzY3LjAzMUw3NzIuNzA1IDc2Ni44NjNDNzc5LjQwMyA3MzIuMjQxIDc4OS4yMyA3MDEuODU3IDgwMS45ODkgNjY5LjE1NVoiLz48cGF0aCBmaWxsPSIjRjVGNUYyIiBkPSJNMCAwTDEzNy43MDMgMEMxMjguMjM5IDEuOTA5ODYgMTE4LjU3NCAyLjkwMjcgMTA5LjMwNiA1LjcyNzg5Qzc0LjcxMjYgMTYuMjc0MSA0NS40NjQ5IDM4LjU0IDI1LjU0NjggNjguNzM1MkMxNC40MDA3IDg1Ljc2ODggNi42ODQ3NSAxMDQuODEzIDIuODMxMjkgMTI0LjgwMkMxLjc5ODM3IDEzMC4zNSAxLjAzNTc2IDE0MC45MSAwIDE0NS4wNzRMMCAwWiIvPjxwYXRoIGZpbGw9IiNGNUY1RjIiIGQ9Ik04ODYuNzYzIDBMMTAyNCAwTDEwMjQgMTQxLjU2MUMxMDIzLjUgMTM5LjM1NCAxMDIzLjEzIDEzNi4zMzIgMTAyMi44MyAxMzQuMDQ1QzEwMTUuMiA3NS4xMTg3IDk3Mi4wNzggMjIuOTczNSA5MTQuOTg3IDUuNzc4OUM5MDUuODM3IDMuMDIyODkgODk2LjIwMSAxLjYzOTM3IDg4Ni43NjMgMFoiLz48cGF0aCBmaWxsPSIjRjVGNUYyIiBkPSJNNTM2LjE3NSAyOTAuNzExQzU0MS4zNDIgMjkwLjI2MyA1NDkuNzg0IDI5MC40MDkgNTU1LjAzMiAyOTAuMzY2QzU4MS40ODggMjkwLjE1NCA2MTYuNzI2IDI5Mi44NjIgNjQxLjk1NiAzMDAuODk3QzY0NC4wODMgMzE0LjE3NCA2NDQuNTY2IDMyNy42NjMgNjQzLjM5NSAzNDEuMDU5QzY3OC4yOTUgMzQ2LjEwMiA2NTAuOTY4IDQzMC42NzMgNjI0LjEwMiA0MzMuODA5QzYwOS4yNzEgNDk3LjA3MyA1NjIuNjE1IDU1Ny4zMDkgNDkwLjI3MSA1NDMuMzA2QzQ3Ny40OSA1MzkuODUzIDQ2Ny43OTIgNTM1LjQyMiA0NTYuNzkzIDUyNy45NEM0MjguNDEyIDUwOC42MzQgNDA0Ljg4NSA0NjcuNDk3IDM5OC43ODEgNDMzLjcwNkMzNzUuNzg2IDQyOS4xNDEgMzY0LjQyNyAzODguODQyIDM2Mi43OTYgMzY4Ljg4M0MzNjIuMjE1IDM2MS43ODMgMzYzLjUxNyAzNTEuODc2IDM2OC4zODEgMzQ2LjMyNUMzNjkuOTExIDM0NC4zNjMgMzc1Ljc0MiAzNDIuNDIxIDM3Ny4wNDggMzQwLjg0OEMzODguMzA1IDMyNy4yODkgMzk4LjU2OSAzMjMuMjkyIDQxNS4wMzcgMzE2Ljg3M0M0NTMuODcgMzAyLjEwOCA0OTQuNzEgMjkzLjI4OCA1MzYuMTc1IDI5MC43MTFaIi8+PHBhdGggZmlsbD0iI0Y1RjVGMiIgZD0iTTU1MC43MDYgMTQxLjcwOEM1NjkuNjU4IDEzOS40MzYgNTk2LjgxNiAxNDMuNDU3IDYxMy43MTYgMTUxLjc4QzY3MC43NDYgMTc5Ljg2NSA2NTkuODg3IDIzMy41MzcgNjM3LjQ1NiAyODEuMDg2QzU2NS40MDkgMjY0LjY1IDQ4My42NzEgMjcyLjI3IDQxNS4xMTkgMjk5LjQ4NkM0MDQuMTkyIDMwMy41MzkgMzkyLjc4MSAzMDkuMTUxIDM4Mi4zNjkgMzE0LjQ1QzM3My4xNDYgMzE5LjE0MyAzNjkuNjAxIDMyMC41MTQgMzU5LjU1NSAzMjEuOTA3QzMzNC4wNzYgMzI1LjQ0IDMxNS42ODggMzE4LjA3NSAzMjguNjQ4IDI4OS4yMDdDMzM2LjA1NiAyNzIuNzA1IDM0NS40MzggMjU5LjM0IDM1Ny4yOTQgMjQ1LjY0NUM0MDQuNTU1IDE4OS41NzQgNDc2LjgzMSAxNDcuMzkxIDU1MC43MDYgMTQxLjcwOFoiLz48cGF0aCBmaWxsPSIjRjVGNUYyIiBkPSJNNTk0Ljc1MiA1MjMuNDA0QzU5NS42MzUgNTI0LjI5NyA1OTUuNzQ1IDUzMC4zNjYgNTk1Ljg5OCA1MzJDNTk3LjgxIDU1Mi40MiA2MDcuNzI0IDU3My4yODEgNjIzLjczMSA1ODYuMzc1QzU5OC40NyA2MjcuMDc5IDU1MC44MjYgNjU1LjEyNiA1MDIuMjI3IDY1MC40N0M0NzEuMzQxIDY0Ny41MTEgNDQ5LjYyOCA2MzQuNzMxIDQyNi4xOTEgNjE1Ljg4NUM0MTcuOTIyIDYwOC40ODMgNDA2LjM2OSA1OTcuNTc4IDQwMC41NjIgNTg4LjMyQzQxOS42MDkgNTcxLjYwMSA0MjcuMzM4IDU0OS4xMjggNDI5LjIzOSA1MjQuNjM4QzQ1My4zNTQgNTQ3Ljg0IDQ3Ny44MjUgNTY0LjIxMSA1MTIuNzEgNTYzLjYwOEM1NDYuOTMgNTYzLjAxNyA1NzEuNzAzIDU0Ni44NzQgNTk0Ljc1MiA1MjMuNDA0WiIvPjxwYXRoIGZpbGw9IiNGNUY1RjIiIGQ9Ik0wIDg3OS4yOTRDMy4wOTg4MiA4OTguOTczIDQuMTI2NzggOTA5LjYwMyAxMi4yMDAyIDkyOC42NzFDMTUuNzIyOCA5MzcuNzg0IDI5LjU3NTIgOTYxLjQzMiAzNi4xMzY3IDk2Ny43ODlDMzcuMTI0MSA5NjguODUyIDM3Ljk1MSA5NjkuODA3IDM4Ljg4MjIgOTcwLjkyMUM1OC44MTM1IDk5NC4zNCA4NS4zNDg0IDEwMTEuMiAxMTUuMDE3IDEwMTkuMjlDMTIyLjgyMiAxMDIxLjM5IDEzMi4xNzIgMTAyMi4yMSAxMzguNzE3IDEwMjRMMCAxMDI0TDAgODc5LjI5NFoiLz48L3N2Zz4="
+      style={{
+        width: size,
+        height: size,
+        borderRadius: Math.round(size * 0.1),
+        flexShrink: 0,
+        display: "block",
+      }}
+      alt="Mike Assist"
+    />
+  );
+}
+
+// Tela de abertura — mostrada enquanto os dados locais carregam (rápido) e
+// por um tempo mínimo fixo, pra ter a mesma sensação de "app de verdade
+// abrindo" de outros apps de referência, com barra de carregamento animada.
+function SplashScreen() {
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "var(--bg)",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 18,
+    }}>
+      <MikeIcon size={84} />
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: 26, fontWeight: 800, color: "var(--text)", letterSpacing: -0.3 }}>Mike Assist</div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#c9a24a", letterSpacing: 2.5, marginTop: 6 }}>
+          111 SÉRIE GOLD
+        </div>
+        <div style={{ fontSize: 11.5, fontWeight: 600, color: "var(--text-dim)", letterSpacing: 2, marginTop: 6 }}>
+          ASSISTENTE DE BOPM · PMERJ
+        </div>
+      </div>
+      <div style={{
+        position: "absolute", bottom: "calc(env(safe-area-inset-bottom, 0px) + 40px)",
+        width: 120, height: 3, borderRadius: 3, background: "var(--bg-chip)", overflow: "hidden",
+      }}>
+        <div style={{
+          width: "45%", height: "100%", borderRadius: 3, background: "#c9a24a",
+          animation: "mkSplashBar 1.1s ease-in-out infinite",
+        }} />
+      </div>
+    </div>
+  );
+}
+
+function MikeAssist() {
+  const [activeTab, setActiveTab] = useState("redacao");
+  const [loaded, setLoaded] = useState(false);
+
+  // Tema claro/escuro — preferência salva só no aparelho (localStorage),
+  // nunca em servidor. Padrão escuro (paleta PMERJ azul-marinho).
+  const [tema, setTema] = useState(() => {
+    try { return localStorage.getItem(TEMA_KEY) === "light" ? "light" : "dark"; }
+    catch (e) { return "dark"; }
+  });
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", tema);
+    try { localStorage.setItem(TEMA_KEY, tema); } catch (e) {}
+  }, [tema]);
+  function alternarTema() {
+    setTema((t) => (t === "dark" ? "light" : "dark"));
+  }
+
+  const [deviceId] = useState(getOrCreateDeviceId);
+
+  const [profile, setProfile] = useState(emptyProfile);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [draftProfile, setDraftProfile] = useState(emptyProfile);
+
+  const [relato, setRelato] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [resultado, setResultado] = useState(null);
+  const [error, setError] = useState("");
+  const [copyLabel, setCopyLabel] = useState("Copiar");
+  const [pixCopyLabel, setPixCopyLabel] = useState("Copiar chave Pix");
+
+  const [avisos, setAvisos] = useState({});
+  const [avisosLoading, setAvisosLoading] = useState(false);
+  const [avisosError, setAvisosError] = useState("");
+  const [forcandoAtualizacao, setForcandoAtualizacao] = useState(false);
+  const [forcarMensagem, setForcarMensagem] = useState("");
+
+  const [buscaTelefone, setBuscaTelefone] = useState("");
+
+  const [legislacaoQuery, setLegislacaoQuery] = useState("");
+  const [legislacaoLoading, setLegislacaoLoading] = useState(false);
+  const [legislacaoFase, setLegislacaoFase] = useState("");
+  const [legislacaoResultado, setLegislacaoResultado] = useState(null);
+  const [legislacaoError, setLegislacaoError] = useState("");
+
+  // Tempo mínimo de exibição da splash, pra não "piscar" quando os dados
+  // locais carregam rápido demais — só efeito visual, não afeta velocidade
+  // real do app (os dados já carregam em paralelo, isso só atrasa a troca
+  // de tela por uma fração de segundo pra parecer intencional).
+  const [splashMinDone, setSplashMinDone] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setSplashMinDone(true), 700);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const res = await storageGet(PROFILE_KEY);
+      if (res) {
+        const parsed = JSON.parse(res.value);
+        setProfile(parsed);
+        setDraftProfile(parsed);
+      } else {
+        setEditingProfile(true);
+      }
+
+      const resAvisos = await storageGet(AVISOS_KEY);
+      if (resAvisos) {
+        const parsedAvisos = JSON.parse(resAvisos.value);
+        Object.keys(parsedAvisos).forEach((k) => {
+          if (parsedAvisos[k].atualizadoEm) parsedAvisos[k].atualizadoEm = new Date(parsedAvisos[k].atualizadoEm);
+        });
+        setAvisos(parsedAvisos);
+      }
+      setLoaded(true);
+      carregarAvisos();
+    })();
+  }, []);
+
+  async function saveProfile() {
+    setProfile(draftProfile);
+    setEditingProfile(false);
+    await storageSet(PROFILE_KEY, JSON.stringify(draftProfile));
+  }
+
+  const profileComplete = profile.nome && profile.rg;
+
+  async function gerarHistorico() {
+    if (!relato.trim()) return;
+    setLoading(true); setError(""); setResultado(null);
+
+    const systemPrompt = `Você é um assistente que ajuda policiais militares do Rio de Janeiro (PMERJ) a redigir o histórico de um BOPM (Boletim de Ocorrência da Polícia Militar) a partir de um relato informal.
+
+Regras estritas:
+- O relato do policial virá em linguagem informal, com gírias, abreviações e possíveis erros de gramática/digitação — normal para um relato rápido de campo. Sua função é corrigir a forma (gramática, formalidade, clareza) sem alterar os fatos narrados.
+- Use linguagem natural de histórico policial, mas juridicamente correta — direto no fato, sem formalismo excessivo ou "encher linguiça". Narrativa em terceira pessoa, tempo verbal correto.
+- NÃO inclua nome, graduação, RG, unidade ou dados da guarnição no texto do histórico. Esses dados já existem em campos próprios do portal oficial da PMERJ; o histórico deve focar exclusivamente na dinâmica do fato (o que aconteceu, como, quando, onde, com quem).
+- NUNCA invente informação que o usuário não forneceu. Se um dado costuma ajudar a fundamentar esse tipo de ocorrência e não veio no relato, apenas sugira mencioná-lo — nunca em tom de exigência ou cobrança, é uma dica opcional, o policial decide se quer incluir.
+- NUNCA invente nomes de sistemas, centrais ou jargões que não sejam reais. Se precisar referenciar a central de despacho, use "central 190", "CECOPOM" ou "Maré Zero" (apelido real usado por guarnições para o CECOPOM) — nunca invente nomenclatura. Na dúvida sobre algum termo técnico ou institucional, prefira uma descrição genérica e correta em vez de arriscar um nome que pode não existir.
+- Use os exemplos abaixo (histórico de BOPM reais, com identificadores removidos) só como referência de ESTILO — vocabulário, tom, forma de estruturar o texto e de fechar a ocorrência. NUNCA copie nomes de setor (ex: "Setor Fox"), números de RO/BAM/matrícula/viatura ou qualquer outro dado desses exemplos para o histórico atual — cada ocorrência é única, use apenas o que veio no relato do policial:
+${EXEMPLOS_HISTORICO_REAL}
+- Prefira voz ativa a construções passivas. Ao final do histórico, quando fizer sentido, feche mencionando o encerramento e o destino (PTR, delegacia, hospital etc.) — mas NUNCA repita a expressão "patrulhamento de rotina" ou "PTR" duas vezes no mesmo texto.
+- CASO ESPECIAL — relato genérico de patrulhamento sem nenhuma intercorrência: gere um histórico curto e direto informando que a guarnição patrulhou o local citado e nada foi constatado, sugerindo o código 80.004 (Nada constatado). Não alongue artificialmente.
+- Seja objetivo e factual, sem opiniões.
+- O texto gerado é um RASCUNHO de apoio; não é o BOPM oficial.
+- Use como referência esta tabela de códigos de ocorrência da PMERJ (organizada por categoria) para sugerir o código mais apropriado. Algumas famílias de código aparecem como faixa (ex: "27.1xx") quando o documento oficial não detalha cada código individualmente — nesse caso, cite a faixa e oriente o policial a confirmar o número exato no Vade Mecum ou com a central, sem inventar um código específico:
+${VADE_MECUM_SAMPLE}
+- Se nenhum código da lista combinar bem, retorne o campo "codigo" como o valor JSON null (não a palavra "null" como texto).
+
+Responda APENAS com um JSON válido, sem markdown, sem crases, no formato exato:
+{"historico": "texto do histórico formatado", "codigo": "00.000 ou null", "codigo_descricao": "descrição do código ou null", "alertas": ["lista de sugestões opcionais do que poderia reforçar o histórico, cada uma uma frase curta e não-imperativa"]}`;
+
+    try {
+      const data = await callClaude(deviceId, { system: systemPrompt, messages: [{ role: "user", content: relato }] });
+      setResultado(extractJsonFromResponse(data));
+    } catch (e) {
+      setError(`Não consegui gerar o histórico agora. ${e.message || ""}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function copiarHistorico() {
+    if (!resultado?.historico) return;
+    try {
+      await navigator.clipboard.writeText(resultado.historico);
+      setCopyLabel("Copiado");
+    } catch (e) {
+      setCopyLabel("Erro ao copiar");
+    }
+    setTimeout(() => setCopyLabel("Copiar"), 1500);
+  }
+
+  async function copiarChavePix() {
+    if (!PIX_KEY_DOACAO) return;
+    try {
+      await navigator.clipboard.writeText(PIX_KEY_DOACAO);
+      setPixCopyLabel("Chave copiada!");
+    } catch (e) {
+      setPixCopyLabel("Erro ao copiar");
+    }
+    setTimeout(() => setPixCopyLabel("Copiar chave Pix"), 1500);
+  }
+
+  // As atualizações jurídicas agora são pré-calculadas no próprio Worker (via
+  // Cron Trigger, algumas vezes ao dia) e guardadas prontas no KV — o app só
+  // lê o resultado já pronto, então abre instantâneo em vez de disparar uma
+  // busca + IA a cada pessoa que abre a aba.
+  async function carregarAvisos() {
+    setAvisosLoading(true);
+    setAvisosError("");
+    try {
+      const resp = await fetch(`${WORKER_URL}/avisos`);
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error);
+
+      const novoEstado = {};
+      CATEGORIAS_AVISOS.forEach((categoria) => {
+        const item = data[categoria.id];
+        novoEstado[categoria.id] = {
+          itens: (item && item.itens) || [],
+          atualizadoEm: item && item.atualizadoEm ? new Date(item.atualizadoEm) : null,
+          error: "",
+        };
+      });
+      setAvisos(novoEstado);
+      storageSet(AVISOS_KEY, JSON.stringify(novoEstado));
+    } catch (e) {
+      setAvisosError(`Não consegui carregar as atualizações agora. ${e.message || ""}`);
+    } finally {
+      setAvisosLoading(false);
+    }
+  }
+
+  // Dispara uma geração nova agora (não espera o Cron Trigger), útil pra
+  // testar a base pela primeira vez ou forçar uma atualização fora do
+  // horário programado. Depois de disparar, espera um pouco e recarrega.
+  async function forcarAtualizacao() {
+    setForcandoAtualizacao(true);
+    setForcarMensagem("");
+    try {
+      const resp = await fetch(`${WORKER_URL}/avisos/atualizar`, { method: "POST" });
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error);
+
+      // As 3 categorias são geradas uma de cada vez no Worker (busca + IA +
+      // pausa entre elas), então pode levar até ~1 minuto no total. Em vez de
+      // recarregar uma única vez cedo demais, tenta a cada 10s por até 80s.
+      setForcarMensagem("Atualização disparada — pode levar até 1 minuto. Pode navegar por outras abas enquanto isso, a busca continua rodando em segundo plano.");
+      let tentativas = 0;
+      const maxTentativas = 8;
+      const verificar = async () => {
+        tentativas += 1;
+        await carregarAvisos();
+        // Depois do carregarAvisos, o estado só é atualizado no próximo
+        // render — então lemos direto da resposta pra decidir se já pronto.
+        const resp2 = await fetch(`${WORKER_URL}/avisos`);
+        const data2 = await resp2.json();
+        const pronto = CATEGORIAS_AVISOS.every((c) => data2[c.id] && data2[c.id].atualizadoEm);
+        if (pronto) {
+          setForcarMensagem("Pronto! Atualizações geradas.");
+          setTimeout(() => setForcarMensagem(""), 4000);
+        } else if (tentativas < maxTentativas) {
+          setForcarMensagem(`Ainda gerando… verificando de novo (${tentativas}/${maxTentativas}). Pode navegar por outras abas enquanto isso.`);
+          setTimeout(verificar, 10000);
+        } else {
+          setForcarMensagem("Demorou mais que o esperado. Toque em \"Atualizar\" daqui a pouco pra conferir.");
+        }
+      };
+      setTimeout(verificar, 10000);
+    } catch (e) {
+      setForcarMensagem(`Não consegui disparar a atualização. ${e.message || ""}`);
+    } finally {
+      setForcandoAtualizacao(false);
+    }
+  }
+
+  async function buscarLegislacao() {
+    if (!legislacaoQuery.trim()) return;
+    setLegislacaoLoading(true); setLegislacaoFase("Pesquisando…"); setLegislacaoError(""); setLegislacaoResultado(null);
+
+    const systemBusca = `Você ajuda um policial militar a consultar rapidamente qualquer legislação brasileira em vigor (federal ou estadual) relevante para sua atuação — não se limite a um código específico.
+
+Use a ferramenta de busca para localizar a informação em fontes oficiais (prioridade: planalto.gov.br/ccivil_03, ou o site oficial do respectivo diploma legal).
+
+Identifique corretamente de qual lei/código se trata (ex.: "Lei 11.343/2006 (Lei de Drogas)", não apenas "lei de drogas"). Traga o texto do artigo na ÍNTEGRA e literalmente — textos de lei são atos normativos oficiais, sem direito autoral. Depois, adicione uma explicação curta e prática (2-3 frases) do que isso significa na prática operacional do PM. Confirme que está em vigor; mencione alterações recentes relevantes. Escreva em texto livre, sem se preocupar com formato JSON aqui.
+
+Se não encontrar nada confiável, diga isso claramente.`;
+
+    const systemFormatar = (textoBruto) => `Converta o texto abaixo em um JSON válido (sem markdown, sem crases), no formato exato:
+{"fonte": "nome da lei/código", "artigo": "número do(s) artigo(s)", "texto_lei": "texto literal do artigo (ou string vazia se não encontrado)", "explicacao": "explicação prática curta (ou a explicação de que não foi encontrado)"}
+
+Texto para converter:
+"""
+${textoBruto}
+"""`;
+
+    try {
+      const dataBusca = await callClaude(deviceId, {
+        system: systemBusca,
+        messages: [{ role: "user", content: legislacaoQuery }],
+        tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 1 }],
+        maxTokens: 1200,
+      });
+      const textoBruto = extractPlainText(dataBusca);
+
+      setLegislacaoFase("Organizando…");
+
+      try {
+        const dataFormatada = await callClaude(deviceId, {
+          system: systemFormatar(textoBruto),
+          messages: [{ role: "user", content: "Converta agora." }],
+          maxTokens: 800,
+          model: "claude-haiku-4-5-20251001",
+        });
+        setLegislacaoResultado(extractJsonFromResponse(dataFormatada));
+      } catch (erroFormatacao) {
+        // Se não conseguir estruturar em JSON, mostra o texto puro da busca
+        setLegislacaoResultado({ fonte: "Busca", artigo: "", texto_lei: "", explicacao: textoBruto });
+      }
+    } catch (e) {
+      setLegislacaoError(`Não consegui buscar agora. ${e.message || ""}`);
+    } finally {
+      setLegislacaoLoading(false);
+    }
+  }
+
+  if (!loaded || !splashMinDone) return <SplashScreen />;
+
+  return (
+    <div style={styles.page}>
+      <header style={styles.header}>
+        <MikeIcon size={40} />
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={styles.appTitle}>Mike Assist</div>
+            <span style={{
+              fontSize: 10, fontWeight: 800, letterSpacing: 0.6, color: "#0c1424",
+              background: "#c9a24a", borderRadius: 999, padding: "2px 8px", whiteSpace: "nowrap",
+            }}>111 SÉRIE GOLD</span>
+          </div>
+          <div style={styles.appSubtitle}>assistente de BOPM &middot; PMERJ</div>
+        </div>
+        <button style={styles.themeToggle} onClick={alternarTema} title={tema === "dark" ? "Mudar para tema claro" : "Mudar para tema escuro"}>
+          {tema === "dark" ? "☀️" : "🌙"}
+        </button>
+      </header>
+
+      <nav style={styles.tabBar}>
+        {[
+          { id: "redacao", label: "BOPM" },
+          { id: "avisos", label: "Jurídico" },
+          { id: "consultas", label: "Consultas" },
+          { id: "telefones", label: "Apps Úteis" },
+          { id: "legislacao", label: "Leis" },
+        ].map((tab) => (
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+            style={{ ...styles.tabButton, ...(activeTab === tab.id ? styles.tabButtonActive : {}) }}>
+            <TabIcon id={tab.id} active={activeTab === tab.id} />
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      {activeTab === "redacao" && (
+        <>
+          <div className="mk-panel" style={styles.greetingBanner}>
+            <div style={styles.greetingIcon}>📋</div>
+            <div>
+              <div style={styles.greetingTitle}>Bom serviço{profile.nome ? `, ${profile.nome}` : ""}!</div>
+              <div style={styles.greetingMessage}>{mensagemDoDia()}</div>
+            </div>
+          </div>
+
+          <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
+            {!editingProfile ? (
+              <div>
+                <div style={styles.panelLabel}>Guarnição do dia</div>
+                {profileComplete ? (
+                  <>
+                    <div style={styles.profileRow}>
+                      <span style={styles.profileName}>{profile.nome}</span>
+                      <span style={styles.mono}>RG {profile.rg}</span>
+                    </div>
+                    <div style={styles.chipsRow}>
+                      {[profile.unidade, profile.setor, profile.cop && `COP ${profile.cop}`, profile.horario]
+                        .filter(Boolean).map((v, i) => <span key={i} style={styles.chip}>{v}</span>)}
+                    </div>
+                    {profile.componentes && profile.componentes.length > 0 && (
+                      <div style={{ marginBottom: 12 }}>
+                        <div style={styles.suggestionsLabel}>Demais componentes</div>
+                        {profile.componentes.map((c, i) => (
+                          <div key={i} style={styles.componenteRow}>
+                            <span>{c.nome}</span>
+                            {c.rg && <span style={styles.mono}>RG {c.rg}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : <p style={styles.emptyText}>Nenhum perfil preenchido ainda.</p>}
+                <button style={styles.ghostButton} onClick={() => { setDraftProfile(profile); setEditingProfile(true); }}>
+                  Editar guarnição
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={styles.panelLabel}>Editar guarnição do dia</div>
+                <Field label="Nome" value={draftProfile.nome} onChange={(v) => setDraftProfile({ ...draftProfile, nome: v })} placeholder="Sgt. Ricardo Almeida" />
+                <Field label="RG / Matrícula" value={draftProfile.rg} onChange={(v) => setDraftProfile({ ...draftProfile, rg: v })} placeholder="123.456" mono />
+                <Field label="Unidade" value={draftProfile.unidade} onChange={(v) => setDraftProfile({ ...draftProfile, unidade: v })} placeholder="3º BPM" />
+                <Field label="Setor / guarnição" value={draftProfile.setor} onChange={(v) => setDraftProfile({ ...draftProfile, setor: v })} placeholder="Setor Fox · Moto Patrulha 1" />
+                <Field label="Número da COP" value={draftProfile.cop} onChange={(v) => setDraftProfile({ ...draftProfile, cop: v })} placeholder="Ex.: 2130" mono />
+                <Field label="Horário" value={draftProfile.horario} onChange={(v) => setDraftProfile({ ...draftProfile, horario: v })} placeholder="07h–19h" />
+                <div style={{ marginTop: 4 }}>
+                  <span style={styles.fieldLabel}>Demais componentes da guarnição</span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 6 }}>
+                    {(draftProfile.componentes || []).map((c, i) => (
+                      <div key={i} style={{ display: "flex", gap: 6 }}>
+                        <input value={c.nome} onChange={(e) => { const novos = [...draftProfile.componentes]; novos[i] = { ...novos[i], nome: e.target.value }; setDraftProfile({ ...draftProfile, componentes: novos }); }} placeholder="Nome" style={{ ...styles.input, flex: 2 }} />
+                        <input value={c.rg} onChange={(e) => { const novos = [...draftProfile.componentes]; novos[i] = { ...novos[i], rg: e.target.value }; setDraftProfile({ ...draftProfile, componentes: novos }); }} placeholder="RG" style={{ ...styles.input, flex: 1, fontFamily: "'IBM Plex Mono', monospace" }} />
+                        <button style={styles.removeButton} onClick={() => { const novos = draftProfile.componentes.filter((_, idx) => idx !== i); setDraftProfile({ ...draftProfile, componentes: novos }); }} aria-label="Remover">&#10005;</button>
+                      </div>
+                    ))}
+                    <button style={styles.ghostButton} onClick={() => setDraftProfile({ ...draftProfile, componentes: [...(draftProfile.componentes || []), { nome: "", rg: "" }] })}>
+                      + Adicionar componente
+                    </button>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                  <button style={styles.primaryButton} onClick={saveProfile}>Salvar</button>
+                  {profileComplete && <button style={styles.ghostButton} onClick={() => setEditingProfile(false)}>Cancelar</button>}
+                </div>
+              </div>
+            )}
+          </section>
+
+          <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#4f8f6d" }}>
+            <div style={styles.panelLabel}>Descreva a ocorrência</div>
+            <textarea value={relato} onChange={(e) => setRelato(e.target.value)}
+              placeholder="Ex.: abordagem na Rua das Palmeiras, dois suspeitos, um estava com uma porção de maconha, resistência leve, conduzidos à 14ª DP."
+              style={styles.textarea} rows={5} />
+            <button style={{ ...styles.primaryButton, width: "100%", marginTop: 10, opacity: loading || !relato.trim() ? 0.6 : 1 }}
+              onClick={gerarHistorico} disabled={loading || !relato.trim()}>
+              {loading ? (<><span className="mk-spinner"></span>Gerando…</>) : "Gerar histórico"}
+            </button>
+            {error && <p style={styles.errorText}>{error}</p>}
+          </section>
+
+          {resultado && (
+            <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#5b8bc9" }}>
+              <div style={styles.panelLabel}>Histórico gerado</div>
+              <textarea value={resultado.historico} onChange={(e) => setResultado({ ...resultado, historico: e.target.value })} style={{ ...styles.textarea, minHeight: 140 }} />
+              {resultado.codigo && resultado.codigo !== "null" && (
+                <div style={styles.codeTag}>
+                  <span style={styles.mono}>{resultado.codigo}</span>
+                  <span style={{ opacity: 0.75 }}>{resultado.codigo_descricao}</span>
+                </div>
+              )}
+              {resultado.alertas && resultado.alertas.length > 0 && (
+                <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+                  <div style={styles.suggestionsLabel}>Pode valer reforçar (opcional)</div>
+                  {resultado.alertas.map((a, i) => (
+                    <div key={i} style={styles.alertRow}><span style={{ color: "#7d9bb0" }}>&#9679;</span><span>{a}</span></div>
+                  ))}
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                <button style={styles.primaryButton} onClick={copiarHistorico}>{copyLabel}</button>
+                <button style={styles.ghostButton} onClick={gerarHistorico}>Regerar</button>
+              </div>
+              <p style={styles.disclaimer}>Rascunho de apoio. Revise e transcreva ao sistema oficial da corporação antes de formalizar.</p>
+            </section>
+          )}
+        </>
+      )}
+
+      {activeTab === "avisos" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+            <button style={styles.smallGhostButton} onClick={forcarAtualizacao} disabled={forcandoAtualizacao}>
+              {forcandoAtualizacao ? (<><span className="mk-spinner"></span>Disparando…</>) : "Forçar geração agora"}
+            </button>
+            <button style={styles.smallGhostButton} onClick={() => carregarAvisos()} disabled={avisosLoading}>
+              {avisosLoading ? (<><span className="mk-spinner"></span>Carregando…</>) : "Atualizar"}
+            </button>
+          </div>
+          {forcarMensagem && <p style={styles.timestamp}>{forcarMensagem}</p>}
+          {avisosError && <p style={styles.errorText}>{avisosError}</p>}
+          {CATEGORIAS_AVISOS.map((categoria) => {
+            const estado = avisos[categoria.id] || {};
+            return (
+              <section key={categoria.id} className="mk-panel" style={{ ...styles.panel, borderLeftColor: categoria.cor }}>
+                <div style={styles.sectionHeaderRow}>
+                  <div style={styles.panelLabel}>{categoria.label}</div>
+                  {estado.atualizadoEm && (
+                    <span style={styles.sectionHeaderMeta}>Atualizado às {estado.atualizadoEm.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+                  )}
+                </div>
+                {!estado.itens && avisosLoading && <p style={styles.emptyText}>Carregando…</p>}
+                {estado.itens && estado.itens.length === 0 && !estado.atualizadoEm && (
+                  <div style={styles.emptyBox}>Ainda não geramos essa categoria pela primeira vez. Toque em "Forçar geração agora" acima.</div>
+                )}
+                {estado.itens && estado.itens.length === 0 && estado.atualizadoEm && (
+                  <div style={styles.emptyBox}>Nada de relevante encontrado por agora.</div>
+                )}
+                {estado.itens && estado.itens.length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {estado.itens.map((item, i) => (
+                      <div key={i} className="mk-card" style={styles.avisoCard}>
+                        <span style={{ ...styles.avisoTag, background: categoria.cor }}>{item.fonte}</span>
+                        <p style={styles.avisoTitulo}>{item.titulo}</p>
+                        <p style={styles.avisoResumo}>{item.resumo}</p>
+                        {item.url && item.url !== "null" && <a href={item.url} target="_blank" rel="noreferrer" style={styles.sourceLink}>Ver fonte →</a>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            );
+          })}
+        </div>
+      )}
+
+      {activeTab === "consultas" && (
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#8a8f98" }}>
+          <div style={styles.panelLabel}>Consultas oficiais</div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <a href="https://portalbnmp.cnj.jus.br/#/captcha//pesquisa-peca" target="_blank" rel="noreferrer" style={styles.linkButton}>BNMP</a>
+            <a href="https://play.google.com/store/apps/details?id=br.gov.sinesp.cidadao.android" target="_blank" rel="noreferrer" style={styles.linkButton}>SINESP Cidadão</a>
+          </div>
+          <p style={styles.disclaimer}>As consultas acontecem no site/app oficial, autenticadas por você. Nenhum dado passa pelo Mike Assist.</p>
+        </section>
+      )}
+
+      {activeTab === "consultas" && (
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#4f8f6d" }}>
+          <div style={styles.panelLabel}>Sugestões</div>
+          <a
+            href="mailto:mikeassist.suporte@gmail.com?subject=Sugest%C3%A3o%20-%20Mike%20Assist&body=Sugest%C3%A3o%2Fideia%3A%0A%0A"
+            style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "var(--text)", marginTop: 10 }}
+          >
+            <div style={{
+              width: 42, height: 42, borderRadius: "50%", flexShrink: 0,
+              background: "rgba(79,143,109,0.16)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19,
+            }}>
+              🛡️
+            </div>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 15, fontWeight: 700 }}>
+                Suporte
+                <span style={{
+                  display: "inline-flex", alignItems: "center", justifyContent: "center",
+                  width: 15, height: 15, borderRadius: "50%", background: "#5b8bc9",
+                  color: "#fff", fontSize: 9, fontWeight: 700, lineHeight: 1,
+                }}>✓</span>
+              </div>
+              <div style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 1 }}>Fale com o suporte</div>
+            </div>
+          </a>
+        </section>
+      )}
+
+      {activeTab === "consultas" && PIX_KEY_DOACAO && (
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
+          <div style={styles.panelLabel}>Apoie o projeto</div>
+          <p style={{ fontSize: 13, color: "#c3cbd3", lineHeight: 1.6, margin: "6px 0 10px" }}>
+            Se isso te ajudou, deixe um café pro guarda ☕
+          </p>
+          <button style={{ ...styles.primaryButton, width: "100%" }} onClick={copiarChavePix}>
+            {pixCopyLabel}
+          </button>
+          <p style={styles.disclaimer}>Doação totalmente opcional, via Pix. Nenhum recurso do app é liberado em troca — é só um cafezinho, se você quiser.</p>
+        </section>
+      )}
+
+      {activeTab === "telefones" && (
+        <>
+          <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#5b8bc9" }}>
+            <div style={styles.panelLabel}>Apps oficiais PMERJ</div>
+            <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4, marginBottom: 12 }}>
+              Aplicativos mantidos pela SEPM/PMERJ. O Mike Assist não tem nenhum vínculo com eles — os links abrem direto na loja oficial.
+            </p>
+            {APPS_OFICIAIS_PMERJ.map((app) => (
+              <a key={app.nome} href={app.link} target="_blank" rel="noopener noreferrer"
+                style={{
+                  display: "flex", alignItems: "center", gap: 12, padding: "12px 10px",
+                  borderRadius: 12, textDecoration: "none", marginBottom: 8,
+                  background: "var(--bg-chip)", border: "1px solid var(--border)",
+                }}>
+                <div style={{
+                  width: 38, height: 38, borderRadius: 10, overflow: "hidden", flexShrink: 0,
+                }}>
+                  <img src={app.icone} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--text)" }}>{app.nome}</div>
+                  <div style={{ fontSize: 11.5, color: "var(--text-muted)", marginTop: 2, lineHeight: 1.4 }}>{app.descricao}</div>
+                </div>
+                <div style={{ fontSize: 16, color: "var(--text-dim)", flexShrink: 0 }}>›</div>
+              </a>
+            ))}
+          </section>
+
+          <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a", marginTop: 12 }}>
+            <div style={styles.panelLabel}>Outros apps úteis</div>
+            <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4, marginBottom: 12 }}>
+              Apps de terceiros recomendados — não têm vínculo com a PMERJ/SEPM nem com o Mike Assist.
+            </p>
+            {APPS_TERCEIROS.map((app) => (
+              <a key={app.nome} href={app.link} target="_blank" rel="noopener noreferrer"
+                style={{
+                  display: "flex", alignItems: "center", gap: 12, padding: "12px 10px",
+                  borderRadius: 12, textDecoration: "none", marginBottom: 8,
+                  background: "var(--bg-chip)", border: "1px solid var(--border)",
+                }}>
+                <div style={{
+                  width: 38, height: 38, borderRadius: 10, overflow: "hidden", flexShrink: 0,
+                }}>
+                  <img src={app.icone} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--text)" }}>{app.nome}</div>
+                  <div style={{ fontSize: 11.5, color: "var(--text-muted)", marginTop: 2, lineHeight: 1.4 }}>{app.descricao}</div>
+                </div>
+                <div style={{ fontSize: 16, color: "var(--text-dim)", flexShrink: 0 }}>›</div>
+              </a>
+            ))}
+          </section>
+
+          <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#5b8bc9", marginTop: 12 }}>
+            <div style={styles.panelLabel}>Telefones das unidades</div>
+            <div style={{ ...styles.emptyBox, padding: "26px 12px" }}>
+              <div style={{ fontSize: 26, marginBottom: 8 }}>☎️</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text)" }}>Em breve</div>
+              <p style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.6 }}>
+                Estamos conferindo os contatos das unidades antes de disponibilizar essa lista.
+              </p>
+            </div>
+          </section>
+        </>
+      )}
+
+      {activeTab === "legislacao" && (
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#a13b46" }}>
+          <div style={styles.panelLabel}>Consultar legislação em vigor</div>
+          <input value={legislacaoQuery} onChange={(e) => setLegislacaoQuery(e.target.value)}
+            placeholder="Ex.: art. 302 CPP, porte de droga, Lei Maria da Penha, ECA guarda"
+            style={{ ...styles.input, width: "100%", marginTop: 8 }}
+            onKeyDown={(e) => e.key === "Enter" && buscarLegislacao()} />
+          <button style={{ ...styles.primaryButton, width: "100%", marginTop: 10, opacity: legislacaoLoading || !legislacaoQuery.trim() ? 0.6 : 1 }}
+            onClick={buscarLegislacao} disabled={legislacaoLoading || !legislacaoQuery.trim()}>
+            {legislacaoLoading ? (<><span className="mk-spinner"></span>{legislacaoFase || "Buscando…"}</>) : "Buscar"}
+          </button>
+          {legislacaoError && <p style={styles.errorText}>{legislacaoError}</p>}
+          {legislacaoResultado && (
+            <div style={{ marginTop: 12 }}>
+              {legislacaoResultado.texto_lei ? (
+                <>
+                  <div style={styles.codeTag}>
+                    <span style={styles.mono}>{legislacaoResultado.fonte}</span>
+                    <span style={{ opacity: 0.75 }}>{legislacaoResultado.artigo}</span>
+                  </div>
+                  <div style={styles.leiTexto}>{legislacaoResultado.texto_lei}</div>
+                  {legislacaoResultado.explicacao && (
+                    <div style={{ marginTop: 10 }}>
+                      <div style={styles.suggestionsLabel}>Na prática</div>
+                      <p style={styles.avisoResumo}>{legislacaoResultado.explicacao}</p>
+                    </div>
+                  )}
+                </>
+              ) : <p style={styles.emptyText}>{legislacaoResultado.explicacao}</p>}
+            </div>
+          )}
+          <p style={styles.disclaimer}>Busca abrange qualquer lei federal ou estadual em vigor, em fontes oficiais. Sempre confira a redação vigente antes de citar formalmente.</p>
+        </section>
+      )}
+    </div>
+  );
+}
+
+// Fonte nativa de cada plataforma — sem carregar arquivo nenhum.
+const SYSTEM_FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
+const styles = {
+  page: {
+    minHeight: "100vh", background: "transparent", color: "var(--text)", fontFamily: SYSTEM_FONT,
+    padding: "calc(env(safe-area-inset-top, 0px) + 18px) 16px calc(env(safe-area-inset-bottom, 0px) + 92px)",
+    maxWidth: 460, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16,
+  },
+  header: { display: "flex", alignItems: "center", gap: 12, marginBottom: -2 },
+  badgeIcon: { width: 40, height: 40, borderRadius: 12, background: "#c9a24a", color: "#12181f", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontFamily: "'IBM Plex Mono', monospace", fontSize: 16, flexShrink: 0 },
+  appTitle: { fontSize: 18, fontWeight: 700, letterSpacing: -0.2 },
+  appSubtitle: { fontSize: 12, color: "var(--text-muted)", marginTop: 1 },
+  themeToggle: { marginLeft: "auto", width: 34, height: 34, borderRadius: 10, background: "var(--bg-ghost)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 },
+  // Barra inferior reta e opaca (sem flutuar/blur) — referência: app de agenda
+  // de um colega da turma, focado em ser simples e ultra rápido de usar.
+  tabBar: {
+    position: "fixed", left: 0, right: 0, bottom: 0,
+    width: "100%", display: "flex", margin: "0 auto", maxWidth: 460,
+    background: "var(--bg-tabbar)", borderTop: "1px solid var(--border)",
+    padding: "8px 4px calc(env(safe-area-inset-bottom, 0px) + 8px)", zIndex: 20,
+  },
+  tabButton: {
+    flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
+    background: "transparent", border: "none", color: "var(--text-dim)", fontSize: 10.5, padding: "6px 2px", borderRadius: 10, fontWeight: 500, lineHeight: 1.15,
+  },
+  tabButtonActive: { color: "#c9a24a" },
+  // Cartão de destaque no topo — mesmo padrão do "Resumo do mês" de
+  // referência: fundo tingido na cor de marca, ícone em quadrado arredondado
+  // ao lado do título, texto de apoio abaixo.
+  greetingBanner: { display: "flex", alignItems: "flex-start", gap: 12, background: "rgba(201,162,74,0.14)", borderRadius: 16, padding: "14px 16px" },
+  greetingIcon: { width: 34, height: 34, borderRadius: 10, background: "rgba(201,162,74,0.28)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 },
+  greetingTitle: { fontSize: 14.5, fontWeight: 700, color: "#c9a24a", marginBottom: 4 },
+  greetingMessage: { fontSize: 12.5, color: "var(--text-muted)", lineHeight: 1.5 },
+  panel: { background: "var(--bg-panel)", borderLeftWidth: 3, borderLeftStyle: "solid", borderRadius: 16, padding: 16 },
+  panelLabel: { fontSize: 11, color: "var(--text-muted)", letterSpacing: 0.4, fontWeight: 700, textTransform: "uppercase" },
+  profileRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8, marginTop: 10 },
+  profileName: { fontSize: 15, fontWeight: 500 },
+  mono: { fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, color: "var(--text-muted)" },
+  chipsRow: { display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 },
+  chip: { fontSize: 12, fontWeight: 600, background: "var(--bg-chip)", borderRadius: 8, padding: "4px 9px", color: "var(--text-muted)" },
+  componenteRow: { display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "var(--text-muted)", padding: "6px 0", borderBottom: "1px solid var(--border)" },
+  removeButton: { background: "var(--bg-ghost)", border: "none", borderRadius: 8, color: "var(--text-muted)", width: 34, fontSize: 13, flexShrink: 0 },
+  emptyText: { fontSize: 13, color: "var(--text-muted)", marginTop: 8, marginBottom: 4 },
+  // Caixa de estado vazio com borda — padrão "Nenhum lançamento neste mês".
+  emptyBox: { border: "1px solid var(--border)", borderRadius: 12, padding: "14px 12px", textAlign: "center", color: "var(--text-muted)", fontSize: 12.5, lineHeight: 1.5, marginTop: 6 },
+  sectionHeaderRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
+  sectionHeaderMeta: { fontSize: 11, color: "var(--text-dim)", fontWeight: 500 },
+  fieldLabel: { fontSize: 11, color: "var(--text-muted)" },
+  input: { background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 11px", color: "var(--text)", fontSize: 14, outline: "none" },
+  textarea: { width: "100%", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 10, padding: 11, color: "var(--text)", fontSize: 13.5, lineHeight: 1.6, resize: "vertical", outline: "none", marginTop: 6 },
+  primaryButton: { background: "#c9a24a", color: "#161006", border: "none", borderRadius: 10, padding: "11px 15px", fontWeight: 700, fontSize: 13.5 },
+  ghostButton: { background: "var(--bg-ghost)", color: "var(--text-muted)", border: "none", borderRadius: 10, padding: "9px 13px", fontSize: 13, marginTop: 8, fontWeight: 600 },
+  smallGhostButton: { background: "var(--bg-ghost)", color: "var(--text-muted)", border: "none", borderRadius: 9, padding: "6px 11px", fontSize: 11.5, fontWeight: 600 },
+  dashedButton: { width: "100%", padding: 13, border: "1.5px dashed var(--border)", background: "transparent", borderRadius: 12, color: "var(--text-muted)", fontSize: 13 },
+  linkButton: { flex: 1, textAlign: "center", padding: "11px 0", borderRadius: 10, border: "none", background: "var(--bg-ghost)", color: "var(--text-muted)", fontSize: 13, fontWeight: 600, textDecoration: "none" },
+  telefoneRow: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "11px 13px", borderRadius: 12, border: "none", background: "var(--bg-tabbar)" },
+  telefoneUnidade: { fontSize: 13, color: "var(--text)", fontWeight: 600 },
+  telefoneTipo: { fontSize: 11.5, color: "var(--text-muted)", marginTop: 2 },
+  telefoneBotao: { width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 10, background: "var(--bg-chip)", textDecoration: "none", fontSize: 15 },
+  codeTag: { marginTop: 10, display: "inline-flex", gap: 8, alignItems: "center", background: "var(--bg-chip)", borderRadius: 10, padding: "6px 11px", fontSize: 12.5, fontWeight: 600 },
+  suggestionsLabel: { fontSize: 11, color: "var(--text-muted)", marginBottom: 2 },
+  alertRow: { display: "flex", gap: 6, fontSize: 12.5, color: "var(--text-muted)", background: "var(--bg-chip)", borderRadius: 10, padding: "7px 9px" },
+  errorText: { color: "#e3877a", fontSize: 12.5, marginTop: 8 },
+  disclaimer: { fontSize: 11, color: "var(--text-muted)", marginTop: 10, lineHeight: 1.5 },
+  timestamp: { fontSize: 10.5, color: "var(--text-dim)", marginBottom: 8 },
+  avisoCard: { background: "var(--bg)", borderRadius: 12, padding: 12 },
+  avisoTag: { display: "inline-block", fontSize: 10, fontWeight: 700, borderRadius: 8, padding: "3px 8px", marginBottom: 6, letterSpacing: 0.3, color: "#12181f" },
+  avisoTitulo: { fontSize: 13, fontWeight: 500, margin: "0 0 3px" },
+  avisoResumo: { fontSize: 12, color: "var(--text-muted)", margin: 0, lineHeight: 1.5 },
+  sourceLink: { display: "inline-block", fontSize: 11.5, color: "#5b8bc9", marginTop: 6, textDecoration: "none" },
+  leiTexto: { marginTop: 8, background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 10, padding: 13, fontSize: 13, lineHeight: 1.7, color: "var(--text)", whiteSpace: "pre-wrap" },
+};
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<MikeAssist />);
+</script>
+
+</body>
+</html>
