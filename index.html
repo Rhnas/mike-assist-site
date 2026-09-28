@@ -722,9 +722,15 @@ function QRCodeDonacao({ pixKey }) {
     try {
       // Limpa o container anterior
       qrRef.current.innerHTML = "";
-      // Gera QR Code com a chave Pix
+
+      // Formata a chave Pix como texto simples (para copiar)
+      // Em produção, isso seria um payload EMV completo, mas por enquanto
+      // usamos a chave diretamente - o user escaneia e copia a chave
+      const qrText = `pix:${pixKey}`;
+
+      // Gera QR Code
       new QRCode(qrRef.current, {
-        text: pixKey,
+        text: qrText,
         width: 160,
         height: 160,
         colorDark: "#e8ecef",
@@ -740,7 +746,7 @@ function QRCodeDonacao({ pixKey }) {
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
       <div ref={qrRef} style={{ background: "#0c1424", padding: 8, borderRadius: 8 }} />
       <div style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", maxWidth: 200 }}>
-        Escaneie o QR Code com seu app Pix ou banco
+        Escaneie com seu app de banco ou Pix
       </div>
     </div>
   );
