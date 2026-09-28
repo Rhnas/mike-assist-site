@@ -82,10 +82,10 @@
   }, 8000);
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
 <script type="text/babel" data-presets="react">
 const { useState, useEffect } = React;
@@ -716,23 +716,27 @@ function Field({ label, value, onChange, placeholder, mono }) {
 
 function QRCodeDonacao({ pixKey }) {
   const qrRef = React.useRef(null);
+  const [qrGenerated, setQrGenerated] = React.useState(false);
 
   React.useEffect(() => {
     if (!pixKey || !qrRef.current) return;
 
-    // Aguarda a biblioteca QRCode estar disponível
-    const waitForQRCode = setInterval(() => {
-      if (typeof window.QRCode === 'undefined') return;
-      clearInterval(waitForQRCode);
+    const generateQR = () => {
+      // Verifica explicitamente se window.QRCode existe
+      if (typeof window.QRCode === "undefined") {
+        console.warn("QRCode não carregou ainda, tentando novamente em 100ms...");
+        setTimeout(generateQR, 100);
+        return;
+      }
 
       try {
         // Limpa o container anterior
         qrRef.current.innerHTML = "";
 
-        // Formata a chave Pix como texto simples (para copiar)
+        // Formata a chave Pix como texto simples
         const qrText = `pix:${pixKey}`;
 
-        // Gera QR Code
+        // Gera QR Code usando window.QRCode explicitamente
         new window.QRCode(qrRef.current, {
           text: qrText,
           width: 160,
@@ -741,12 +745,14 @@ function QRCodeDonacao({ pixKey }) {
           colorLight: "#0c1424",
           correctLevel: window.QRCode.CorrectLevel.H,
         });
+        setQrGenerated(true);
+        console.log("✓ QR Code gerado com sucesso");
       } catch (e) {
         console.error("Erro ao gerar QR Code:", e);
       }
-    }, 100);
+    };
 
-    return () => clearInterval(waitForQRCode);
+    generateQR();
   }, [pixKey]);
 
   return (
