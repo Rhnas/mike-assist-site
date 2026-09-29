@@ -643,6 +643,14 @@ function TabIcon({ id, active }) {
           <path d="M7 21h10" />
         </svg>
       );
+    case "sobre":
+      return (
+        <svg {...props}>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 11v5" />
+          <path d="M12 7.5h.01" />
+        </svg>
+      );
     default:
       return null;
   }
@@ -1135,6 +1143,11 @@ ${textoBruto}
         </button>
       </header>
 
+      <div style={{ fontSize: 11, lineHeight: 1.4, color: "var(--text-muted)", background: "var(--bg-chip)", border: "1px solid var(--border)", borderRadius: 10, padding: "7px 10px", marginTop: -4 }}>
+        <strong style={{ color: "#c9a24a" }}>App independente e NÃO oficial.</strong> Não representa a PMERJ nem nenhum órgão do governo.{" "}
+        <a href="#sobre" onClick={(e) => { e.preventDefault(); setActiveTab("sobre"); }} style={{ color: "#c9a24a", textDecoration: "underline" }}>Saiba mais</a>
+      </div>
+
       <nav style={styles.tabBar}>
         {[
           { id: "redacao", label: "BOPM" },
@@ -1142,6 +1155,7 @@ ${textoBruto}
           { id: "consultas", label: "Consultas" },
           { id: "telefones", label: "Apps Úteis" },
           { id: "legislacao", label: "Leis" },
+          { id: "sobre", label: "Sobre" },
         ].map((tab) => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)}
             style={{ ...styles.tabButton, ...(activeTab === tab.id ? styles.tabButtonActive : {}) }}>
@@ -1354,7 +1368,7 @@ ${textoBruto}
         <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
           <div style={styles.panelLabel}>Apoie o projeto</div>
           <p style={{ fontSize: 13, color: "#c3cbd3", lineHeight: 1.6, margin: "6px 0 16px" }}>
-            Se isso te ajudou, deixe um café pro guarda ☕
+            Se te ajudou, contribua para a melhora do aplicativo.
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 16, alignItems: "center" }}>
             <QRCodeDonacao pixKey={PIX_KEY_DOACAO} />
@@ -1362,7 +1376,7 @@ ${textoBruto}
               {pixCopyLabel}
             </button>
           </div>
-          <p style={styles.disclaimer}>Doação totalmente opcional, via Pix. Nenhum recurso do app é liberado em troca — é só um cafezinho, se você quiser.</p>
+          <p style={styles.disclaimer}>Doação totalmente opcional, via Pix. Nenhum recurso do app é liberado em troca.</p>
         </section>
       )}
 
@@ -1465,6 +1479,36 @@ ${textoBruto}
             </div>
           )}
           <p style={styles.disclaimer}>Busca abrange qualquer lei federal ou estadual em vigor, em fontes oficiais. Sempre confira a redação vigente antes de citar formalmente.</p>
+        </section>
+      )}
+
+      {activeTab === "sobre" && (
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#e3877a" }}>
+          <div style={styles.panelLabel}>Aviso legal</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: "#e3877a", margin: "10px 0 8px" }}>
+            Este aplicativo NÃO é oficial
+          </div>
+          <p style={{ fontSize: 13, lineHeight: 1.6, margin: "0 0 10px" }}>
+            O Mike Assist é uma ferramenta independente de apoio pessoal, criada por um policial militar. <strong>Não representa, não é afiliado e não foi autorizado pela Polícia Militar do Estado do Rio de Janeiro, pela SEPM, nem por qualquer órgão ou entidade governamental.</strong>
+          </p>
+          <p style={{ fontSize: 13, lineHeight: 1.6, margin: "0 0 10px" }}>
+            O app não se conecta aos sistemas oficiais da corporação, não registra ocorrências e não substitui o BOPM oficial. O texto gerado deve ser sempre revisado pelo policial antes de ser registrado no sistema oficial.
+          </p>
+
+          <div style={styles.suggestionsLabel}>Fontes oficiais das informações</div>
+          <p style={{ fontSize: 12, lineHeight: 1.6, color: "var(--text-muted)", margin: "6px 0 8px" }}>
+            As informações jurídicas e institucionais exibidas no app têm como base as fontes oficiais abaixo. Confira sempre a redação vigente nelas:
+          </p>
+          <ul style={{ fontSize: 13, lineHeight: 1.9, margin: "0 0 10px", paddingLeft: 20 }}>
+            <li><a href="https://www.planalto.gov.br/ccivil_03/" target="_blank" rel="noopener noreferrer" style={{ color: "#c9a24a" }}>Legislação federal — planalto.gov.br</a></li>
+            <li><a href="https://www.alerj.rj.gov.br" target="_blank" rel="noopener noreferrer" style={{ color: "#c9a24a" }}>Legislação estadual — alerj.rj.gov.br</a></li>
+            <li><a href="https://sepm.rj.gov.br" target="_blank" rel="noopener noreferrer" style={{ color: "#c9a24a" }}>Secretaria de Estado de Polícia Militar — sepm.rj.gov.br</a></li>
+            <li><a href="https://sepm.rj.gov.br/sistema-corporativo/bopm/" target="_blank" rel="noopener noreferrer" style={{ color: "#c9a24a" }}>Sistema BOPM oficial — sepm.rj.gov.br</a></li>
+          </ul>
+
+          <p style={styles.disclaimer}>
+            Gratuito e mantido de forma independente. Nenhuma ocorrência digitada é salva; não há login nem cadastro. Contato: mikeassist.suporte@gmail.com
+          </p>
         </section>
       )}
     </div>

@@ -4,11 +4,13 @@
 Mike Assist
 
 ## Descrição curta (máx. 80 caracteres)
-Apoio à redação de BOPM e consultas jurídicas para PMs. Grátis.
+App NÃO oficial de apoio à redação de BOPM para policiais. Grátis.
 
-(78 caracteres)
+(66 caracteres)
 
 ## Descrição completa (máx. 4000 caracteres)
+
+AVISO: este é um aplicativo independente e NÃO OFICIAL. Não representa, não é afiliado e não foi autorizado pela Polícia Militar do Estado do Rio de Janeiro (PMERJ), pela SEPM ou por qualquer órgão do governo.
 
 Mike Assist é uma ferramenta gratuita, criada por um policial militar para policiais militares, com o objetivo de agilizar e melhorar a redação do histórico de Boletim de Ocorrência (BOPM).
 
@@ -30,8 +32,15 @@ Isso significa que não há risco de vazamento de dados sigilosos de ocorrência
 GRATUITO
 O Mike Assist é e sempre será gratuito para uso. O projeto é mantido de forma independente e voluntária; quem quiser apoiar pode fazer uma doação via Pix dentro do próprio app — totalmente opcional.
 
+FONTES OFICIAIS
+As informações jurídicas e institucionais têm como base fontes oficiais. Confira sempre a redação vigente:
+• Legislação federal: https://www.planalto.gov.br/ccivil_03/
+• Legislação estadual (RJ): https://www.alerj.rj.gov.br
+• Polícia Militar do RJ (SEPM): https://sepm.rj.gov.br
+• Sistema BOPM oficial: https://sepm.rj.gov.br/sistema-corporativo/bopm/
+
 IMPORTANTE
-Mike Assist é uma ferramenta de apoio pessoal. Ele não substitui, não se integra e não tem vínculo oficial com os sistemas internos da corporação. O texto gerado deve ser sempre revisado pelo policial antes de ser registrado oficialmente, garantindo que reflita fielmente os fatos da ocorrência.
+Mike Assist é uma ferramenta independente de apoio pessoal e NÃO é um aplicativo oficial nem representa entidade governamental. Ele não substitui, não se integra e não tem vínculo oficial com os sistemas internos da corporação. O texto gerado deve ser sempre revisado pelo policial antes de ser registrado oficialmente, garantindo que reflita fielmente os fatos da ocorrência.
 
 ---
 
