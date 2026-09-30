@@ -671,6 +671,12 @@ const MENSAGENS_DO_DIA = [
   "Trabalho em equipe: mantenha contato visual e verbal com o parceiro de guarnição.",
 ];
 
+// Ocorrência fictícia para o testador ver o resultado sem precisar digitar.
+const EXEMPLO_OCORRENCIA = "Patrulhando a Rua das Palmeiras por volta das 15h, avistamos dois homens em atitude suspeita. Na abordagem, um deles estava com uma porção de maconha. Houve resistência leve, contida sem uso de força. Os dois foram conduzidos à 14ª DP.";
+
+// Admin (só você): abra o site com ?admin=1 para ver o botão de forçar geração.
+const IS_ADMIN = typeof location !== "undefined" && new URLSearchParams(location.search).get("admin") === "1";
+
 function mensagemDoDia() {
   const inicioDoAno = new Date(new Date().getFullYear(), 0, 0);
   const diffMs = new Date() - inicioDoAno;
@@ -753,7 +759,21 @@ async function callClaude(deviceId, { system, messages, tools, maxTokens = 1000,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ system, messages, tools, maxTokens, deviceId, model }),
   });
-  return response.json();
+  try {
+    return await response.json();
+  } catch (e) {
+    throw new Error(`Resposta inválida do servidor (${response.status}).`);
+  }
+}
+
+// Traduz erros técnicos (rede, limite, servidor) em mensagens que o policial entende.
+function friendlyError(e) {
+  console.error(e);
+  if (typeof navigator !== "undefined" && navigator.onLine === false) return "Sem conexão com a internet. Confira o sinal e tente de novo.";
+  const msg = (e && e.message) || "";
+  if (/failed to fetch|networkerror|load failed/i.test(msg)) return "Não consegui conectar ao servidor. Confira a internet e tente de novo.";
+  if (/rate|limit|429|overload|credit|quota|saldo/i.test(msg)) return "O serviço está com muito uso agora. Tente de novo em alguns minutos.";
+  return "Não consegui gerar o histórico agora. Tente de novo em instantes.";
 }
 
 function getOrCreateDeviceId() {
@@ -917,8 +937,6 @@ function MikeAssist() {
         const parsed = JSON.parse(res.value);
         setProfile(parsed);
         setDraftProfile(parsed);
-      } else {
-        setEditingProfile(true);
       }
 
       const resAvisos = await storageGet(AVISOS_KEY);
@@ -971,7 +989,7 @@ Responda APENAS com um JSON válido, sem markdown, sem crases, no formato exato:
       const data = await callClaude(deviceId, { system: systemPrompt, messages: [{ role: "user", content: relato }] });
       setResultado(extractJsonFromResponse(data));
     } catch (e) {
-      setError(`Não consegui gerar o histórico agora. ${e.message || ""}`);
+      setError(friendlyError(e));
     } finally {
       setLoading(false);
     }
@@ -1144,14 +1162,14 @@ ${textoBruto}
       </header>
 
       <div style={{ fontSize: 11, lineHeight: 1.4, color: "var(--text-muted)", background: "var(--bg-chip)", border: "1px solid var(--border)", borderRadius: 10, padding: "7px 10px", marginTop: -4 }}>
-        <strong style={{ color: "#c9a24a" }}>App independente e NÃO oficial.</strong> Não representa a PMERJ nem nenhum órgão do governo.{" "}
+        <strong style={{ color: "#c9a24a" }}>App independente e NÃO oficial</strong> · não representa a PMERJ.{" "}
         <a href="#sobre" onClick={(e) => { e.preventDefault(); setActiveTab("sobre"); }} style={{ color: "#c9a24a", textDecoration: "underline" }}>Saiba mais</a>
       </div>
 
       <nav style={styles.tabBar}>
         {[
           { id: "redacao", label: "BOPM" },
-          { id: "avisos", label: "Jurídico" },
+          { id: "avisos", label: "Notícias" },
           { id: "consultas", label: "Consultas" },
           { id: "telefones", label: "Apps Úteis" },
           { id: "legislacao", label: "Leis" },
@@ -1167,18 +1185,62 @@ ${textoBruto}
 
       {activeTab === "redacao" && (
         <>
-          <div className="mk-panel" style={styles.greetingBanner}>
-            <div style={styles.greetingIcon}>📋</div>
-            <div>
-              <div style={styles.greetingTitle}>Bom serviço{profile.nome ? `, ${profile.nome}` : ""}!</div>
-              <div style={styles.greetingMessage}>{mensagemDoDia()}</div>
+          {profile.nome && (
+            <div className="mk-panel" style={styles.greetingBanner}>
+              <div style={styles.greetingIcon}>📋</div>
+              <div>
+                <div style={styles.greetingTitle}>Bom serviço{profile.nome ? `, ${profile.nome}` : ""}!</div>
+                <div style={styles.greetingMessage}>{mensagemDoDia()}</div>
+              </div>
             </div>
-          </div>
+          )}
+
+          <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#4f8f6d" }}>
+            <div style={styles.panelLabel}>Descreva a ocorrência</div>
+            <textarea value={relato} onChange={(e) => setRelato(e.target.value)}
+              placeholder="Ex.: abordagem na Rua das Palmeiras, dois suspeitos, um estava com uma porção de maconha, resistência leve, conduzidos à 14ª DP."
+              style={styles.textarea} rows={5} />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginTop: 6 }}>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.4 }}>Não digite nome, CPF ou endereço de envolvidos.</span>
+              {!relato.trim() && <button style={{ ...styles.smallGhostButton, whiteSpace: "nowrap" }} onClick={() => setRelato(EXEMPLO_OCORRENCIA)}>Usar exemplo</button>}
+            </div>
+            <button style={{ ...styles.primaryButton, width: "100%", marginTop: 10, opacity: loading || !relato.trim() ? 0.6 : 1 }}
+              onClick={gerarHistorico} disabled={loading || !relato.trim()}>
+              {loading ? (<><span className="mk-spinner"></span>Gerando…</>) : "Gerar histórico"}
+            </button>
+            {error && <p style={styles.errorText}>{error}</p>}
+          </section>
+
+          {resultado && (
+            <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#5b8bc9" }}>
+              <div style={styles.panelLabel}>Histórico gerado</div>
+              <textarea value={resultado.historico} onChange={(e) => setResultado({ ...resultado, historico: e.target.value })} style={{ ...styles.textarea, minHeight: 140 }} />
+              {resultado.codigo && resultado.codigo !== "null" && (
+                <div style={styles.codeTag}>
+                  <span style={styles.mono}>{resultado.codigo}</span>
+                  <span style={{ opacity: 0.75 }}>{resultado.codigo_descricao}</span>
+                </div>
+              )}
+              {resultado.alertas && resultado.alertas.length > 0 && (
+                <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+                  <div style={styles.suggestionsLabel}>Pode valer reforçar (opcional)</div>
+                  {resultado.alertas.map((a, i) => (
+                    <div key={i} style={styles.alertRow}><span style={{ color: "#7d9bb0" }}>&#9679;</span><span>{a}</span></div>
+                  ))}
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                <button style={styles.primaryButton} onClick={copiarHistorico}>{copyLabel}</button>
+                <button style={styles.ghostButton} onClick={gerarHistorico}>Regerar</button>
+              </div>
+              <p style={styles.disclaimer}>Rascunho de apoio. Revise e transcreva ao sistema oficial da corporação antes de formalizar.</p>
+            </section>
+          )}
 
           <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
             {!editingProfile ? (
               <div>
-                <div style={styles.panelLabel}>Guarnição do dia</div>
+                <div style={styles.panelLabel}>Guarnição do dia (opcional)</div>
                 {profileComplete ? (
                   <>
                     <div style={styles.profileRow}>
@@ -1201,7 +1263,7 @@ ${textoBruto}
                       </div>
                     )}
                   </>
-                ) : <p style={styles.emptyText}>Nenhum perfil preenchido ainda.</p>}
+                ) : <p style={styles.emptyText}>Opcional. Preencha só se quiser a saudação com o seu nome. Não é necessário para gerar o histórico.</p>}
                 <button style={styles.ghostButton} onClick={() => { setDraftProfile(profile); setEditingProfile(true); }}>
                   Editar guarnição
                 </button>
@@ -1237,53 +1299,17 @@ ${textoBruto}
               </div>
             )}
           </section>
-
-          <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#4f8f6d" }}>
-            <div style={styles.panelLabel}>Descreva a ocorrência</div>
-            <textarea value={relato} onChange={(e) => setRelato(e.target.value)}
-              placeholder="Ex.: abordagem na Rua das Palmeiras, dois suspeitos, um estava com uma porção de maconha, resistência leve, conduzidos à 14ª DP."
-              style={styles.textarea} rows={5} />
-            <button style={{ ...styles.primaryButton, width: "100%", marginTop: 10, opacity: loading || !relato.trim() ? 0.6 : 1 }}
-              onClick={gerarHistorico} disabled={loading || !relato.trim()}>
-              {loading ? (<><span className="mk-spinner"></span>Gerando…</>) : "Gerar histórico"}
-            </button>
-            {error && <p style={styles.errorText}>{error}</p>}
-          </section>
-
-          {resultado && (
-            <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#5b8bc9" }}>
-              <div style={styles.panelLabel}>Histórico gerado</div>
-              <textarea value={resultado.historico} onChange={(e) => setResultado({ ...resultado, historico: e.target.value })} style={{ ...styles.textarea, minHeight: 140 }} />
-              {resultado.codigo && resultado.codigo !== "null" && (
-                <div style={styles.codeTag}>
-                  <span style={styles.mono}>{resultado.codigo}</span>
-                  <span style={{ opacity: 0.75 }}>{resultado.codigo_descricao}</span>
-                </div>
-              )}
-              {resultado.alertas && resultado.alertas.length > 0 && (
-                <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
-                  <div style={styles.suggestionsLabel}>Pode valer reforçar (opcional)</div>
-                  {resultado.alertas.map((a, i) => (
-                    <div key={i} style={styles.alertRow}><span style={{ color: "#7d9bb0" }}>&#9679;</span><span>{a}</span></div>
-                  ))}
-                </div>
-              )}
-              <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-                <button style={styles.primaryButton} onClick={copiarHistorico}>{copyLabel}</button>
-                <button style={styles.ghostButton} onClick={gerarHistorico}>Regerar</button>
-              </div>
-              <p style={styles.disclaimer}>Rascunho de apoio. Revise e transcreva ao sistema oficial da corporação antes de formalizar.</p>
-            </section>
-          )}
         </>
       )}
 
       {activeTab === "avisos" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-            <button style={styles.smallGhostButton} onClick={forcarAtualizacao} disabled={forcandoAtualizacao}>
-              {forcandoAtualizacao ? (<><span className="mk-spinner"></span>Disparando…</>) : "Forçar geração agora"}
-            </button>
+            {IS_ADMIN && (
+              <button style={styles.smallGhostButton} onClick={forcarAtualizacao} disabled={forcandoAtualizacao}>
+                {forcandoAtualizacao ? (<><span className="mk-spinner"></span>Disparando…</>) : "Forçar geração agora"}
+              </button>
+            )}
             <button style={styles.smallGhostButton} onClick={() => carregarAvisos()} disabled={avisosLoading}>
               {avisosLoading ? (<><span className="mk-spinner"></span>Carregando…</>) : "Atualizar"}
             </button>
@@ -1302,7 +1328,7 @@ ${textoBruto}
                 </div>
                 {!estado.itens && avisosLoading && <p style={styles.emptyText}>Carregando…</p>}
                 {estado.itens && estado.itens.length === 0 && !estado.atualizadoEm && (
-                  <div style={styles.emptyBox}>Ainda não geramos essa categoria pela primeira vez. Toque em "Forçar geração agora" acima.</div>
+                  <div style={styles.emptyBox}>Ainda não há atualizações nesta categoria. Volte mais tarde.</div>
                 )}
                 {estado.itens && estado.itens.length === 0 && estado.atualizadoEm && (
                   <div style={styles.emptyBox}>Nada de relevante encontrado por agora.</div>
