@@ -1,0 +1,35 @@
+AVISO: este é um aplicativo independente e NÃO OFICIAL. Não representa, não é afiliado e não foi autorizado pela Polícia Militar do Estado do Rio de Janeiro (PMERJ), pela Secretaria de Estado de Polícia Militar (SEPM), pelo Governo do Estado do Rio de Janeiro ou por qualquer órgão do governo.
+
+Mike Assist é uma ferramenta gratuita, criada por um policial militar para policiais militares, para agilizar a redação do histórico do Boletim de Ocorrência (BOPM).
+
+COMO FUNCIONA
+Você descreve a ocorrência com suas próprias palavras e o Mike Assist organiza o texto em um histórico bem estruturado, para você revisar e colar no sistema oficial da corporação. O app não substitui nem se conecta ao sistema oficial: é só uma ferramenta de apoio pessoal.
+
+O QUE TEM NO APP
+- BOPM: escreva o relato e gere o histórico. Há um exemplo para testar sem digitar nada.
+- Leis: busca de leis federais e estaduais por assunto ou artigo (ex.: art. 302 CPP, porte de droga, Lei Maria da Penha).
+- Notícias: resumos automáticos de notícias públicas sobre segurança pública, decisões judiciais e a PMERJ, cada um com link para a fonte original.
+- Ferramentas: atalhos para consultas e aplicativos oficiais, como os da PMERJ e o sistema BOPM oficial.
+- Sobre: aviso legal, suporte e apoio opcional via Pix.
+
+PRIVACIDADE
+- Não existe login, cadastro ou senha.
+- O Mike Assist não guarda o texto das ocorrências nem o associa a você.
+- Para gerar o histórico, o texto digitado é enviado pela internet a um serviço de inteligência artificial (Anthropic) apenas para processamento. Por isso, NÃO digite nome, CPF, endereço ou outros dados pessoais de envolvidos.
+
+USO RESPONSÁVEL
+O histórico e as notícias são gerados com inteligência artificial e podem conter erros ou imprecisões. Revise sempre o texto antes de registrá-lo oficialmente, para que reflita fielmente os fatos, e confira a redação vigente das leis nas fontes oficiais.
+
+FONTES OFICIAIS
+Consulte sempre a fonte original:
+- Legislação federal: https://www.planalto.gov.br/ccivil_03/
+- Legislação estadual (RJ): https://www.alerj.rj.gov.br
+- Supremo Tribunal Federal: https://portal.stf.jus.br
+- Polícia Militar do RJ (SEPM): https://sepm.rj.gov.br
+- Sistema BOPM oficial: https://sepm.rj.gov.br/sistema-corporativo/bopm/
+
+GRATUITO E INDEPENDENTE
+O Mike Assist é gratuito nesta versão e mantido de forma independente. Quem quiser apoiar pode doar via Pix dentro do app, de forma totalmente opcional.
+
+IMPORTANTE
+Mike Assist é uma ferramenta independente de apoio pessoal e NÃO é um aplicativo oficial nem representa entidade governamental. Não substitui, não se integra e não tem vínculo com os sistemas internos da corporação.
