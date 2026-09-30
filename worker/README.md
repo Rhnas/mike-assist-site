@@ -40,4 +40,4 @@ Ele **não** é publicado automaticamente pelo GitHub — o deploy é manual.
 ```
 node worker/worker.test.mjs
 ```
-52 verificações com KV e Anthropic simulados.
+56 verificações com KV e Anthropic simulados.

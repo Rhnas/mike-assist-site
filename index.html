@@ -750,6 +750,25 @@ async function callClaude(deviceId, { system, messages, tools, maxTokens = 1000,
 }
 
 // Traduz erros técnicos (rede, limite, servidor) em mensagens que o policial entende.
+// Só aceita links http(s) válidos. Corrige o caso "www.portal." (ex.: STF),
+// que não existe e dava "site não encontrado".
+function urlSegura(bruto) {
+  try {
+    const u = new URL(String(bruto));
+    if (u.protocol !== "https:" && u.protocol !== "http:") return null;
+    if (u.hostname.startsWith("www.portal.")) u.hostname = u.hostname.slice(4);
+    return u.toString();
+  } catch (e) { return null; }
+}
+
+function AvisoIndependente() {
+  return (
+    <p style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5, margin: "0 0 12px" }}>
+      App independente e <b>não oficial</b>: não representa a PMERJ nem qualquer órgão do governo. Confira sempre a fonte oficial.
+    </p>
+  );
+}
+
 function friendlyError(e) {
   console.error(e);
   if (typeof navigator !== "undefined" && navigator.onLine === false) return "Sem conexão com a internet. Confira o sinal e tente de novo.";
@@ -1294,6 +1313,7 @@ ${textoBruto}
 
       {activeTab === "avisos" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <AvisoIndependente />
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
             {IS_ADMIN && (
               <button style={styles.smallGhostButton} onClick={forcarAtualizacao} disabled={forcandoAtualizacao}>
@@ -1330,7 +1350,7 @@ ${textoBruto}
                         <span style={{ ...styles.avisoTag, background: categoria.cor }}>{item.fonte}</span>
                         <p style={styles.avisoTitulo}>{item.titulo}</p>
                         <p style={styles.avisoResumo}>{item.resumo}</p>
-                        {item.url && item.url !== "null" && <a href={item.url} target="_blank" rel="noreferrer" style={styles.sourceLink}>Ver fonte →</a>}
+                        {item.url && item.url !== "null" && urlSegura(item.url) && <a href={urlSegura(item.url)} target="_blank" rel="noreferrer" style={styles.sourceLink}>Ver fonte →</a>}
                       </div>
                     ))}
                     {estado.itens.length > 2 && (
@@ -1413,6 +1433,7 @@ ${textoBruto}
 
       {activeTab === "legislacao" && (
         <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#a13b46" }}>
+          <AvisoIndependente />
           <div style={styles.panelLabel}>Consultar legislação em vigor</div>
           <input value={legislacaoQuery} onChange={(e) => setLegislacaoQuery(e.target.value)}
             placeholder="Ex.: art. 302 CPP, porte de droga, Lei Maria da Penha, ECA guarda"

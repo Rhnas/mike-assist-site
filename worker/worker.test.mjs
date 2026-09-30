@@ -29,9 +29,24 @@ class KV {
 const CHAVE_SECRETA = "sk-ant-CHAVE-DE-TESTE-NAO-VAZAR";
 const ORIGEM_OK = "https://mikeassist.pages.dev";
 let chamadas = [];
-let modoFetch = "ok"; // "ok" | "erro-api" | "rede"
+let modoFetch = "ok"; // "ok" | "erro-api" | "rede" | "noticias"
+const linksTestados = [];
 
 globalThis.fetch = async (url, init) => {
+  if (init && init.method === "GET") { // verificação de links das notícias
+    linksTestados.push(String(url));
+    if (String(url).startsWith("https://portal.stf.jus.br/") || String(url) === "https://ok.example/a") return new Response("ok", { status: 200 });
+    throw new Error("ENOTFOUND");
+  }
+  if (modoFetch === "noticias" && init.body.includes("Converta agora")) {
+    const itens = [
+      { fonte: "STF", titulo: "a", resumo: "r", url: "https://www.portal.stf.jus.br/x" },
+      { fonte: "X", titulo: "b", resumo: "r", url: "https://ok.example/a" },
+      { fonte: "Y", titulo: "c", resumo: "r", url: "https://morto.example/z" },
+      { fonte: "Z", titulo: "d", resumo: "r", url: "javascript:alert(1)" },
+    ];
+    return new Response(JSON.stringify({ content: [{ type: "text", text: JSON.stringify({ itens }) }] }), { status: 200 });
+  }
   chamadas.push({ url, init, corpo: JSON.parse(init.body) });
   if (modoFetch === "rede") throw new Error("ECONNRESET interno secreto");
   if (modoFetch === "erro-api") {
@@ -215,6 +230,20 @@ async function main() {
     confere("pré-verificação do app: 204 e cabeçalho do token liberado", r.status === 204 && /X-Admin-Token/i.test(r.headers.get("access-control-allow-headers") || ""));
     r = await chamar(env, "/", { metodo: "GET" });
     confere("GET em outro caminho: 405", r.status === 405);
+  }
+
+  {
+    console.log("\nLinks das notícias");
+    modoFetch = "noticias";
+    const env = novoAmbiente({ ADMIN_TOKEN: "t-123456" });
+    await chamar(env, "/avisos/atualizar", { corpo: "", cabecalhos: { "X-Admin-Token": "t-123456" } });
+    const salvo = JSON.parse(env.USO_KV.m.get("avisos:juridico").valor ?? env.USO_KV.m.get("avisos:juridico"));
+    const urls = salvo.itens.map((i) => i.url);
+    confere("link com 'www.portal.' é corrigido e mantido", urls[0] === "https://portal.stf.jus.br/x", JSON.stringify(urls[0]));
+    confere("link que abre é mantido", urls[1] === "https://ok.example/a");
+    confere("link que não abre vira null (notícia permanece)", urls[2] === null && salvo.itens.length === 4);
+    confere("link não-http (javascript:) vira null", urls[3] === null);
+    modoFetch = "ok";
   }
 
   console.log(`\n${total - falhas}/${total} verificações passaram.`);

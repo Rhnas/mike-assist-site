@@ -136,6 +136,40 @@ function extrairJson(data) {
 
 // ---------- Atualizações (Cron / admin) ----------
 
+// Confere se o link de uma notícia realmente abre. A IA pode devolver
+// endereços que não existem (ex.: "www." indevido). Link que não abre vira
+// null: a notícia continua, só sem o botão "Ver fonte".
+async function linkAbre(bruto) {
+  let u;
+  try { u = new URL(String(bruto)); } catch (e) { return null; }
+  if (u.protocol !== "https:" && u.protocol !== "http:") return null;
+  u.protocol = "https:";
+  const candidatos = [u.toString()];
+  if (u.hostname.startsWith("www.")) {
+    const semWww = new URL(u.toString());
+    semWww.hostname = u.hostname.slice(4);
+    candidatos.push(semWww.toString());
+  }
+  for (const c of candidatos) {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 6000);
+      const r = await fetch(c, { method: "GET", redirect: "follow", signal: ctrl.signal, headers: { "User-Agent": "Mozilla/5.0 (compatible; MikeAssist link check)" } });
+      clearTimeout(t);
+      if (r.status < 400) return c;
+    } catch (e) { /* tenta o próximo */ }
+  }
+  return null;
+}
+
+async function validarLinks(itens) {
+  const lista = Array.isArray(itens) ? itens.slice(0, 6) : [];
+  return Promise.all(lista.map(async (item) => ({
+    ...item,
+    url: item && item.url && item.url !== "null" ? await linkAbre(item.url) : null,
+  })));
+}
+
 async function gerarAvisosCategoria(env, categoria) {
   const systemBusca = `Você pesquisa notícias atuais sobre: ${categoria.query}.
 
@@ -177,6 +211,7 @@ ${textoBruto}
       itens = [{ fonte: categoria.id, titulo: "Resultado da busca", resumo: textoBruto, url: null }];
     }
 
+    itens = await validarLinks(itens);
     return { itens, atualizadoEm: new Date().toISOString() };
   } catch (e) {
     return null;
