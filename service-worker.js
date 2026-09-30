@@ -3,8 +3,8 @@
 // NUNCA armazena respostas da IA nem dados do usuário — cada pedido ao
 // Worker (Anthropic) e aos CDNs de terceiros vai sempre direto pra rede.
 
-const CACHE_NAME = "mike-assist-shell-v2";
-const SHELL_FILES = ["./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
+const CACHE_NAME = "mike-assist-shell-v3";
+const SHELL_FILES = ["./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./qr-pix.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

@@ -614,23 +614,18 @@ function TabIcon({ id, active }) {
     case "avisos":
       return (
         <svg {...props}>
-          <path d="M12 3v2" /><path d="M5.5 7 4 5.5" /><path d="M18.5 7 20 5.5" />
-          <path d="M4 14a8 8 0 0 1 16 0c0 3-1 4-2 5H6c-1-1-2-2-2-5Z" />
-          <path d="M9 21h6" />
+          <path d="M5 4h11v16H6a1 1 0 0 1-1-1V4Z" />
+          <path d="M16 9h3v10a1 1 0 0 1-1 1h-2" />
+          <path d="M8 8h5" /><path d="M8 12h5" /><path d="M8 16h3" />
         </svg>
       );
-    case "consultas":
+    case "ferramentas":
       return (
         <svg {...props}>
-          <circle cx="11" cy="11" r="7" />
-          <path d="m20 20-3.5-3.5" />
-        </svg>
-      );
-    case "telefones":
-      return (
-        <svg {...props}>
-          <rect x="6" y="2" width="12" height="20" rx="2.5" />
-          <path d="M10.5 18.5h3" />
+          <rect x="4" y="4" width="6.5" height="6.5" rx="1.5" />
+          <rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5" />
+          <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5" />
+          <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5" />
         </svg>
       );
     case "legislacao":
@@ -727,26 +722,14 @@ function Field({ label, value, onChange, placeholder, mono }) {
   );
 }
 
-function QRCodeDonacao({ pixKey }) {
-  // Gera QR code usando serviço externo (qrserver.com)
-  // Muito mais confiável que carregar biblioteca de terceiros
-  const qrImageUrl = pixKey
-    ? `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`pix:${pixKey}`)}`
-    : null;
-
+function QRCodeDonacao() {
+  // QR Code estático do Pix (BR Code), gerado uma vez por tools/gerar-qr-pix.py.
+  // Fica no próprio site: não depende de serviço externo nem envia a chave a terceiros.
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-      {qrImageUrl && (
-        <img
-          src={qrImageUrl}
-          alt="QR Code Pix"
-          style={{ width: 160, height: 160, background: "#0c1424", padding: 8, borderRadius: 8, display: "block" }}
-          onLoad={() => console.log("✓ QR Code carregado com sucesso")}
-          onError={() => console.error("Erro ao carregar QR Code")}
-        />
-      )}
-      <div style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", maxWidth: 200 }}>
-        Escaneie com seu app de banco ou Pix
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+      <img src="./qr-pix.svg" alt="QR Code Pix" style={{ width: 228, height: 228, borderRadius: 8, display: "block", background: "#fff", imageRendering: "pixelated" }} />
+      <div style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", maxWidth: 220 }}>
+        Escaneie com o app do banco em outro aparelho, ou use o botão acima para copiar a chave.
       </div>
     </div>
   );
@@ -905,6 +888,8 @@ function MikeAssist() {
   const [error, setError] = useState("");
   const [copyLabel, setCopyLabel] = useState("Copiar");
   const [pixCopyLabel, setPixCopyLabel] = useState("Copiar chave Pix");
+  const [mostrarQr, setMostrarQr] = useState(false);
+  const [avisosAbertos, setAvisosAbertos] = useState({});
 
   const [avisos, setAvisos] = useState({});
   const [avisosLoading, setAvisosLoading] = useState(false);
@@ -1169,10 +1154,9 @@ ${textoBruto}
       <nav style={styles.tabBar}>
         {[
           { id: "redacao", label: "BOPM" },
-          { id: "avisos", label: "Notícias" },
-          { id: "consultas", label: "Consultas" },
-          { id: "telefones", label: "Apps Úteis" },
           { id: "legislacao", label: "Leis" },
+          { id: "avisos", label: "Notícias" },
+          { id: "ferramentas", label: "Ferramentas" },
           { id: "sobre", label: "Sobre" },
         ].map((tab) => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)}
@@ -1335,7 +1319,7 @@ ${textoBruto}
                 )}
                 {estado.itens && estado.itens.length > 0 && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {estado.itens.map((item, i) => (
+                    {(avisosAbertos[categoria.id] ? estado.itens : estado.itens.slice(0, 2)).map((item, i) => (
                       <div key={i} className="mk-card" style={styles.avisoCard}>
                         <span style={{ ...styles.avisoTag, background: categoria.cor }}>{item.fonte}</span>
                         <p style={styles.avisoTitulo}>{item.titulo}</p>
@@ -1343,6 +1327,11 @@ ${textoBruto}
                         {item.url && item.url !== "null" && <a href={item.url} target="_blank" rel="noreferrer" style={styles.sourceLink}>Ver fonte →</a>}
                       </div>
                     ))}
+                    {estado.itens.length > 2 && (
+                      <button style={styles.ghostButton} onClick={() => setAvisosAbertos({ ...avisosAbertos, [categoria.id]: !avisosAbertos[categoria.id] })}>
+                        {avisosAbertos[categoria.id] ? "Ver menos" : `Ver mais (${estado.itens.length - 2})`}
+                      </button>
+                    )}
                   </div>
                 )}
               </section>
@@ -1351,7 +1340,8 @@ ${textoBruto}
         </div>
       )}
 
-      {activeTab === "consultas" && (
+      {activeTab === "ferramentas" && (
+        <>
         <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#8a8f98" }}>
           <div style={styles.panelLabel}>Consultas oficiais</div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -1360,54 +1350,7 @@ ${textoBruto}
           </div>
           <p style={styles.disclaimer}>As consultas acontecem no site/app oficial, autenticadas por você. Nenhum dado passa pelo Mike Assist.</p>
         </section>
-      )}
 
-      {activeTab === "consultas" && (
-        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#4f8f6d" }}>
-          <div style={styles.panelLabel}>Sugestões</div>
-          <a
-            href="mailto:mikeassist.suporte@gmail.com?subject=Sugest%C3%A3o%20-%20Mike%20Assist&body=Sugest%C3%A3o%2Fideia%3A%0A%0A"
-            style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "var(--text)", marginTop: 10 }}
-          >
-            <div style={{
-              width: 42, height: 42, borderRadius: "50%", flexShrink: 0,
-              background: "rgba(79,143,109,0.16)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19,
-            }}>
-              🛡️
-            </div>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 15, fontWeight: 700 }}>
-                Suporte
-                <span style={{
-                  display: "inline-flex", alignItems: "center", justifyContent: "center",
-                  width: 15, height: 15, borderRadius: "50%", background: "#5b8bc9",
-                  color: "#fff", fontSize: 9, fontWeight: 700, lineHeight: 1,
-                }}>✓</span>
-              </div>
-              <div style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 1 }}>Fale com o suporte</div>
-            </div>
-          </a>
-        </section>
-      )}
-
-      {activeTab === "consultas" && PIX_KEY_DOACAO && (
-        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
-          <div style={styles.panelLabel}>Apoie o projeto</div>
-          <p style={{ fontSize: 13, color: "#c3cbd3", lineHeight: 1.6, margin: "6px 0 16px" }}>
-            Se te ajudou, contribua para a melhora do aplicativo.
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 16, alignItems: "center" }}>
-            <QRCodeDonacao pixKey={PIX_KEY_DOACAO} />
-            <button style={{ ...styles.primaryButton, width: "100%" }} onClick={copiarChavePix}>
-              {pixCopyLabel}
-            </button>
-          </div>
-          <p style={styles.disclaimer}>Doação totalmente opcional, via Pix. Nenhum recurso do app é liberado em troca.</p>
-        </section>
-      )}
-
-      {activeTab === "telefones" && (
-        <>
           <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#5b8bc9" }}>
             <div style={styles.panelLabel}>Apps oficiais PMERJ</div>
             <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4, marginBottom: 12 }}>
@@ -1434,7 +1377,7 @@ ${textoBruto}
             ))}
           </section>
 
-          <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a", marginTop: 12 }}>
+          <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
             <div style={styles.panelLabel}>Outros apps úteis</div>
             <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4, marginBottom: 12 }}>
               Apps de terceiros recomendados — não têm vínculo com a PMERJ/SEPM nem com o Mike Assist.
@@ -1458,17 +1401,6 @@ ${textoBruto}
                 <div style={{ fontSize: 16, color: "var(--text-dim)", flexShrink: 0 }}>›</div>
               </a>
             ))}
-          </section>
-
-          <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#5b8bc9", marginTop: 12 }}>
-            <div style={styles.panelLabel}>Telefones das unidades</div>
-            <div style={{ ...styles.emptyBox, padding: "26px 12px" }}>
-              <div style={{ fontSize: 26, marginBottom: 8 }}>☎️</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text)" }}>Em breve</div>
-              <p style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.6 }}>
-                Estamos conferindo os contatos das unidades antes de disponibilizar essa lista.
-              </p>
-            </div>
           </section>
         </>
       )}
@@ -1509,6 +1441,7 @@ ${textoBruto}
       )}
 
       {activeTab === "sobre" && (
+        <>
         <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#e3877a" }}>
           <div style={styles.panelLabel}>Aviso legal</div>
           <div style={{ fontSize: 16, fontWeight: 700, color: "#e3877a", margin: "10px 0 8px" }}>
@@ -1536,6 +1469,48 @@ ${textoBruto}
             Gratuito e mantido de forma independente. Nenhuma ocorrência digitada é salva; não há login nem cadastro. Contato: mikeassist.suporte@gmail.com
           </p>
         </section>
+
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#4f8f6d" }}>
+          <div style={styles.panelLabel}>Suporte e sugestões</div>
+          <a
+            href="mailto:mikeassist.suporte@gmail.com?subject=Sugest%C3%A3o%20-%20Mike%20Assist&body=Sugest%C3%A3o%2Fideia%3A%0A%0A"
+            style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "var(--text)", marginTop: 10 }}
+          >
+            <div style={{
+              width: 42, height: 42, borderRadius: "50%", flexShrink: 0,
+              background: "rgba(79,143,109,0.16)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19,
+            }}>
+              🛡️
+            </div>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 15, fontWeight: 700 }}>
+                Suporte
+                <span style={{
+                  display: "inline-flex", alignItems: "center", justifyContent: "center",
+                  width: 15, height: 15, borderRadius: "50%", background: "#5b8bc9",
+                  color: "#fff", fontSize: 9, fontWeight: 700, lineHeight: 1,
+                }}>✓</span>
+              </div>
+              <div style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 1 }}>Fale com o suporte</div>
+            </div>
+          </a>
+        </section>
+
+          {PIX_KEY_DOACAO && (
+        <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#c9a24a" }}>
+          <div style={styles.panelLabel}>Apoie o projeto</div>
+          <p style={{ fontSize: 13, color: "#c3cbd3", lineHeight: 1.6, margin: "6px 0 16px" }}>
+            Se te ajudou, contribua para a melhora do aplicativo.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
+            <button style={{ ...styles.primaryButton, width: "100%" }} onClick={copiarChavePix}>{pixCopyLabel}</button>
+            <button style={{ ...styles.ghostButton, width: "100%" }} onClick={() => setMostrarQr(!mostrarQr)}>{mostrarQr ? "Ocultar QR Code" : "Mostrar QR Code"}</button>
+            {mostrarQr && <QRCodeDonacao />}
+          </div>
+          <p style={styles.disclaimer}>Doação totalmente opcional, via Pix. Nenhum recurso do app é liberado em troca.</p>
+        </section>
+          )}
+        </>
       )}
     </div>
   );
