@@ -755,6 +755,8 @@ function friendlyError(e) {
   if (typeof navigator !== "undefined" && navigator.onLine === false) return "Sem conexão com a internet. Confira o sinal e tente de novo.";
   const msg = (e && e.message) || "";
   if (/failed to fetch|networkerror|load failed/i.test(msg)) return "Não consegui conectar ao servidor. Confira a internet e tente de novo.";
+  // Mensagens de limite escritas pelo servidor (limite diário, tamanho do texto) já são claras.
+  if (/limite di[aá]rio|limite de uso|grande demais|máximo de/i.test(msg)) return msg;
   if (/rate|limit|429|overload|credit|quota|saldo/i.test(msg)) return "O serviço está com muito uso agora. Tente de novo em alguns minutos.";
   return "Não consegui gerar o histórico agora. Tente de novo em instantes.";
 }
@@ -1036,10 +1038,14 @@ Responda APENAS com um JSON válido, sem markdown, sem crases, no formato exato:
   // testar a base pela primeira vez ou forçar uma atualização fora do
   // horário programado. Depois de disparar, espera um pouco e recarrega.
   async function forcarAtualizacao() {
+    // O Worker exige o token de administrador (segredo ADMIN_TOKEN na Cloudflare).
+    // Ele é digitado na hora e nunca fica salvo no código nem no aparelho.
+    const token = window.prompt("Token de administrador:");
+    if (!token) return;
     setForcandoAtualizacao(true);
     setForcarMensagem("");
     try {
-      const resp = await fetch(`${WORKER_URL}/avisos/atualizar`, { method: "POST" });
+      const resp = await fetch(`${WORKER_URL}/avisos/atualizar`, { method: "POST", headers: { "X-Admin-Token": token } });
       const data = await resp.json();
       if (data.error) throw new Error(data.error);
 
@@ -1181,7 +1187,7 @@ ${textoBruto}
 
           <section className="mk-panel" style={{ ...styles.panel, borderLeftColor: "#4f8f6d" }}>
             <div style={styles.panelLabel}>Descreva a ocorrência</div>
-            <textarea value={relato} onChange={(e) => setRelato(e.target.value)}
+            <textarea value={relato} onChange={(e) => setRelato(e.target.value)} maxLength={7000}
               placeholder="Ex.: abordagem na Rua das Palmeiras, dois suspeitos, um estava com uma porção de maconha, resistência leve, conduzidos à 14ª DP."
               style={styles.textarea} rows={5} />
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginTop: 6 }}>
