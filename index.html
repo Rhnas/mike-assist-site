@@ -75,20 +75,23 @@
       root.innerHTML =
         '<div style="min-height:100vh;background:#0c1424;color:#e8ecef;font-family:sans-serif;padding:24px;font-size:14px;line-height:1.6;">' +
         '<strong style="color:#c9a24a;">Demorando mais que o esperado</strong><br/><br/>' +
-        'Os arquivos de suporte (React) podem estar bloqueados pela sua rede/operadora, ou a conexão está lenta.<br/><br/>' +
+        'Na primeira abertura o app baixa alguns arquivos; com internet lenta isso demora um pouco mais.<br/><br/>' +
         'Tente: trocar de Wi-Fi para dados móveis (ou vice-versa), ou abrir em outro navegador.<br/><br/>' +
         'Se persistir, tire um print desta tela e envie para ajuste.</div>';
     }
   }, 8000);
 </script>
 
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-<!-- Banco de exemplos fictícios de BOPM por tipo de ocorrência (ver o próprio arquivo) -->
-<script src="conhecimento/exemplos-bopm.js"></script>
+<!-- React vem do próprio site (vendor/), sem depender de CDN: abre mesmo offline. -->
+<script src="vendor/react.production.min.js"></script>
+<script src="vendor/react-dom.production.min.js"></script>
+<!-- Esconde CPF, telefone, placa etc. do relato antes de enviar (roda só no aparelho) -->
+<script src="anonimizar.js"></script>
 
-<script type="text/babel" data-presets="react">
+<!-- Código do app (JSX). Não roda direto: o carregador no fim da página traduz
+     uma vez com o Babel e guarda o resultado no aparelho, então as próximas
+     aberturas não precisam baixar nem rodar o Babel. -->
+<script type="text/x-mike-jsx" id="mike-app">
 const { useState, useEffect } = React;
 
 // ============================================================
@@ -99,405 +102,9 @@ const { useState, useEffect } = React;
 const WORKER_URL = "https://mikeassist.raphaelhnas.workers.dev"; // troque pela URL do seu Worker
 const PIX_KEY_DOACAO = "3b027d5e-d2ee-48c9-8add-f29426901558"; // cole aqui sua chave Pix aleatória para receber doações
 
-const VADE_MECUM_SAMPLE = `
-ASSISTENCIAIS / EMERGÊNCIAS / ATENDIMENTOS DIVERSOS
-00.001 - Veículo abandonado em via pública
-00.002 - Acidente de trânsito sem vítima
-00.003 - Acidente de trânsito com vítima
-00.004 - Princípio de afogamento
-00.005 - Afogamento
-00.006 - Acidente náutico
-00.007 - Acidente aéreo
-00.008 - Acidente ferroviário
-00.009 - Acidente com veículo automotor
-00.010 - Acidente com veículo de tração animal
-00.011 - Desabamento / desmoronamento
-00.012 - Soterramento, deslizamento ou rompimento
-00.013 - Queda de árvore
-00.014 - Salvamento em cisterna ou poço
-00.015 - Salvamento em fossa
-00.016 - Salvamento em elevador
-00.017 - Salvamento em teleféricos
-00.018 - Salvamento em gruta ou caverna
-00.019 - Acidente vascular cerebral (AVC)
-00.020 - Convulsão
-00.021 - Dispneia
-00.022 - Distúrbio psiquiátrico
-00.023 - Dor precordial (coração)
-00.024 - Intoxicação exógena
-00.025 - Mal não definido (distúrbio)
-00.026 - Obstrução respiratória
-00.027 - Parada cardiorrespiratória
-00.028 - Parada respiratória
-00.029 - Parturiente
-00.030 - Síncope (desmaio)
-00.031 - Transporte interhospitalar
-00.032 - Acidente com motocicleta
-00.033 - Acidente com bicicleta
-00.034 - Vítima de atropelamento
-00.035 - Agressão física com arma branca
-00.036 - Agressão física com arma de fogo
-00.037 - Agressão física sem uso de armas
-00.038 - Queda de altura
-00.039 - Queda da própria altura
-00.040 - Vítima de eletrocussão
-00.041 - Vítima de explosão
-00.042 - Vítima de queimadura
-00.043 - Ataque de insetos
-00.044 - Ataque de animal peçonhento
-00.045 - Ataque de cães
-00.046 - Ataque de demais animais
-00.047 - Suicídio (tentativa)
-00.048 - Captura/resgate de animal em situação de risco
-00.049 - Captura de enxame
-00.050 - Corte ou poda de árvore
-00.051 - Pessoa extraviada/desaparecida em local de difícil acesso
-00.052 - Resgate de cadáver
-00.053 - Resgate de feto
-00.054 - Resgate de parte cadavérica (órgãos, ossada humana)
-00.055 - Assistência de pessoa indigente
-00.056 - Atrito verbal
-00.057 - Autoextermínio (suicídio consumado)
-00.058 - Averiguação de disparo de alarme
-00.059 - Averiguação de pessoa/veículo em atitude suspeita
-00.060 - Bloqueio de via por ação de populares/classe
-00.061 - Foragido da justiça
-00.062 - Fuga de preso
-00.063 - Pessoa localizada
-00.064 - Bem e/ou valor encontrado/localizado/recuperado
-00.064.A - Carga encontrada/localizada/recuperada
-00.065 - Tentativa de fuga
-00.066 - Veículo localizado/recuperado
-00.067 - Encontro de cadáver
-00.068 - Encontro de feto
-00.069 - Encontro de parte de cadáver/órgãos/ossada humana
-00.070 - Mediação de conflito
-00.071 - Resolução pacífica de conflitos
-00.072 - Crimes contra a mulher (a especificar tipo penal no histórico)
-00.073 - Violência doméstica
-00.074 - Reuniões comunitárias
-00.075 - Aula PROERD
-00.076 - Visitas domiciliares
-00.078 - Ações sociais e comunitárias
-00.079 - Visitas de acompanhamento pós-crime
-00.080 - Projetos desportivos, culturais e educacionais
-00.081 - Solicitante não encontrado
-00.082 - Endereço não localizado
-00.083 - Providência dispensada
-00.084 - Nada constatado
-00.085 - Duplicata
-00.086 - Teste
-00.087 - Trote
-00.000 - Outros tipos (busca/resgate de cadáver, salvamento em local de difícil acesso, infrações contra administração/fé pública, contra organização do trabalho, contra a família, ocorrência de trânsito, substâncias entorpecentes — sempre discriminar no histórico)
+// A tabela de códigos, os exemplos de histórico e as instruções da IA ficam
+// em conhecimento/*.txt e são montados pelo Worker (não saem mais do app).
 
-LESÃO CORPORAL E MORTE DECORRENTES DE INTERVENÇÃO POLICIAL
-99.000 - Lesão corporal seguida de morte decorrente de intervenção policial
-99.000.A - Lesão corporal decorrente de intervenção policial
-90.002 - Lesão corporal gravíssima ou seguida de morte sofrida por agente público e familiares
-90.004 - Homicídio sofrido por agente público e familiares
-
-CRIMES CONTRA A PESSOA
-01.121 - Homicídio
-01.121.T - Tentativa de homicídio
-01.122 - Induzimento/instigação/auxílio a suicídio
-01.123 - Infanticídio
-01.124 - Aborto provocado pela gestante ou com seu consentimento
-01.125 - Aborto provocado por terceiro
-01.126 - Provocar aborto com o consentimento da gestante
-01.129 - Lesão corporal
-01.129.A - Lesão corporal seguida de morte
-01.130 - Perigo de contágio venéreo
-01.131 - Perigo de contágio de moléstia grave
-01.132 - Perigo para a vida ou saúde de outrem
-01.133 - Abandono de incapaz
-01.134 - Exposição ou abandono de recém-nascido
-01.135 - Omissão de socorro
-01.135.A - Condicionamento de atendimento médico-hospitalar emergencial
-01.136 - Maus-tratos
-01.137 - Rixa
-01.138 - Calúnia
-01.139 - Difamação
-01.140 - Injúria
-01.146 - Constrangimento ilegal
-01.147 - Ameaça
-01.148 - Sequestro e cárcere privado
-01.149 - Redução a condição análoga à de escravo
-01.150 - Violação de domicílio
-01.151 - Sonegação/destruição/violação de correspondência ou comunicação telefônica
-01.153 - Divulgação de segredo
-01.154 - Violação de segredo profissional
-01.154.A - Invasão de dispositivo de informática alheio
-01.502 - Assédio sexual
-
-CRIMES CONTRA O PATRIMÔNIO
-01.155 - Furto
-01.155.A - Furto a residência ou estabelecimento comercial
-01.155.B - Furto de veículo
-01.155.C - Furto em veículo
-01.155.D - Furto de animal
-01.155.E - Furto a estabelecimento comercial
-01.156 - Furto de coisa comum
-01.157 - Roubo
-01.157.A - Roubo a residência/estabelecimento comercial
-01.157.B - Roubo de veículo
-01.157.C - Roubo de animal
-01.157.D - Latrocínio
-01.157.E - Roubo a estabelecimento comercial
-01.158 - Extorsão
-01.159 - Extorsão mediante sequestro
-01.160 - Extorsão indireta
-01.161 - Esbulho possessório / usurpação de águas / alteração de limites
-01.163 - Dano
-01.164 - Introdução ou abandono de animal em propriedade alheia
-01.168 - Apropriação indébita de coisa alheia móvel
-01.169 - Apropriação de coisa havida por erro (coisa achada)
-01.171 - Estelionato
-01.172 - Duplicata simulada
-01.180 - Receptação
-
-CRIMES CONTRA A FAMÍLIA E COSTUMES
-01.213 - Estupro
-01.215 - Violação sexual mediante fraude
-01.217.A - Estupro de vulnerável
-01.218 - Corrupção de menores
-01.218.A - Satisfação da lascívia mediante presença de criança ou adolescente
-01.218.B - Favorecimento da prostituição ou exploração sexual
-01.227 - Mediação para servir à lascívia de outrem
-01.228 - Favorecimento à prostituição
-01.229 - Casa de prostituição
-01.230 - Rufianismo
-01.231 - Tráfico internacional de pessoas para fins de exploração sexual
-01.233 - Ato obsceno
-01.234 - Escrito ou objeto obsceno
-01.235 - Bigamia
-01.244 - Abandono material
-01.245 - Entrega de filho menor a pessoa idônea
-01.246 - Abandono intelectual (instrução fundamental)
-01.247 - Abandono intelectual
-01.248 - Induzimento a fuga, entrega arbitrária ou sonegação de incapazes
-01.249 - Subtração de incapazes
-
-CRIMES CONTRA A INCOLUMIDADE E SAÚDE PÚBLICA
-01.250 - Incêndio
-01.251 - Explosão
-01.252 - Uso de gás tóxico ou asfixiante
-01.253 - Fabricar/fornecer/adquirir/possuir substância explosiva
-01.254 - Inundação (risco de vida ou patrimônio)
-01.256 - Desabamento ou desmoronamento (risco de vida ou patrimônio)
-01.264 - Arremesso de projétil
-01.265 - Atentado contra segurança de serviço de utilidade pública
-01.270 - Envenenamento de água potável ou substância alimentícia/medicinal
-01.272 - Falsificação/corrupção/adulteração de substância ou produto alimentício
-01.273 - Falsificação/adulteração de produtos terapêuticos ou medicinais
-
-CRIMES CONTRA A FÉ PÚBLICA
-01.289 - Moeda falsa
-01.297 - Falsificação de documento público
-01.298 - Falsificação de documento particular
-01.299 - Falsidade ideológica
-01.304 - Uso de documento falso
-01.305 - Supressão de documento
-01.307 - Falsa identidade
-01.308 - Falsa identidade — usar como próprio documento alheio ou ceder a outrem
-01.311 - Adulteração de sinal identificador de veículo automotor (inclusive clonagem)
-
-CRIMES CONTRA A ADMINISTRAÇÃO PÚBLICA
-01.312 - Peculato
-01.316 - Concussão
-01.317 - Corrupção passiva
-01.319 - Prevaricação
-01.322 - Violência arbitrária
-01.325 - Violação de sigilo funcional
-01.328 - Usurpação de função
-01.329 - Resistência
-01.330 - Desobediência
-01.331 - Desacato
-01.332 - Tráfico de influência
-01.333 - Corrupção ativa
-01.334 - Contrabando ou descaminho
-01.339 - Denunciação caluniosa
-01.340 - Comunicação falsa de crime ou contravenção
-01.341 - Auto-acusação falsa
-01.342 - Falso testemunho ou falsa perícia
-01.344 - Coação no curso do processo
-01.350 - Exercício arbitrário ou abuso de poder
-01.351 - Facilitação/promoção de fuga de pessoa presa
-01.352 - Evasão mediante violência contra a pessoa
-01.353 - Arrebatamento de presos
-01.354 - Motim de presos
-11.030 / 11.040 - Crimes de abuso de autoridade (Lei 13.869/2019)
-
-CRIMES CONTRA A ORGANIZAÇÃO DO TRABALHO
-01.197 a 01.207 - Crimes contra a organização do trabalho (atentado à liberdade de trabalho/associação, paralisação, frustração de direito trabalhista, aliciamento — especificar tipo no histórico)
-
-CRIMES DE TORTURA, ARMAS E EXPLOSIVOS
-02.010 - Tortura
-03.120 - Posse irregular de arma de fogo de uso permitido
-03.140 - Porte ilegal de arma de fogo de uso permitido
-03.150 - Disparo de arma de fogo ou acionamento de munição
-03.160 - Posse ou porte ilegal de arma de fogo de uso restrito
-03.161 - Suprimir ou alterar marca/numeração/sinal de identificação de arma de fogo
-03.163 - Possuir/deter/fabricar/empregar artefato explosivo
-03.164 - Portar/possuir/adquirir/transportar/fornecer arma de fogo
-03.165 - Vender/entregar/fornecer arma de fogo
-03.170 - Comércio ilegal de arma de fogo, acessório ou munição
-03.180 - Tráfico internacional de arma de fogo
-08.190 - Porte ilegal de arma branca
-
-CRIMES E INFRAÇÕES DE DROGAS (LEI 11.343/2006)
-04.280 - Uso e consumo de drogas
-04.330 - Tráfico ilícito de drogas
-04.331 - Tráfico ilícito de matérias-primas para preparação de drogas
-04.332 - Cultivo de plantas utilizadas na preparação de drogas
-04.333 - Utilização/consentimento de uso de local ou bem para tráfico de drogas
-04.334 - Incentivo ao uso ou consumo de drogas
-04.335 - Oferecimento eventual ao consumo de drogas
-04.340 - Fabrico, venda ou posse de apetrechos para preparação de drogas
-04.350 - Associação para o tráfico de drogas
-04.351 - Associação para o financiamento ou custeio do tráfico de drogas
-04.360 - Financiamento ou custeio de tráfico de drogas
-04.370 - Colaboração como informante para o tráfico de drogas
-
-ESTATUTO DA CRIANÇA E DO ADOLESCENTE (ECA — LEI 8.069/90)
-05.228 a 05.244 - Infrações diversas do ECA (omissão de comunicação/atendimento, privação de liberdade sem flagrante, submissão a vexame, subtração de incapaz, tráfico de criança/adolescente, pornografia infantil — especificar artigo no histórico)
-05.501 a 05.505 - Exploração sexual, pornografia infantil e aliciamento de criança/adolescente por qualquer meio (arts. 240 a 241-D do ECA)
-
-CONTRAVENÇÕES PENAIS E INFRAÇÕES DIVERSAS
-08.200 - Anúncio de meio abortivo
-08.210 - Vias de fato/agressão
-08.240 - Instrumento de emprego usual na prática de furto
-08.260 - Violação de lugar ou objeto (chaveiro sem autorização)
-08.360 - Sinais de perigo (comunicação de perigo na via pública)
-08.370 - Arremesso ou colocação perigosa
-08.380 - Emissão abusiva de fumaça, vapor ou gás
-08.390 - Associação secreta
-08.400 - Provocação de tumulto/conduta inconveniente
-08.410 - Falso alarma — ameaça de bomba
-08.420 - Perturbação do trabalho ou do sossego alheios
-08.430 - Recusa de moeda de curso legal
-08.450 - Simulação da qualidade de funcionário público
-08.460 - Uso ilegítimo de uniforme ou distintivo
-08.470 - Exercício ilegal de profissão ou atividade
-08.480 - Exercício ilegal do comércio/obra de arte/coisas antigas
-08.500 - Jogos de azar
-08.510 - Loteria não autorizada
-08.580 - Jogo do bicho
-08.590 - Vadiagem
-08.600 - Mendicância
-08.610 - Importunação ofensiva ao pudor
-08.620 - Embriaguez (escândalo/perigo próprio ou alheio)
-08.630 - Servir bebida alcoólica a menores, incapazes ou embriagados
-08.640 - Crueldade contra animais
-08.650 - Perturbação da tranquilidade
-08.660 - Omissão de comunicação de crime
-08.670 - Inumação ou exumação de cadáver
-08.680 - Recusa de dados sobre a própria identificação ou qualificação
-08.700 - Violação do privilégio postal da União
-
-CRIMES DE TRÂNSITO (CTB)
-10.161 - Aplicação das medidas administrativas previstas no art. 269 do CTB
-10.302 - Homicídio culposo na direção de veículo automotor
-10.303 - Lesão corporal culposa na direção de veículo automotor
-10.304 - Omissão de socorro em acidente de trânsito
-10.305 - Abandono do local de acidente de trânsito
-10.306 - Dirigir sob influência de álcool ou substância psicoativa
-10.307 - Violar suspensão ou proibição de dirigir
-10.308 - Disputa de corrida não autorizada (racha)
-10.309 - Dirigir sem permissão/habilitação ou com habilitação cassada gerando perigo de dano
-10.310 - Entrega de direção a pessoa não habilitada
-10.311 - Transitar em velocidade incompatível em locais específicos ou com aglomeração
-10.312 - Alterar local de crime em acidente de trânsito
-
-ESTATUTO DO IDOSO (LEI 10.741/2003)
-13.096 a 13.109 - Crimes contra o idoso (discriminação, abandono, exposição a perigo, apropriação de bens/benefício, retenção de cartão, coação, exibição depreciativa — especificar artigo no histórico)
-
-CRIMES MILITARES E DE APOIO
-38.xxx - Crimes militares diversos (Código Penal Militar — especificar artigo no histórico)
-39.001/44.001 - Apoio a órgãos federais
-39.002/44.002 - Apoio a órgãos estaduais
-39.003/44.003 - Apoio a órgãos municipais
-39.004/44.004 - Apoio a órgãos privados
-39.005/44.005 - Apoio à Polícia Civil/Delegado de Polícia Civil
-39.006/44.006 - Apoio a militar/PM/BM
-39.007 - Apoio a órgãos judiciários
-40.001 a 40.004 - Descumprimento de sigilo/colaboração premiada em organização criminosa (Lei 12.850/2013)
-42.000 - Prática de ato por xenofobia, racismo, etnia ou religião com finalidade de terror social (Lei 13.260/2016)
-
-OUTRAS LEIS ESPECIAIS (citar sempre a lei/artigo específico no histórico quando identificado)
-06.xxx - Infrações ao Código de Defesa do Consumidor
-07.xxx - Crimes de preconceito de raça/cor/etnia/religião (Lei 7.716/89)
-09.18x/09.19x - Crimes contra propriedade industrial, marcas e patentes
-12.xxx - Crimes contra o sistema de estoque de combustível
-14.1xx - Crimes de responsabilidade de prefeitos e vereadores
-15.0xx - Crimes relativos a sonegação fiscal
-16.0xx-16.2xx - Crimes contra a segurança nacional
-17.0xx-17.2xx - Crimes contra o sistema financeiro nacional
-18.1xx-18.2xx - Crimes contra o sentimento religioso e respeito aos mortos
-19.5xx - Crimes relativos ao Estatuto do Índio
-20.2xx-34.1xx - Crimes eleitorais
-21.0xx - Crimes de lavagem ou ocultação de bens, direitos e valores
-22.120 / 36.05x - Violação de direito autoral (programa de computador, topografia de circuito integrado)
-23.0xx-23.0xx - Crimes contra a ordem tributária, econômica e relações de consumo
-24.0xx - Crimes relativos a serviços postais
-25.183 - Crimes relativos a serviços de telecomunicações
-26.0xx - Crimes relativos ao Código de Telecomunicações
-27.1xx/28.2xx - Crimes relativos ao meio ambiente
-29.0xx - Infrações contra ordenamento urbano/patrimônio cultural/administração ambiental
-30.4xx / 31.0xx / 32.3xx - Infrações ambientais relativas à fauna, flora, pesca
-35.089-35.098 - Crimes contra licitações e contratos da administração pública (Lei 8.666/93)
-37.001-37.006 - Fraude/violência em competição esportiva; revenda irregular de ingressos
-`.trim();
-
-// Exemplos reais de histórico de BOPM, cedidos pelo próprio usuário (Sd PM,
-// 40º BPM) para calibrar o ESTILO do texto gerado (vocabulário, estrutura,
-// jargão real de batalhão). Identificadores que pareciam reais (nomes
-// completos, RG, matrícula de perito, números de viatura/RO/BAM) foram
-// substituídos por placeholders — o que importa aqui é a forma, não o caso
-// específico. Isso é conteúdo estático do app (igual à tabela de códigos),
-// nunca é preenchido com ocorrências reais de quem usa o Mike Assist.
-const EXEMPLOS_HISTORICO_REAL = `
---- exemplo 1 (desentendimento familiar) ---
-Guarnição do Setor Fox procedeu à ocorrência paga por Maré Zero, inicialmente relacionada a desentendimento familiar. No local, após contato com os envolvidos, verificou-se tratar de divergência familiar envolvendo questões relacionadas a imóvel, herança e obra realizada em terreno onde existe uma servidão utilizada para acesso a quatro residências.
-Segundo informado, um dos envolvidos alega possuir procuração com assinatura do pai da solicitante, relacionada às questões envolvendo o imóvel. A solicitante, moradora da primeira residência, informou que seu pai atualmente se encontra em estado de demência, havendo divergências entre os familiares acerca da situação patrimonial e da utilização do terreno.
-A solicitante informou ainda possuir medida protetiva em face de um dos envolvidos. Cabe ressaltar que as partes residem em imóveis contíguos, lado a lado, havendo apenas a própria estrutura/muro das residências como separação física entre elas. No documento apresentado à guarnição, não foi observada especificação de distância mínima de afastamento ou outra determinação específica relacionada à proximidade entre as respectivas residências.
-Durante a atuação da guarnição, a situação apresentada restringiu-se a atrito verbal decorrente das divergências familiares, não sendo constatada agressão física ou outra situação que demandasse intervenção imediata naquele momento.
-Diante dos fatos, as partes foram devidamente orientadas quanto à necessidade de buscar os meios legais competentes para resolução das questões relativas ao imóvel, herança, procuração, servidão e obra. Cessado o atrito verbal e não sendo constatada, naquele momento, outra situação que exigisse providência imediata da guarnição, a ocorrência foi encerrada no local após as devidas orientações.
-
---- exemplo 2 (possíveis maus-tratos a menor) ---
-Guarnição do Setor Fox procedeu ao local para averiguar ocorrência inicialmente informada como possível situação envolvendo maus-tratos a menor de 9 anos, tendo sido relatado na solicitação que a tia teria colocado a criança para fora da residência, impedido seu retorno e que supostamente a agrediria.
-No local, a guarnição fez contato com os envolvidos, constatando que a tia reside no mesmo imóvel que a mãe do menor e auxilia nos cuidados da família. Segundo relato da tia, tanto a mãe quanto o menor apresentam distúrbios, sendo ainda informado por ela que a criança já teria saído da residência sem autorização em outras oportunidades e que, em razão de sua condição, por vezes apresentaria relatos que, segundo a declarante, não corresponderiam à realidade. Ressalta-se que tais informações correspondem exclusivamente à versão apresentada pela tia.
-Durante o atendimento, a guarnição manteve contato com o menor, não sendo visualizadas naquele momento lesões ou marcas aparentes que indicassem agressão física, tampouco foram percebidas manifestações aparentes de temor da criança em relação à tia. O menor retornou ao interior da residência, não havendo resistência por parte da tia quanto à sua entrada.
-Diante das circunstâncias efetivamente constatadas pela guarnição naquele momento, não foram identificados elementos aparentes que confirmassem a situação de agressão narrada inicialmente na solicitação. As partes foram devidamente orientadas, permanecendo o menor no interior da residência juntamente com seus familiares, sendo a ocorrência encerrada no local, sem outras alterações observadas pela guarnição.
-
---- exemplo 3 (acidente de trânsito com vítima, envolve perícia/DP — identificadores anonimizados) ---
-Guarnição do Setor Fox foi empenhada em ocorrência de acidente de trânsito com vítima, tratando-se de colisão com veículo parado.
-Ao chegar, constatou-se que o cenário do acidente já se encontrava desfeito, não sendo possível verificar a posição original dos veículos ou outros elementos relacionados à dinâmica do fato. Encontrava-se presente equipe do CBMERJ, viatura [nº da ASE], tendo como mais antigo o [posto/graduação e nome], RG [nº].
-O condutor da motocicleta, [nome], qualificado neste BOPM, estava sob os cuidados do CBMERJ, sendo posteriormente conduzido ao [hospital], onde foi gerado o BAM nº [nº]. [Familiar], também qualificado(a), permaneceu como seu(sua) representante. A motocicleta envolvida ficou acautelada sob a responsabilidade de [nome], [grau de parentesco] do condutor.
-Quanto ao [outro veículo envolvido], foi constatado que este se encontrava enguiçado. [Nome] apresentou-se à guarnição como seu condutor, acompanhado de [nome], que se identificou como proprietário do veículo e empregador do condutor. O veículo permaneceu sob a responsabilidade de seu proprietário.
-Após as providências iniciais, a equipe deslocou-se ao [hospital], onde, em contato com os profissionais responsáveis pelo atendimento, foi informada de que a vítima se encontrava fora de risco de vida.
-Em seguida, os fatos foram apresentados na [nº]ª DP, sendo confeccionado o RO nº [nº]. Embora não houvesse vítima fatal e o cenário já estivesse desfeito quando da chegada da equipe, o inspetor responsável solicitou a realização de perícia.
-Em cumprimento à solicitação, a guarnição retornou ao local. Às [hora], compareceu o perito [nome], matrícula nº [nº], na viatura nº [nº], realizando os procedimentos periciais, já sem a presença dos veículos envolvidos.
-Ressalta-se que a guarnição não presenciou o acidente e encontrou o cenário já desfeito, não sendo possível estabelecer sua dinâmica ou atribuir responsabilidade aos envolvidos, limitando-se às constatações realizadas, às informações prestadas e às providências adotadas.
-Concluídos os trabalhos periciais e não havendo outras providências a cargo da guarnição, a ocorrência foi encerrada.
-
---- exemplo 4 (perturbação do sossego) ---
-Guarnição do Setor Fox procedeu ao local para atendimento de ocorrência de perturbação do trabalho e do sossego. Ao chegar ao endereço indicado, o solicitante não se apresentou à guarnição.
-No local, foi identificado o responsável pelo evento, sendo realizada a devida orientação quanto ao volume do som e aos possíveis transtornos causados à vizinhança. O responsável mostrou-se receptivo às orientações, comprometendo-se a reduzir imediatamente o volume e a encerrar o evento em breve.
-Diante da situação e não havendo outras alterações no momento, a ocorrência foi encerrada no local após as devidas orientações.
-
---- exemplo 5 (possível violência doméstica, sem lesão relatada) ---
-Guarnição do Setor Fox recebeu solicitação para atendimento de ocorrência inicialmente informada como violência doméstica contra a mulher, com possível lesão corporal.
-Ao chegar ao local, a guarnição fez contato com a solicitante, a qual relatou que desejava que seu ex-marido deixasse a residência, mencionando apenas a ocorrência de atrito verbal entre as partes. Durante o atendimento, não foi relatada pela solicitante qualquer agressão física.
-Após contato e orientação de ambas as partes, o homem retirou alguns de seus pertences pessoais e deixou a residência voluntariamente, cessando o desentendimento.
-Diante da situação constatada no local e não havendo outras alterações naquele momento, a ocorrência foi encerrada no local após as devidas orientações às partes.
-
---- exemplo 6 (possível lesão corporal contra mulher, sem lesão constatada) ---
-Guarnição do Setor Fox procedeu ao local para averiguar ocorrência inicialmente informada como lesão corporal contra mulher.
-Ao chegar ao endereço, a guarnição deparou-se com o casal em atrito verbal, sendo relatado por ambas as partes que houve troca de insultos durante a discussão.
-A solicitante manifestou não se sentir confortável com a permanência de seu marido na residência, solicitando que ele deixasse o imóvel. O referido, que se encontrava no local, concordou em sair voluntariamente, cessando, naquele momento, o atrito entre as partes.
-A solicitante recebeu as devidas orientações e informou que, pela manhã, acompanhada de sua mãe, compareceria à Delegacia de Atendimento à Mulher para relatar os fatos e adotar as providências que entendesse cabíveis.
-Diante da saída voluntária do marido e da cessação do conflito naquele momento, a ocorrência foi encerrada no local, após as devidas orientações.
-`.trim();
 
 // Telefones de unidades (SOP / Oficial de Dia). Lista estática, mantida manualmente —
 // nenhum dado de contato é buscado ou enviado a terceiros pelo app.
@@ -737,18 +344,28 @@ function QRCodeDonacao() {
   );
 }
 
-// ---------- Chamada ao backend (proxy) em vez de direto à Anthropic ----------
-async function callClaude(deviceId, { system, messages, tools, maxTokens = 1000, model }) {
+// ---------- Chamada ao backend ----------
+// O app só diz a tarefa ("historico" ou "legislacao") e manda o texto. As
+// instruções da IA ficam no Worker, então a chave da Anthropic não serve
+// para outra coisa.
+async function chamarWorker(deviceId, corpo) {
   const response = await fetch(WORKER_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ system, messages, tools, maxTokens, deviceId, model }),
+    body: JSON.stringify({ deviceId, ...corpo }),
   });
+  let data;
   try {
-    return await response.json();
+    data = await response.json();
   } catch (e) {
     throw new Error(`Resposta inválida do servidor (${response.status}).`);
   }
+  if (!response.ok || data.error) {
+    const erro = new Error(typeof data.error === "string" ? data.error : `Erro do servidor (${response.status}).`);
+    erro.doServidor = true; // mensagens do Worker já são escritas para o policial
+    throw erro;
+  }
+  return data;
 }
 
 // Traduz erros técnicos (rede, limite, servidor) em mensagens que o policial entende.
@@ -771,15 +388,15 @@ function AvisoIndependente() {
   );
 }
 
-function friendlyError(e) {
+function friendlyError(e, padrao = "Não consegui gerar o histórico agora. Tente de novo em instantes.") {
   console.error(e);
   if (typeof navigator !== "undefined" && navigator.onLine === false) return "Sem conexão com a internet. Confira o sinal e tente de novo.";
   const msg = (e && e.message) || "";
   if (/failed to fetch|networkerror|load failed/i.test(msg)) return "Não consegui conectar ao servidor. Confira a internet e tente de novo.";
-  // Mensagens de limite escritas pelo servidor (limite diário, tamanho do texto) já são claras.
-  if (/limite di[aá]rio|limite de uso|grande demais|máximo de/i.test(msg)) return msg;
+  // Mensagens escritas pelo Worker (limite diário, tamanho do texto, app desatualizado) já são claras.
+  if (e && e.doServidor && !/deviceId|inválid|Tarefa|Corpo/i.test(msg)) return msg;
   if (/rate|limit|429|overload|credit|quota|saldo/i.test(msg)) return "O serviço está com muito uso agora. Tente de novo em alguns minutos.";
-  return "Não consegui gerar o histórico agora. Tente de novo em instantes.";
+  return padrao;
 }
 
 function getOrCreateDeviceId() {
@@ -790,44 +407,6 @@ function getOrCreateDeviceId() {
     try { localStorage.setItem(DEVICE_ID_STORAGE, id); } catch (e) {}
   }
   return id;
-}
-
-function extractJsonFromResponse(data) {
-  // Se a Anthropic devolveu um erro (ex: modelo inválido, tool não habilitada,
-  // limite de crédito), o formato é {"type":"error","error":{"message":...}}
-  if (data.type === "error" || data.error) {
-    const msg = typeof data.error === "string" ? data.error : (data.error?.message || "erro desconhecido");
-    throw new Error(msg);
-  }
-  const textBlocks = (data.content || []).filter((b) => b.type === "text");
-  if (textBlocks.length === 0) throw new Error("A resposta não trouxe texto (verifique o console do navegador para mais detalhes).");
-  // Junta TODOS os blocos de texto (quando a IA usa busca com citações, a
-  // resposta pode vir fragmentada em vários blocos intercalados).
-  const joined = textBlocks.map((b) => b.text).join("\n");
-  const cleaned = joined.replace(/```json|```/g, "").trim();
-  // Extrai só o trecho entre a primeira { e a última }, ignorando qualquer
-  // texto de comentário que a IA tenha colocado antes/depois do JSON.
-  const inicio = cleaned.indexOf("{");
-  const fim = cleaned.lastIndexOf("}");
-  if (inicio === -1 || fim === -1 || fim < inicio) {
-    throw new Error("A resposta não continha um JSON reconhecível.");
-  }
-  const jsonBruto = cleaned.slice(inicio, fim + 1);
-  try {
-    return JSON.parse(jsonBruto);
-  } catch (e) {
-    throw new Error("Não consegui interpretar a resposta da IA como JSON.");
-  }
-}
-
-function extractPlainText(data) {
-  if (data.type === "error" || data.error) {
-    const msg = typeof data.error === "string" ? data.error : (data.error?.message || "erro desconhecido");
-    throw new Error(msg);
-  }
-  const textBlocks = (data.content || []).filter((b) => b.type === "text");
-  if (textBlocks.length === 0) throw new Error("A busca não retornou nenhum texto.");
-  return textBlocks.map((b) => b.text).join("\n").trim();
 }
 
 // Ícone do app: quadrado arredondado dividido na diagonal (navy/dourado,
@@ -910,6 +489,7 @@ function MikeAssist() {
   const [loading, setLoading] = useState(false);
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState("");
+  const [avisoAnonimizacao, setAvisoAnonimizacao] = useState("");
   const [copyLabel, setCopyLabel] = useState("Copiar");
   const [pixCopyLabel, setPixCopyLabel] = useState("Copiar chave Pix");
   const [mostrarQr, setMostrarQr] = useState(false);
@@ -978,36 +558,16 @@ function MikeAssist() {
     if (!relato.trim()) return;
     setLoading(true); setError(""); setResultado(null);
 
-    // Até 3 exemplos fictícios do mesmo tipo do relato (conhecimento/exemplos-bopm.js).
-    // Se o arquivo não carregou, segue só com os exemplos reais.
-    let exemplosPorTipo = "";
-    try { exemplosPorTipo = window.MikeConhecimento ? window.MikeConhecimento.exemplosParaPrompt(relato, 3) : ""; } catch (e) {}
-    const systemPrompt = `Você é um assistente que ajuda policiais militares do Rio de Janeiro (PMERJ) a redigir o histórico de um BOPM (Boletim de Ocorrência da Polícia Militar) a partir de um relato informal.
-
-Regras estritas:
-- O relato do policial virá em linguagem informal, com gírias, abreviações e possíveis erros de gramática/digitação — normal para um relato rápido de campo. Sua função é corrigir a forma (gramática, formalidade, clareza) sem alterar os fatos narrados.
-- Use linguagem natural de histórico policial, mas juridicamente correta — direto no fato, sem formalismo excessivo ou "encher linguiça". Narrativa em terceira pessoa, tempo verbal correto.
-- NÃO inclua nome, graduação, RG, unidade ou dados da guarnição no texto do histórico. Esses dados já existem em campos próprios do portal oficial da PMERJ; o histórico deve focar exclusivamente na dinâmica do fato (o que aconteceu, como, quando, onde, com quem).
-- NUNCA invente informação que o usuário não forneceu. Se um dado costuma ajudar a fundamentar esse tipo de ocorrência e não veio no relato, apenas sugira mencioná-lo — nunca em tom de exigência ou cobrança, é uma dica opcional, o policial decide se quer incluir.
-- NUNCA invente nomes de sistemas, centrais ou jargões que não sejam reais. Se precisar referenciar a central de despacho, use "central 190", "CECOPOM" ou "Maré Zero" (apelido real usado por guarnições para o CECOPOM) — nunca invente nomenclatura. Na dúvida sobre algum termo técnico ou institucional, prefira uma descrição genérica e correta em vez de arriscar um nome que pode não existir.
-- Use os exemplos abaixo (histórico de BOPM reais, com identificadores removidos) só como referência de ESTILO — vocabulário, tom, forma de estruturar o texto e de fechar a ocorrência. NUNCA copie nomes de setor (ex: "Setor Fox"), números de RO/BAM/matrícula/viatura ou qualquer outro dado desses exemplos para o histórico atual — cada ocorrência é única, use apenas o que veio no relato do policial:
-${EXEMPLOS_HISTORICO_REAL}
-${exemplosPorTipo ? `- Exemplos FICTÍCIOS do mesmo tipo de ocorrência do relato, cada um com o relato informal e o histórico correspondente. Mostram como transformar o relato em histórico SEM acrescentar nada: o histórico só contém o que estava no relato. Use só como referência de estrutura; nunca copie fatos, locais ou quantidades deles.
-${exemplosPorTipo}
-` : ""}- Prefira voz ativa a construções passivas. Ao final do histórico, quando fizer sentido, feche mencionando o encerramento e o destino (PTR, delegacia, hospital etc.) — mas NUNCA repita a expressão "patrulhamento de rotina" ou "PTR" duas vezes no mesmo texto.
-- CASO ESPECIAL — relato genérico de patrulhamento sem nenhuma intercorrência: gere um histórico curto e direto informando que a guarnição patrulhou o local citado e nada foi constatado, sugerindo o código 00.084 (Nada constatado). Não alongue artificialmente.
-- Seja objetivo e factual, sem opiniões.
-- O texto gerado é um RASCUNHO de apoio; não é o BOPM oficial.
-- Use como referência esta tabela de códigos de ocorrência da PMERJ (organizada por categoria) para sugerir o código mais apropriado. Algumas famílias de código aparecem como faixa (ex: "27.1xx") quando o documento oficial não detalha cada código individualmente — nesse caso, cite a faixa e oriente o policial a confirmar o número exato no Vade Mecum ou com a central, sem inventar um código específico:
-${VADE_MECUM_SAMPLE}
-- Se nenhum código da lista combinar bem, retorne o campo "codigo" como o valor JSON null (não a palavra "null" como texto).
-
-Responda APENAS com um JSON válido, sem markdown, sem crases, no formato exato:
-{"historico": "texto do histórico formatado", "codigo": "00.000 ou null", "codigo_descricao": "descrição do código ou null", "alertas": ["lista de sugestões opcionais do que poderia reforçar o histórico, cada uma uma frase curta e não-imperativa"]}`;
+    // Dados pessoais (CPF, telefone, placa...) são trocados por marcadores
+    // aqui no aparelho, antes de qualquer envio.
+    const { texto: relatoSeguro, contagem } = window.MikeAnonimizar
+      ? window.MikeAnonimizar.anonimizar(relato)
+      : { texto: relato, contagem: {} };
+    const escondidos = window.MikeAnonimizar ? window.MikeAnonimizar.resumoAnonimizacao(contagem) : "";
+    setAvisoAnonimizacao(escondidos ? `Antes de enviar, o app escondeu ${escondidos}. Preencha no sistema oficial.` : "");
 
     try {
-      const data = await callClaude(deviceId, { system: systemPrompt, messages: [{ role: "user", content: relato }], maxTokens: 1500 });
-      const r = extractJsonFromResponse(data);
+      const r = await chamarWorker(deviceId, { tarefa: "historico", relato: relatoSeguro });
       if (!r || typeof r.historico !== "string" || !r.historico.trim()) throw new Error("A resposta não trouxe o histórico.");
       setResultado({ ...r, alertas: Array.isArray(r.alertas) ? r.alertas.filter((a) => typeof a === "string") : [] });
     } catch (e) {
@@ -1063,7 +623,7 @@ Responda APENAS com um JSON válido, sem markdown, sem crases, no formato exato:
       setAvisos(novoEstado);
       storageSet(AVISOS_KEY, JSON.stringify(novoEstado));
     } catch (e) {
-      setAvisosError(`Não consegui carregar as atualizações agora. ${e.message || ""}`);
+      setAvisosError(friendlyError(e, "Não consegui carregar as notícias agora. Toque em Atualizar daqui a pouco."));
     } finally {
       setAvisosLoading(false);
     }
@@ -1120,47 +680,10 @@ Responda APENAS com um JSON válido, sem markdown, sem crases, no formato exato:
     if (!legislacaoQuery.trim()) return;
     setLegislacaoLoading(true); setLegislacaoFase("Pesquisando…"); setLegislacaoError(""); setLegislacaoResultado(null);
 
-    const systemBusca = `Você ajuda um policial militar a consultar rapidamente qualquer legislação brasileira em vigor (federal ou estadual) relevante para sua atuação — não se limite a um código específico.
-
-Use a ferramenta de busca para localizar a informação em fontes oficiais (prioridade: planalto.gov.br/ccivil_03, ou o site oficial do respectivo diploma legal).
-
-Identifique corretamente de qual lei/código se trata (ex.: "Lei 11.343/2006 (Lei de Drogas)", não apenas "lei de drogas"). Traga o texto do artigo na ÍNTEGRA e literalmente — textos de lei são atos normativos oficiais, sem direito autoral. Depois, adicione uma explicação curta e prática (2-3 frases) do que isso significa na prática operacional do PM. Confirme que está em vigor; mencione alterações recentes relevantes. Escreva em texto livre, sem se preocupar com formato JSON aqui.
-
-Se não encontrar nada confiável, diga isso claramente.`;
-
-    const systemFormatar = (textoBruto) => `Converta o texto abaixo em um JSON válido (sem markdown, sem crases), no formato exato:
-{"fonte": "nome da lei/código", "artigo": "número do(s) artigo(s)", "texto_lei": "texto literal do artigo (ou string vazia se não encontrado)", "explicacao": "explicação prática curta (ou a explicação de que não foi encontrado)"}
-
-Texto para converter:
-"""
-${textoBruto}
-"""`;
-
     try {
-      const dataBusca = await callClaude(deviceId, {
-        system: systemBusca,
-        messages: [{ role: "user", content: legislacaoQuery }],
-        tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 1 }],
-        maxTokens: 1200,
-      });
-      const textoBruto = extractPlainText(dataBusca);
-
-      setLegislacaoFase("Organizando…");
-
-      try {
-        const dataFormatada = await callClaude(deviceId, {
-          system: systemFormatar(textoBruto),
-          messages: [{ role: "user", content: "Converta agora." }],
-          maxTokens: 800,
-          model: "claude-haiku-4-5-20251001",
-        });
-        setLegislacaoResultado(extractJsonFromResponse(dataFormatada));
-      } catch (erroFormatacao) {
-        // Se não conseguir estruturar em JSON, mostra o texto puro da busca
-        setLegislacaoResultado({ fonte: "Busca", artigo: "", texto_lei: "", explicacao: textoBruto });
-      }
+      setLegislacaoResultado(await chamarWorker(deviceId, { tarefa: "legislacao", pergunta: legislacaoQuery.trim().slice(0, 500) }));
     } catch (e) {
-      setLegislacaoError(`Não consegui buscar agora. ${e.message || ""}`);
+      setLegislacaoError(friendlyError(e, "Não consegui buscar agora. Tente de novo em instantes."));
     } finally {
       setLegislacaoLoading(false);
     }
@@ -1234,6 +757,7 @@ ${textoBruto}
               {loading ? (<><span className="mk-spinner"></span>Gerando…</>) : "Gerar histórico"}
             </button>
             {error && <p style={styles.errorText}>{error}</p>}
+            {avisoAnonimizacao && !loading && <p style={{ fontSize: 11.5, color: "#c9a24a", lineHeight: 1.4, margin: "8px 0 0" }}>{avisoAnonimizacao}</p>}
           </section>
 
           {resultado && (
@@ -1653,6 +1177,50 @@ class ErroDeTela extends React.Component {
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<ErroDeTela><MikeAssist /></ErroDeTela>);
+</script>
+
+<script>
+  // Carregador do app. Traduz o JSX acima só quando ele muda (a chave leva
+  // uma assinatura do código) e guarda a tradução no aparelho.
+  (function () {
+    var PREFIXO = "mike-assist:app-compilado:";
+    var fonte = document.getElementById("mike-app").textContent;
+    var h = 2166136261;
+    for (var i = 0; i < fonte.length; i++) { h ^= fonte.charCodeAt(i); h = Math.imul(h, 16777619); }
+    var chave = PREFIXO + (h >>> 0).toString(36) + "-" + fonte.length;
+
+    function rodar(codigo) {
+      var s = document.createElement("script");
+      s.text = codigo;
+      document.body.appendChild(s);
+    }
+
+    var guardado = null;
+    try { guardado = localStorage.getItem(chave); } catch (e) {}
+    if (guardado) { rodar(guardado); return; }
+
+    var babel = document.createElement("script");
+    babel.src = "vendor/babel.min.js";
+    babel.onload = function () {
+      var codigo = Babel.transform(fonte, { presets: ["react"] }).code;
+      try {
+        for (var k = localStorage.length - 1; k >= 0; k--) {
+          var nome = localStorage.key(k);
+          if (nome && nome.indexOf(PREFIXO) === 0) localStorage.removeItem(nome);
+        }
+        localStorage.setItem(chave, codigo);
+      } catch (e) {}
+      rodar(codigo);
+    };
+    document.body.appendChild(babel);
+  })();
+
+  // Service worker: guarda os arquivos do app para abrir sem internet.
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("./service-worker.js").catch(function () {});
+    });
+  }
 </script>
 
 </body>

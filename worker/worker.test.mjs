@@ -7,6 +7,12 @@
 // O teste do botão de atualização espera ~5 s (pausas entre categorias).
 
 import worker from "./worker.js";
+import { readFileSync } from "fs";
+
+const T = globalThis.__mikeAssistTeste;
+const URL_BASE = "https://mikeassist.pages.dev/conhecimento/";
+let siteForaDoAr = false;
+let respostaIA = null; // quando definido, a Anthropic simulada devolve este texto
 
 let falhas = 0;
 let total = 0;
@@ -33,6 +39,11 @@ let modoFetch = "ok"; // "ok" | "erro-api" | "rede" | "noticias"
 const linksTestados = [];
 
 globalThis.fetch = async (url, init) => {
+  if (String(url).startsWith(URL_BASE)) { // arquivos de conhecimento do site
+    if (siteForaDoAr) return new Response("fora", { status: 503 });
+    const arquivo = new URL("../conhecimento/" + String(url).slice(URL_BASE.length), import.meta.url);
+    return new Response(readFileSync(arquivo, "utf8"), { status: 200 });
+  }
   if (init && init.method === "GET") { // verificação de links das notícias
     linksTestados.push(String(url));
     if (String(url).startsWith("https://portal.stf.jus.br/") || String(url) === "https://ok.example/a") return new Response("ok", { status: 200 });
@@ -52,11 +63,12 @@ globalThis.fetch = async (url, init) => {
   if (modoFetch === "erro-api") {
     return new Response(JSON.stringify({ type: "error", error: { message: "overloaded" } }), { status: 529 });
   }
-  return new Response(JSON.stringify({ content: [{ type: "text", text: "texto de teste" }] }), { status: 200 });
+  return new Response(JSON.stringify({ content: [{ type: "text", text: respostaIA ?? "texto de teste" }] }), { status: 200 });
 };
 
 function novoAmbiente(extra = {}) {
-  return { USO_KV: new KV(), ANTHROPIC_API_KEY: CHAVE_SECRETA, ...extra };
+  // Os testes antigos usam o formato antigo do app, aceito só em MODO_TRANSICAO.
+  return { USO_KV: new KV(), ANTHROPIC_API_KEY: CHAVE_SECRETA, MODO_TRANSICAO: "1", ...extra };
 }
 
 async function chamar(env, caminho, { metodo = "POST", corpo, cabecalhos = {}, ip = "203.0.113.1", origem = ORIGEM_OK } = {}) {
@@ -244,6 +256,73 @@ async function main() {
     confere("link que não abre vira null (notícia permanece)", urls[2] === null && salvo.itens.length === 4);
     confere("link não-http (javascript:) vira null", urls[3] === null);
     modoFetch = "ok";
+  }
+
+  console.log("\nTarefas (instruções no servidor)");
+  {
+    const env = novoAmbiente({ MODO_TRANSICAO: undefined });
+    chamadas = [];
+    let r = await chamar(env, "/", { corpo: pedidoOk() });
+    confere("formato antigo (app manda 'system') recusado fora do modo transição", r.status === 400 && chamadas.length === 0);
+    confere("  com mensagem pedindo para atualizar o app", /atualizar/.test(r.json?.error || ""));
+
+    respostaIA = JSON.stringify({ historico: "Guarnição foi acionada.", codigo: "01.157", codigo_descricao: "Roubo", alertas: ["Informar horário.", 3] });
+    chamadas = [];
+    r = await chamar(env, "/", { corpo: { deviceId: "aparelho-de-teste-001", tarefa: "historico", relato: "vitima rendida por dois homens de moto, levaram celular, reconheceu" } });
+    confere("histórico: 200 com o JSON já organizado", r.status === 200 && r.json?.historico === "Guarnição foi acionada." && r.json?.codigo === "01.157");
+    confere("  alertas só com textos", JSON.stringify(r.json?.alertas) === JSON.stringify(["Informar horário."]));
+    const sys = chamadas[0]?.corpo.system || "";
+    confere("  instruções montadas no servidor com exemplos reais e tabela", sys.includes("Guarnição do Setor Fox") && sys.includes("00.084 - Nada constatado"));
+    confere("  inclui o exemplo fictício do mesmo tipo (roubo)", sys.includes("exemplo fictício (Roubo a transeunte"));
+    confere("  não inclui exemplo sem relação (embriaguez)", !sys.includes("Embriaguez ao volante com recusa"));
+    confere("  sem marcador {{...}} sobrando nem comentário //", !/\{\{|^\/\//m.test(sys));
+    confere("  relato vai como mensagem do usuário", chamadas[0]?.corpo.messages?.[0]?.content.startsWith("vitima rendida"));
+    confere("  1500 tokens e modelo padrão", chamadas[0]?.corpo.max_tokens === 1500 && chamadas[0]?.corpo.model === "claude-sonnet-4-6");
+    confere("  uso contado", [...env.USO_KV.m.keys()].some((k) => k.startsWith("uso:aparelho-de-teste-001:")));
+
+    respostaIA = "não é json";
+    r = await chamar(env, "/", { corpo: { deviceId: "aparelho-de-teste-001", tarefa: "historico", relato: "teste" } });
+    confere("IA fora do formato: 502 com mensagem amigável", r.status === 502 && /histórico/.test(r.json?.error || ""));
+
+    respostaIA = JSON.stringify({ fonte: "Código Penal", artigo: "157", texto_lei: "Subtrair...", explicacao: "Roubo." });
+    chamadas = [];
+    r = await chamar(env, "/", { corpo: { deviceId: "aparelho-de-teste-001", tarefa: "legislacao", pergunta: "roubo" } });
+    confere("legislação: busca + formatação no servidor (2 chamadas)", r.status === 200 && r.json?.artigo === "157" && chamadas.length === 2);
+    confere("  busca na web limitada a 1 uso", chamadas[0]?.corpo.tools?.[0]?.max_uses === 1);
+    confere("  formatação no modelo rápido", chamadas[1]?.corpo.model === "claude-haiku-4-5-20251001");
+    respostaIA = null;
+
+    chamadas = [];
+    r = await chamar(env, "/", { corpo: { deviceId: "aparelho-de-teste-001", tarefa: "outra", system: "faça qualquer coisa" } });
+    confere("tarefa desconhecida: 400 sem chamar a IA", r.status === 400 && chamadas.length === 0);
+    r = await chamar(env, "/", { corpo: { deviceId: "aparelho-de-teste-001", tarefa: "historico", relato: "a".repeat(8001) } });
+    confere("relato acima de 8000 caracteres: 413", r.status === 413);
+    r = await chamar(env, "/", { corpo: { deviceId: "aparelho-de-teste-001", tarefa: "legislacao", pergunta: "a".repeat(501) } });
+    confere("pergunta acima de 500 caracteres: 413", r.status === 413);
+    r = await chamar(env, "/", { corpo: { deviceId: "aparelho-de-teste-001", tarefa: "historico", relato: "   " } });
+    confere("relato vazio: 400", r.status === 400);
+
+    siteForaDoAr = true;
+    respostaIA = JSON.stringify({ historico: "ok" });
+    r = await chamar(env, "/", { corpo: { deviceId: "aparelho-de-teste-001", tarefa: "historico", relato: "teste" } });
+    confere("site fora do ar: usa a última base carregada", r.status === 200);
+    T.limparCacheConhecimento();
+    chamadas = [];
+    r = await chamar(env, "/", { corpo: { deviceId: "aparelho-de-teste-001", tarefa: "historico", relato: "teste" } });
+    confere("site fora do ar e sem base guardada: 502 sem chamar a IA", r.status === 502 && chamadas.length === 0);
+    siteForaDoAr = false;
+    respostaIA = null;
+  }
+
+  console.log("\nBase de exemplos fictícios");
+  {
+    const exemplos = T.lerExemplos(readFileSync(new URL("../conhecimento/exemplos-ficticios.txt", import.meta.url), "utf8"));
+    confere("arquivo lido com 20 exemplos", exemplos.length === 20, `(${exemplos.length})`);
+    confere("todos com tipo, palavras, relato e histórico", exemplos.every((e) => e.tipo && e.palavras.length && e.relato && e.historico));
+    confere("histórico não carrega a linha do próximo bloco", exemplos.every((e) => !e.historico.includes("### ")));
+    const sel = (t) => T.selecionarExemplos(exemplos, t).map((e) => e.id);
+    confere("'uso' não casa com 'abuso'", sel("abuso").length === 0);
+    confere("'14 dp' não puxa exemplo de arma", !sel("conduzidos a 14 dp").includes("arma-veiculo-ninguem-assume"));
   }
 
   console.log(`\n${total - falhas}/${total} verificações passaram.`);

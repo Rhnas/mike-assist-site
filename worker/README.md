@@ -1,6 +1,13 @@
 # Worker do Mike Assist (Cloudflare)
 
-`worker.js` é o backend: proxy da IA, limites de uso e cache de notícias.
+`worker.js` é o backend: monta os pedidos à IA, aplica limites de uso e guarda o cache de notícias.
+
+As instruções da IA **não ficam mais no app**. O app manda só a tarefa (`historico` ou `legislacao`)
+e o texto; o Worker monta o pedido com os arquivos de `conhecimento/` publicados no site
+(`instrucoes-historico.txt`, `exemplos-reais.txt`, `exemplos-ficticios.txt`, `tabela-codigos.txt`).
+Para ensinar algo novo à IA, edite esses arquivos e publique o site: o Worker relê em até 10 minutos,
+sem precisar colar o Worker de novo.
+
 Ele **não** é publicado automaticamente pelo GitHub — o deploy é manual.
 
 ## Publicar
@@ -21,6 +28,18 @@ Ele **não** é publicado automaticamente pelo GitHub — o deploy é manual.
 | `LIMITE_IP_DIARIO` | 60 | usos por IP/dia |
 | `LIMITE_GLOBAL_DIARIO` | 500 | usos totais/dia (teto de custo) |
 | `ORIGENS_PERMITIDAS` | `https://mikeassist.pages.dev` | origens CORS, separadas por vírgula |
+| `URL_CONHECIMENTO` | `https://mikeassist.pages.dev/conhecimento/` | de onde o Worker lê os textos da IA |
+| `MODO_TRANSICAO` | (vazio) | `1` aceita também o formato antigo do app (que mandava as instruções). Use só durante a troca de versão |
+
+## Troca para esta versão (uma vez só)
+
+A ordem importa, para ninguém ficar sem o app:
+
+1. Em **Settings → Variables and Secrets**, crie a variável `MODO_TRANSICAO` com o valor `1`.
+2. Cole o novo `worker.js` e faça **Deploy**. O app antigo continua funcionando.
+3. Faça o merge do PR no GitHub. O Cloudflare Pages publica o app novo e os arquivos de `conhecimento/`.
+4. Abra o app e gere um histórico de teste.
+5. Um ou dois dias depois, **apague** a variável `MODO_TRANSICAO`. A partir daí o Worker só aceita as tarefas do app e a chave só serve para gerar histórico e consultar lei, dentro dos limites diários.
 
 ## O que mudou
 
@@ -31,7 +50,6 @@ Ele **não** é publicado automaticamente pelo GitHub — o deploy é manual.
 
 ## Limites conhecidos
 
-- O Worker ainda aceita `system` vindo do app (proxy parcialmente aberto, contido pelos limites). Correção real: mover os prompts para o Worker.
 - Contadores em KV não são atômicos: sob concorrência podem passar um pouco do limite.
 - CORS é higiene, não segurança (clientes fora do navegador ignoram).
 
@@ -40,4 +58,9 @@ Ele **não** é publicado automaticamente pelo GitHub — o deploy é manual.
 ```
 node worker/worker.test.mjs
 ```
-56 verificações com KV e Anthropic simulados.
+82 verificações com KV, site e Anthropic simulados. Os exemplos e o anonimizador têm testes próprios:
+
+```
+node conhecimento/exemplos.test.mjs
+node testes/anonimizar.test.mjs
+```

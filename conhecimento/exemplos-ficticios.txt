@@ -1,0 +1,204 @@
+// Exemplos FICTÍCIOS de histórico de BOPM, um por tipo de ocorrência.
+// A cada pedido o Worker escolhe até 3 cujas "palavras" aparecem no relato.
+// Assim o banco pode crescer sem aumentar o custo de cada pedido.
+//
+// Para acrescentar um exemplo, copie um bloco e mude:
+//   ### identificador-unico
+//   tipo: descrição curta do tipo de ocorrência
+//   palavras: termos que o policial digitaria, separados por vírgula (acento e maiúscula tanto faz; nada de número sozinho)
+//   relato: o relato informal, numa linha
+//   historico:
+//   o histórico, quantas linhas quiser, até o próximo ###
+//
+// Regras: tudo inventado (sem nome, RG, CPF, placa ou endereço real); o histórico só pode
+// conter fatos que estão no relato; não use nome de setor. Teste com: node conhecimento/exemplos.test.mjs
+// Linhas com // não vão para a IA.
+
+### roubo-transeunte-flagrante
+tipo: Roubo a transeunte com arma de fogo, autores presos em flagrante
+palavras: roubo, roubaram, rendida, rendido, assalto, assaltada, assaltado, levaram, reconheceu, reconhecimento, moto
+relato: patrulhando a av central, vitima acenou e disse q foi rendida por 2 homens numa moto, um com arma, levaram celular e bolsa. fizemos cerco, achamos os dois 2 ruas depois, com a bolsa e o celular, arma na cintura do garupa. vitima reconheceu os dois. algemados pq tentaram fugir. conduzidos a [nº] dp
+historico:
+Guarnição em patrulhamento pela Avenida Central foi acionada por uma transeunte, a qual relatou ter sido abordada por dois homens em uma motocicleta, sendo que um deles portava arma de fogo, tendo sido subtraídos seu aparelho celular e sua bolsa.
+De posse das informações, a guarnição realizou cerco nas imediações e, a duas ruas do local, logrou êxito em localizar os dois suspeitos. Durante a busca pessoal, foi encontrada uma arma de fogo na cintura do ocupante da garupa, bem como a bolsa e o aparelho celular da vítima em poder dos abordados.
+Os suspeitos tentaram empreender fuga, sendo contidos e algemados, com o uso das algemas justificado pela tentativa de fuga, nos termos da Súmula Vinculante nº 11 do STF.
+A vítima reconheceu os dois abordados como autores do fato.
+Diante dos fatos, os conduzidos, a vítima, a arma de fogo e os objetos recuperados foram apresentados na [nº]ª DP para as providências cabíveis.
+
+### trafico-drogas-flagrante
+tipo: Tráfico de drogas, apreensão com indícios de comércio
+palavras: trafico, traficante, boca, ponto de venda, pinos, trouxas, sacoles, cocaina, maconha, crack, radio, denuncia
+relato: recebemos denuncia via 190 de venda de droga no beco da rua 4. chegando la um elemento correu ao ver a vtr e dispensou uma sacola. alcançado. na sacola 40 pinos de cocaina e 22 trouxas de maconha, com ele 2 celulares e r$ 315 em notas trocadas. disse q so tava guardando pra outro. conduzido a dp
+historico:
+Guarnição foi acionada pela central 190 para averiguar denúncia de venda de entorpecentes em um beco da Rua 4.
+Ao chegar ao local, um indivíduo, ao avistar a viatura, empreendeu fuga e dispensou uma sacola, sendo alcançado logo em seguida pela guarnição. No interior da sacola foram encontrados 40 (quarenta) pinos contendo substância semelhante a cocaína e 22 (vinte e duas) trouxas contendo substância semelhante a maconha. Em sua posse foram encontrados ainda 2 (dois) aparelhos celulares e a quantia de R$ 315,00 (trezentos e quinze reais) em notas trocadas.
+Indagado, o abordado declarou que apenas guardava o material para terceiro, não informando quem seria.
+Diante dos fatos, o conduzido e todo o material apreendido foram apresentados na Delegacia de Polícia para as providências cabíveis.
+
+### droga-uso-pessoal
+tipo: Porte de droga para consumo pessoal
+palavras: uso, usuario, consumo, baseado, cigarro de maconha, porcao, pequena quantidade
+relato: abordagem a um rapaz sentado na praça, com ele 1 cigarro de maconha e uma pequena porção do mesmo material num saquinho. disse q era pra uso dele. sem mais nada ilicito. levado pra dp, liberado apos registro
+historico:
+Guarnição em patrulhamento procedeu à abordagem de um homem que se encontrava sentado na praça. Durante a busca pessoal, foram encontrados com ele 1 (um) cigarro artesanal e uma pequena porção acondicionada em saco plástico, ambos contendo substância semelhante a maconha. Nada mais de ilícito foi encontrado.
+Indagado, o abordado declarou que o material se destinava a seu consumo pessoal.
+Diante dos fatos, o abordado e o material foram apresentados na Delegacia de Polícia, sendo o abordado liberado após o registro.
+
+### violencia-domestica-lesao
+tipo: Violência doméstica contra a mulher com lesão aparente (Lei Maria da Penha)
+palavras: violencia domestica, maria da penha, marido, companheiro, ex, agrediu, agressao, bateu, empurrou, esposa, mulher, medida protetiva, lesao, marca, hematoma
+relato: chamado maré zero de briga de casal. a mulher disse q o companheiro deu tapas no rosto dela e apertou o pescoço, tava com vermelhidão no pescoço. ele tava no quintal, nervoso. ela quer registrar. conduzimos ele, ela foi junto na vtr de apoio. orientada sobre medida protetiva
+historico:
+Guarnição procedeu à ocorrência despachada por Maré Zero, inicialmente informada como desentendimento entre casal.
+No local, a solicitante relatou que seu companheiro a teria agredido com tapas no rosto e apertado seu pescoço. A guarnição constatou vermelhidão aparente na região do pescoço da vítima. O companheiro foi encontrado no quintal da residência, em estado de exaltação.
+A vítima manifestou interesse em registrar os fatos, sendo orientada quanto ao direito de requerer medidas protetivas de urgência previstas na Lei nº 11.340/2006.
+Diante dos fatos, o autor foi conduzido à Delegacia de Polícia, sendo a vítima transportada em viatura de apoio, onde os fatos foram apresentados para as providências cabíveis.
+
+### furto-loja-segurança
+tipo: Furto em estabelecimento comercial, autor detido por segurança
+palavras: furto, furtou, pegou, saiu sem pagar, loja, mercado, supermercado, seguranca, detido
+relato: seguranca do mercado deteve uma mulher q colocou 4 peças de carne na bolsa e passou pelo caixa sem pagar. chegamos, a gerente mostrou as imagens da camera, carne recuperada. mercado quer registrar. conduzida
+historico:
+Guarnição foi acionada a um supermercado, onde a equipe de segurança havia detido uma mulher. Segundo informado pelo segurança, a abordada teria colocado 4 (quatro) peças de carne em sua bolsa e passado pelo caixa sem efetuar o pagamento.
+No local, a gerente do estabelecimento apresentou à guarnição as imagens do circuito interno de câmeras referentes ao fato. As mercadorias foram recuperadas.
+O estabelecimento manifestou interesse em registrar a ocorrência. Diante dos fatos, a abordada foi conduzida à Delegacia de Polícia, juntamente com as mercadorias recuperadas, para as providências cabíveis.
+
+### arma-veiculo-ninguem-assume
+tipo: Arma de fogo encontrada em veículo, ninguém assume a posse
+palavras: arma, revolver, pistola, municao, municiado, cartuchos, calibre, porte ilegal, veiculo, carro
+relato: abordagem a um carro com 3 ocupantes na estrada do campo. no porta luvas uma pistola 9mm com carregador e 10 munições. ninguem assumiu. os 3 conduzidos com a arma
+historico:
+Guarnição em patrulhamento pela Estrada do Campo procedeu à abordagem de um veículo ocupado por 3 (três) pessoas.
+Durante a busca veicular, foi encontrada no interior do porta-luvas 1 (uma) pistola calibre 9mm, com 1 (um) carregador e 10 (dez) munições. Indagados, nenhum dos ocupantes assumiu a propriedade ou a posse da arma.
+Diante dos fatos, os três ocupantes e o armamento apreendido foram conduzidos à Delegacia de Polícia para as providências cabíveis.
+
+### embriaguez-volante-recusa
+tipo: Embriaguez ao volante com recusa ao etilômetro
+palavras: embriaguez, embriagado, bebado, alcool, halito, bafometro, etilometro, lei seca, blitz, fala enrolada
+relato: condutor parado na operaçao, halito etilico forte, olhos vermelhos, andar cambaleante, disse q tinha bebido 3 cervejas. recusou o bafometro. lavrado o auto de constatação. conduzido a dp, carro removido pro deposito
+historico:
+Durante operação de fiscalização de trânsito, a guarnição procedeu à abordagem de um condutor que apresentava sinais de alteração da capacidade psicomotora, a saber: forte odor etílico no hálito, olhos avermelhados e andar cambaleante. Indagado, o condutor declarou ter ingerido 3 (três) cervejas.
+Oferecido o teste do etilômetro, o condutor recusou-se a realizá-lo, sendo lavrado o auto de constatação dos sinais de alteração da capacidade psicomotora.
+Diante dos fatos, o condutor foi conduzido à Delegacia de Polícia para as providências cabíveis, e o veículo foi removido ao depósito.
+
+### desacato-resistencia
+tipo: Desacato e resistência durante abordagem
+palavras: desacato, xingou, xingando, ofendeu, palavrao, resistencia, resistiu, se debateu, nao aceitou
+relato: abordagem de rotina, o cara se recusou a ser revistado, xingou a equipe de vagabundo na frente de varias pessoas. na hora de algemar se debateu e deu uma cotovelada no braço de um pm, sem lesão. contido, algemado e conduzido
+historico:
+Guarnição em patrulhamento procedeu à abordagem de um homem, o qual se recusou a ser submetido à busca pessoal e passou a ofender verbalmente os policiais, chamando-os de "vagabundo", na presença de diversas pessoas.
+No momento da contenção, o abordado debateu-se e desferiu uma cotovelada no braço de um dos policiais, não resultando em lesão. O abordado foi contido e algemado em razão da resistência apresentada, nos termos da Súmula Vinculante nº 11 do STF.
+Diante dos fatos, o abordado foi conduzido à Delegacia de Polícia para as providências cabíveis.
+
+### veiculo-recuperado
+tipo: Veículo roubado localizado e recuperado
+palavras: recuperado, localizado, abandonado, placa, roubado, consulta, restricao, carro roubado, moto roubada, veiculo
+relato: achamos uma moto abandonada no terreno baldio da rua 9, sem placa, ignição quebrada. pelo chassi deu roubo de 2 dias atras. ninguem por perto. moto rebocada e apresentada na dp
+historico:
+Guarnição em patrulhamento localizou uma motocicleta abandonada em terreno baldio na Rua 9, sem placa de identificação e com a ignição danificada. Não havia ninguém nas proximidades.
+Realizada consulta pelo número do chassi, foi constatado registro de roubo do veículo ocorrido dois dias antes.
+Diante dos fatos, a motocicleta foi removida por reboque e apresentada na Delegacia de Polícia para as providências cabíveis.
+
+### surto-psiquiatrico-samu
+tipo: Pessoa em surto psiquiátrico, apoio ao SAMU
+palavras: surto, psiquiatrico, transtorno, esquizofrenia, agitado, samu, upa, familia, remedio, medicacao, quebrando
+relato: mae ligou dizendo q o filho tava em surto, quebrando as coisas de casa. quando chegamos ele tava agitado mas sem nada na mao. mae disse q ele tem esquizofrenia e parou o remedio. acionamos samu, ele foi levado pra upa com a mae. sem feridos
+historico:
+Guarnição procedeu ao local após solicitação de uma mulher, a qual informou que seu filho se encontrava em surto, danificando objetos da residência.
+No local, o homem foi encontrado em estado de agitação, sem portar qualquer objeto. Segundo a solicitante, seu filho possui diagnóstico de esquizofrenia e teria interrompido o uso da medicação.
+A guarnição acionou o SAMU, que prestou o atendimento e o encaminhou à UPA, acompanhado de sua mãe. Não houve feridos.
+Diante do encaminhamento ao atendimento de saúde, a ocorrência foi encerrada.
+
+### encontro-cadaver
+tipo: Encontro de cadáver, preservação do local e perícia
+palavras: cadaver, corpo, obito, morto, morte, pericia, rabecao, iml, preservacao, dhc, dh
+relato: moradores acharam um homem caido sem vida no canal da rua 2. samu constatou obito. local isolado, sem sinais aparentes de violencia no q deu pra ver. comunicada a dp, pericia compareceu, corpo removido pelo rabecão
+historico:
+Guarnição foi acionada por moradores que informaram a presença de um homem caído no canal da Rua 2.
+O SAMU compareceu ao local e constatou o óbito. A guarnição procedeu ao isolamento e à preservação do local, não sendo observados, na inspeção visual possível, sinais aparentes de violência.
+O fato foi comunicado à Delegacia de Polícia. A perícia compareceu e realizou os procedimentos de praxe, sendo o corpo posteriormente removido pelo rabecão.
+Concluídos os trabalhos periciais e não havendo outras providências a cargo da guarnição, a ocorrência foi encerrada.
+
+### mandado-prisao
+tipo: Cumprimento de mandado de prisão em aberto após abordagem
+palavras: mandado, mandado de prisao, foragido, procurado, em aberto, bnmp, consulta, capturado, recaptura
+relato: abordado um homem na saida do bar, nada de ilicito com ele. na consulta deu mandado de prisao em aberto por pensao alimenticia. confirmado com a central. informado dos direitos, conduzido sem algema, colaborou
+historico:
+Guarnição em patrulhamento procedeu à abordagem de um homem na saída de um bar, nada sendo encontrado de ilícito em sua posse.
+Realizada consulta, foi constatada a existência de mandado de prisão em aberto em seu desfavor, referente a débito de pensão alimentícia, o que foi confirmado junto à central.
+O abordado foi cientificado do mandado e informado de seus direitos constitucionais. Por ter mantido postura colaborativa, não foi necessário o uso de algemas.
+Diante dos fatos, o abordado foi conduzido à Delegacia de Polícia para o cumprimento do mandado.
+
+### ameaca-orientacao
+tipo: Ameaça entre vizinhos, autor não localizado, vítima orientada
+palavras: ameaca, ameacou, vou te matar, vizinho, discussao, orientada, orientado, nao localizado
+relato: solicitante disse q o vizinho ameaçou matar ela por causa de lixo na calçada, falou isso no portao e saiu. procuramos ele na casa, ninguem atendeu. orientada a ir na dp registrar
+historico:
+Guarnição procedeu ao local após solicitação de uma moradora, a qual relatou ter sido ameaçada de morte por seu vizinho, em razão de desentendimento envolvendo lixo deixado na calçada. Segundo a solicitante, o vizinho proferiu a ameaça no portão da residência e se retirou em seguida.
+A guarnição foi até a residência do suposto autor, porém ninguém atendeu ao chamado.
+A solicitante foi orientada a comparecer à Delegacia de Polícia para registrar os fatos, sendo a ocorrência encerrada no local após as devidas orientações.
+
+### dano-patrimonio
+tipo: Dano a patrimônio, autor detido no local
+palavras: dano, quebrou, vandalismo, vidraca, pedra, patrimonio, pichacao, depredou
+relato: homem jogou pedra na vidraça de uma farmacia e quebrou. funcionarios seguraram ele ate a gente chegar. dono quer registrar. ele disse q tava revoltado pq não venderam remedio sem receita. conduzido
+historico:
+Guarnição foi acionada a uma farmácia, onde um homem havia sido contido por funcionários do estabelecimento. Segundo informado, o homem teria arremessado uma pedra contra a vidraça da farmácia, quebrando-a.
+Indagado, o abordado declarou ter agido por estar revoltado com a recusa do estabelecimento em vender medicamento sem receita.
+O proprietário manifestou interesse em registrar os fatos. Diante disso, o abordado foi conduzido à Delegacia de Polícia para as providências cabíveis.
+
+### menor-desaparecido-localizado
+tipo: Criança desaparecida localizada e entregue ao responsável
+palavras: desaparecido, desaparecida, perdida, perdido, crianca, menor, localizada, localizado, mae, responsavel, conselho tutelar
+relato: mae ligou desesperada q o filho de 6 anos sumiu na feira. passamos a caracteristica pela rede, achamos ele 20 min depois perto da praça, chorando mas bem, sem ferimento. entregue a mae q apresentou certidao
+historico:
+Guarnição foi acionada por uma mulher que informou o desaparecimento de seu filho, de 6 anos de idade, durante a permanência na feira livre.
+As características da criança foram difundidas pela rede rádio, e cerca de 20 minutos depois a criança foi localizada nas proximidades da praça, chorando, porém sem ferimentos aparentes.
+A criança foi entregue à mãe, que apresentou a certidão de nascimento comprovando a filiação, sendo a ocorrência encerrada no local.
+
+### receptacao-celular
+tipo: Receptação de aparelho celular
+palavras: receptacao, comprou, produto de roubo, imei, celular roubado, nota fiscal
+relato: na abordagem o cara tava com 3 celulares, sem nota. disse q comprou de um desconhecido na feira por 200 reais os 3. consulta do imei de um deu roubo. conduzido com os aparelhos
+historico:
+Guarnição em patrulhamento procedeu à abordagem de um homem que portava 3 (três) aparelhos celulares, sem apresentar nota fiscal ou outro comprovante de origem.
+Indagado, o abordado declarou ter adquirido os três aparelhos de um desconhecido na feira, pelo valor total de R$ 200,00 (duzentos reais).
+Realizada consulta pelo IMEI, foi constatado que um dos aparelhos possui registro de roubo.
+Diante dos fatos, o abordado e os aparelhos foram conduzidos à Delegacia de Polícia para as providências cabíveis.
+
+### solicitante-nao-encontrado
+tipo: Solicitante não encontrado no local
+palavras: solicitante nao, nao encontrado, nao foi encontrado, ninguem atendeu, nao localizado, endereco, trote
+relato: denuncia de briga na rua 7 numero 30. chegamos, tudo calmo, ninguem na rua, batemos no endereço e ninguem atendeu. vizinhos disseram q nao ouviram nada
+historico:
+Guarnição procedeu à Rua 7 para averiguar denúncia de briga no endereço informado.
+No local, a situação encontrava-se tranquila, sem movimentação na via. A guarnição chamou no endereço indicado, porém ninguém atendeu. Vizinhos informaram não ter ouvido qualquer alteração.
+Não sendo encontrado o solicitante e nada sendo constatado, a ocorrência foi encerrada no local.
+
+### maus-tratos-animal
+tipo: Maus-tratos a animal
+palavras: maus tratos, maus-tratos, animal, cachorro, cao, gato, acorrentado, sem agua, crueldade
+relato: denuncia de cachorro preso no quintal sem agua e comida. no local o cao tava acorrentado, magro, sem agua no pote, sol forte. dono disse q viajou 2 dias. acionamos a protecao animal, cao recolhido. dono conduzido
+historico:
+Guarnição procedeu ao local para averiguar denúncia de maus-tratos a animal.
+No local, foi constatado um cão acorrentado no quintal, sob sol forte, em aparente estado de magreza e sem água em seu recipiente. O responsável pelo animal declarou ter permanecido dois dias em viagem.
+A guarnição acionou o órgão de proteção animal, que recolheu o cão.
+Diante dos fatos, o responsável foi conduzido à Delegacia de Polícia para as providências cabíveis.
+
+### disparo-via-publica
+tipo: Disparos de arma de fogo em via pública, sem vítimas
+palavras: disparo, disparos, tiro, tiros, estojo, estojos, capsula
+relato: moradores ligaram falando de tiros na rua 12. chegando nao tinha ninguem, achamos 4 estojos de 9mm no chao perto do poste. ninguem ferido, ninguem soube dizer quem atirou. estojos recolhidos e apresentados na dp
+historico:
+Guarnição foi acionada por moradores que relataram ter ouvido disparos de arma de fogo na Rua 12.
+Ao chegar ao local, não foram encontradas pessoas envolvidas. Nas proximidades de um poste, foram localizados 4 (quatro) estojos de calibre 9mm. Não houve registro de feridos, e nenhum dos presentes soube informar a autoria dos disparos.
+Os estojos foram recolhidos e apresentados na Delegacia de Polícia para as providências cabíveis.
+
+### transito-sem-vitima
+tipo: Acidente de trânsito sem vítima, partes orientadas
+palavras: batida, colisao, abalroamento, acidente, sem vitima, sem feridos, transito, carro, seguro
+relato: colisao traseira entre dois carros no sinal da av brasil, sem feridos. condutores com documentos ok. fizeram acordo entre eles. orientados sobre o registro online, carros retirados da via
+historico:
+Guarnição foi acionada para atendimento de acidente de trânsito sem vítimas, tratando-se de colisão traseira entre dois automóveis no semáforo da Avenida Brasil.
+No local, foi verificado que não havia feridos, e os condutores apresentaram a documentação pessoal e dos veículos regularizada. As partes informaram ter chegado a acordo entre si.
+Os condutores foram orientados quanto à possibilidade de registro da ocorrência pela delegacia online, e os veículos foram retirados da via, sendo a ocorrência encerrada no local.
