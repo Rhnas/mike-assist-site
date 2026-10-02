@@ -85,6 +85,8 @@
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<!-- Banco de exemplos fictícios de BOPM por tipo de ocorrência (ver o próprio arquivo) -->
+<script src="conhecimento/exemplos-bopm.js"></script>
 
 <script type="text/babel" data-presets="react">
 const { useState, useEffect } = React;
@@ -781,10 +783,11 @@ function friendlyError(e) {
 }
 
 function getOrCreateDeviceId() {
-  let id = localStorage.getItem(DEVICE_ID_STORAGE);
+  let id = null;
+  try { id = localStorage.getItem(DEVICE_ID_STORAGE); } catch (e) {}
   if (!id) {
     id = (crypto.randomUUID ? crypto.randomUUID() : `dev-${Date.now()}-${Math.random().toString(36).slice(2)}`);
-    localStorage.setItem(DEVICE_ID_STORAGE, id);
+    try { localStorage.setItem(DEVICE_ID_STORAGE, id); } catch (e) {}
   }
   return id;
 }
@@ -938,21 +941,26 @@ function MikeAssist() {
 
   useEffect(() => {
     (async () => {
-      const res = await storageGet(PROFILE_KEY);
-      if (res) {
-        const parsed = JSON.parse(res.value);
-        setProfile(parsed);
-        setDraftProfile(parsed);
-      }
+      // Dado salvo corrompido (ou armazenamento bloqueado) não pode travar a abertura.
+      try {
+        const res = await storageGet(PROFILE_KEY);
+        if (res) {
+          const parsed = { ...emptyProfile, ...JSON.parse(res.value) };
+          setProfile(parsed);
+          setDraftProfile(parsed);
+        }
+      } catch (e) { console.error(e); }
 
-      const resAvisos = await storageGet(AVISOS_KEY);
-      if (resAvisos) {
-        const parsedAvisos = JSON.parse(resAvisos.value);
-        Object.keys(parsedAvisos).forEach((k) => {
-          if (parsedAvisos[k].atualizadoEm) parsedAvisos[k].atualizadoEm = new Date(parsedAvisos[k].atualizadoEm);
-        });
-        setAvisos(parsedAvisos);
-      }
+      try {
+        const resAvisos = await storageGet(AVISOS_KEY);
+        if (resAvisos) {
+          const parsedAvisos = JSON.parse(resAvisos.value);
+          Object.keys(parsedAvisos).forEach((k) => {
+            if (parsedAvisos[k].atualizadoEm) parsedAvisos[k].atualizadoEm = new Date(parsedAvisos[k].atualizadoEm);
+          });
+          setAvisos(parsedAvisos);
+        }
+      } catch (e) { console.error(e); }
       setLoaded(true);
       carregarAvisos();
     })();
@@ -970,6 +978,10 @@ function MikeAssist() {
     if (!relato.trim()) return;
     setLoading(true); setError(""); setResultado(null);
 
+    // Até 3 exemplos fictícios do mesmo tipo do relato (conhecimento/exemplos-bopm.js).
+    // Se o arquivo não carregou, segue só com os exemplos reais.
+    let exemplosPorTipo = "";
+    try { exemplosPorTipo = window.MikeConhecimento ? window.MikeConhecimento.exemplosParaPrompt(relato, 3) : ""; } catch (e) {}
     const systemPrompt = `Você é um assistente que ajuda policiais militares do Rio de Janeiro (PMERJ) a redigir o histórico de um BOPM (Boletim de Ocorrência da Polícia Militar) a partir de um relato informal.
 
 Regras estritas:
@@ -980,8 +992,10 @@ Regras estritas:
 - NUNCA invente nomes de sistemas, centrais ou jargões que não sejam reais. Se precisar referenciar a central de despacho, use "central 190", "CECOPOM" ou "Maré Zero" (apelido real usado por guarnições para o CECOPOM) — nunca invente nomenclatura. Na dúvida sobre algum termo técnico ou institucional, prefira uma descrição genérica e correta em vez de arriscar um nome que pode não existir.
 - Use os exemplos abaixo (histórico de BOPM reais, com identificadores removidos) só como referência de ESTILO — vocabulário, tom, forma de estruturar o texto e de fechar a ocorrência. NUNCA copie nomes de setor (ex: "Setor Fox"), números de RO/BAM/matrícula/viatura ou qualquer outro dado desses exemplos para o histórico atual — cada ocorrência é única, use apenas o que veio no relato do policial:
 ${EXEMPLOS_HISTORICO_REAL}
-- Prefira voz ativa a construções passivas. Ao final do histórico, quando fizer sentido, feche mencionando o encerramento e o destino (PTR, delegacia, hospital etc.) — mas NUNCA repita a expressão "patrulhamento de rotina" ou "PTR" duas vezes no mesmo texto.
-- CASO ESPECIAL — relato genérico de patrulhamento sem nenhuma intercorrência: gere um histórico curto e direto informando que a guarnição patrulhou o local citado e nada foi constatado, sugerindo o código 80.004 (Nada constatado). Não alongue artificialmente.
+${exemplosPorTipo ? `- Exemplos FICTÍCIOS do mesmo tipo de ocorrência do relato, cada um com o relato informal e o histórico correspondente. Mostram como transformar o relato em histórico SEM acrescentar nada: o histórico só contém o que estava no relato. Use só como referência de estrutura; nunca copie fatos, locais ou quantidades deles.
+${exemplosPorTipo}
+` : ""}- Prefira voz ativa a construções passivas. Ao final do histórico, quando fizer sentido, feche mencionando o encerramento e o destino (PTR, delegacia, hospital etc.) — mas NUNCA repita a expressão "patrulhamento de rotina" ou "PTR" duas vezes no mesmo texto.
+- CASO ESPECIAL — relato genérico de patrulhamento sem nenhuma intercorrência: gere um histórico curto e direto informando que a guarnição patrulhou o local citado e nada foi constatado, sugerindo o código 00.084 (Nada constatado). Não alongue artificialmente.
 - Seja objetivo e factual, sem opiniões.
 - O texto gerado é um RASCUNHO de apoio; não é o BOPM oficial.
 - Use como referência esta tabela de códigos de ocorrência da PMERJ (organizada por categoria) para sugerir o código mais apropriado. Algumas famílias de código aparecem como faixa (ex: "27.1xx") quando o documento oficial não detalha cada código individualmente — nesse caso, cite a faixa e oriente o policial a confirmar o número exato no Vade Mecum ou com a central, sem inventar um código específico:
@@ -992,8 +1006,10 @@ Responda APENAS com um JSON válido, sem markdown, sem crases, no formato exato:
 {"historico": "texto do histórico formatado", "codigo": "00.000 ou null", "codigo_descricao": "descrição do código ou null", "alertas": ["lista de sugestões opcionais do que poderia reforçar o histórico, cada uma uma frase curta e não-imperativa"]}`;
 
     try {
-      const data = await callClaude(deviceId, { system: systemPrompt, messages: [{ role: "user", content: relato }] });
-      setResultado(extractJsonFromResponse(data));
+      const data = await callClaude(deviceId, { system: systemPrompt, messages: [{ role: "user", content: relato }], maxTokens: 1500 });
+      const r = extractJsonFromResponse(data);
+      if (!r || typeof r.historico !== "string" || !r.historico.trim()) throw new Error("A resposta não trouxe o histórico.");
+      setResultado({ ...r, alertas: Array.isArray(r.alertas) ? r.alertas.filter((a) => typeof a === "string") : [] });
     } catch (e) {
       setError(friendlyError(e));
     } finally {
@@ -1617,8 +1633,26 @@ const styles = {
   leiTexto: { marginTop: 8, background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 10, padding: 13, fontSize: 13, lineHeight: 1.7, color: "var(--text)", whiteSpace: "pre-wrap" },
 };
 
+// Se algum trecho da tela quebrar, mostra uma mensagem em vez de tela em branco.
+class ErroDeTela extends React.Component {
+  constructor(props) { super(props); this.state = { erro: null }; }
+  static getDerivedStateFromError(erro) { return { erro }; }
+  componentDidCatch(erro) { console.error(erro); }
+  render() {
+    if (!this.state.erro) return this.props.children;
+    return (
+      <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--text)", padding: 24, fontSize: 14, lineHeight: 1.6, fontFamily: SYSTEM_FONT }}>
+        <strong style={{ color: "#e3877a" }}>Algo deu errado nesta tela</strong>
+        <p>Toque no botão para recarregar. Seus dados salvos no aparelho continuam lá.</p>
+        <button style={styles.primaryButton} onClick={() => location.reload()}>Recarregar</button>
+        <p style={{ fontSize: 12, color: "var(--text-muted)" }}>Detalhe: {String((this.state.erro && this.state.erro.message) || this.state.erro)}</p>
+      </div>
+    );
+  }
+}
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<MikeAssist />);
+root.render(<ErroDeTela><MikeAssist /></ErroDeTela>);
 </script>
 
 </body>

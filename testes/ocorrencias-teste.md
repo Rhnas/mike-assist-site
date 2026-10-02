@@ -81,7 +81,7 @@ O resto (estilo, clareza, tamanho) é nota de 1 a 5.
 
 ### 10. Patrulhamento sem alteração
 **Relato:** `patrulhamento na rua das palmeiras e adjacencias, nada constatado`
-- **Deve conter:** texto curto e direto, sugerindo o código "Nada constatado" (80.004, conforme a regra do próprio app).
+- **Deve conter:** texto curto e direto, sugerindo o código "Nada constatado" (00.084, conforme a tabela de códigos do app).
 - **Não pode:** alongar com detalhes inexistentes.
 
 ---
