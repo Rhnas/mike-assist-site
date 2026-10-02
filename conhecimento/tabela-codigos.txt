@@ -1,0 +1,348 @@
+// Tabela de códigos de ocorrência (Vade Mecum PMERJ) usada pela IA para sugerir o código.
+// Linhas com // não vão para a IA.
+ASSISTENCIAIS / EMERGÊNCIAS / ATENDIMENTOS DIVERSOS
+00.001 - Veículo abandonado em via pública
+00.002 - Acidente de trânsito sem vítima
+00.003 - Acidente de trânsito com vítima
+00.004 - Princípio de afogamento
+00.005 - Afogamento
+00.006 - Acidente náutico
+00.007 - Acidente aéreo
+00.008 - Acidente ferroviário
+00.009 - Acidente com veículo automotor
+00.010 - Acidente com veículo de tração animal
+00.011 - Desabamento / desmoronamento
+00.012 - Soterramento, deslizamento ou rompimento
+00.013 - Queda de árvore
+00.014 - Salvamento em cisterna ou poço
+00.015 - Salvamento em fossa
+00.016 - Salvamento em elevador
+00.017 - Salvamento em teleféricos
+00.018 - Salvamento em gruta ou caverna
+00.019 - Acidente vascular cerebral (AVC)
+00.020 - Convulsão
+00.021 - Dispneia
+00.022 - Distúrbio psiquiátrico
+00.023 - Dor precordial (coração)
+00.024 - Intoxicação exógena
+00.025 - Mal não definido (distúrbio)
+00.026 - Obstrução respiratória
+00.027 - Parada cardiorrespiratória
+00.028 - Parada respiratória
+00.029 - Parturiente
+00.030 - Síncope (desmaio)
+00.031 - Transporte interhospitalar
+00.032 - Acidente com motocicleta
+00.033 - Acidente com bicicleta
+00.034 - Vítima de atropelamento
+00.035 - Agressão física com arma branca
+00.036 - Agressão física com arma de fogo
+00.037 - Agressão física sem uso de armas
+00.038 - Queda de altura
+00.039 - Queda da própria altura
+00.040 - Vítima de eletrocussão
+00.041 - Vítima de explosão
+00.042 - Vítima de queimadura
+00.043 - Ataque de insetos
+00.044 - Ataque de animal peçonhento
+00.045 - Ataque de cães
+00.046 - Ataque de demais animais
+00.047 - Suicídio (tentativa)
+00.048 - Captura/resgate de animal em situação de risco
+00.049 - Captura de enxame
+00.050 - Corte ou poda de árvore
+00.051 - Pessoa extraviada/desaparecida em local de difícil acesso
+00.052 - Resgate de cadáver
+00.053 - Resgate de feto
+00.054 - Resgate de parte cadavérica (órgãos, ossada humana)
+00.055 - Assistência de pessoa indigente
+00.056 - Atrito verbal
+00.057 - Autoextermínio (suicídio consumado)
+00.058 - Averiguação de disparo de alarme
+00.059 - Averiguação de pessoa/veículo em atitude suspeita
+00.060 - Bloqueio de via por ação de populares/classe
+00.061 - Foragido da justiça
+00.062 - Fuga de preso
+00.063 - Pessoa localizada
+00.064 - Bem e/ou valor encontrado/localizado/recuperado
+00.064.A - Carga encontrada/localizada/recuperada
+00.065 - Tentativa de fuga
+00.066 - Veículo localizado/recuperado
+00.067 - Encontro de cadáver
+00.068 - Encontro de feto
+00.069 - Encontro de parte de cadáver/órgãos/ossada humana
+00.070 - Mediação de conflito
+00.071 - Resolução pacífica de conflitos
+00.072 - Crimes contra a mulher (a especificar tipo penal no histórico)
+00.073 - Violência doméstica
+00.074 - Reuniões comunitárias
+00.075 - Aula PROERD
+00.076 - Visitas domiciliares
+00.078 - Ações sociais e comunitárias
+00.079 - Visitas de acompanhamento pós-crime
+00.080 - Projetos desportivos, culturais e educacionais
+00.081 - Solicitante não encontrado
+00.082 - Endereço não localizado
+00.083 - Providência dispensada
+00.084 - Nada constatado
+00.085 - Duplicata
+00.086 - Teste
+00.087 - Trote
+00.000 - Outros tipos (busca/resgate de cadáver, salvamento em local de difícil acesso, infrações contra administração/fé pública, contra organização do trabalho, contra a família, ocorrência de trânsito, substâncias entorpecentes — sempre discriminar no histórico)
+
+LESÃO CORPORAL E MORTE DECORRENTES DE INTERVENÇÃO POLICIAL
+99.000 - Lesão corporal seguida de morte decorrente de intervenção policial
+99.000.A - Lesão corporal decorrente de intervenção policial
+90.002 - Lesão corporal gravíssima ou seguida de morte sofrida por agente público e familiares
+90.004 - Homicídio sofrido por agente público e familiares
+
+CRIMES CONTRA A PESSOA
+01.121 - Homicídio
+01.121.T - Tentativa de homicídio
+01.122 - Induzimento/instigação/auxílio a suicídio
+01.123 - Infanticídio
+01.124 - Aborto provocado pela gestante ou com seu consentimento
+01.125 - Aborto provocado por terceiro
+01.126 - Provocar aborto com o consentimento da gestante
+01.129 - Lesão corporal
+01.129.A - Lesão corporal seguida de morte
+01.130 - Perigo de contágio venéreo
+01.131 - Perigo de contágio de moléstia grave
+01.132 - Perigo para a vida ou saúde de outrem
+01.133 - Abandono de incapaz
+01.134 - Exposição ou abandono de recém-nascido
+01.135 - Omissão de socorro
+01.135.A - Condicionamento de atendimento médico-hospitalar emergencial
+01.136 - Maus-tratos
+01.137 - Rixa
+01.138 - Calúnia
+01.139 - Difamação
+01.140 - Injúria
+01.146 - Constrangimento ilegal
+01.147 - Ameaça
+01.148 - Sequestro e cárcere privado
+01.149 - Redução a condição análoga à de escravo
+01.150 - Violação de domicílio
+01.151 - Sonegação/destruição/violação de correspondência ou comunicação telefônica
+01.153 - Divulgação de segredo
+01.154 - Violação de segredo profissional
+01.154.A - Invasão de dispositivo de informática alheio
+01.502 - Assédio sexual
+
+CRIMES CONTRA O PATRIMÔNIO
+01.155 - Furto
+01.155.A - Furto a residência ou estabelecimento comercial
+01.155.B - Furto de veículo
+01.155.C - Furto em veículo
+01.155.D - Furto de animal
+01.155.E - Furto a estabelecimento comercial
+01.156 - Furto de coisa comum
+01.157 - Roubo
+01.157.A - Roubo a residência/estabelecimento comercial
+01.157.B - Roubo de veículo
+01.157.C - Roubo de animal
+01.157.D - Latrocínio
+01.157.E - Roubo a estabelecimento comercial
+01.158 - Extorsão
+01.159 - Extorsão mediante sequestro
+01.160 - Extorsão indireta
+01.161 - Esbulho possessório / usurpação de águas / alteração de limites
+01.163 - Dano
+01.164 - Introdução ou abandono de animal em propriedade alheia
+01.168 - Apropriação indébita de coisa alheia móvel
+01.169 - Apropriação de coisa havida por erro (coisa achada)
+01.171 - Estelionato
+01.172 - Duplicata simulada
+01.180 - Receptação
+
+CRIMES CONTRA A FAMÍLIA E COSTUMES
+01.213 - Estupro
+01.215 - Violação sexual mediante fraude
+01.217.A - Estupro de vulnerável
+01.218 - Corrupção de menores
+01.218.A - Satisfação da lascívia mediante presença de criança ou adolescente
+01.218.B - Favorecimento da prostituição ou exploração sexual
+01.227 - Mediação para servir à lascívia de outrem
+01.228 - Favorecimento à prostituição
+01.229 - Casa de prostituição
+01.230 - Rufianismo
+01.231 - Tráfico internacional de pessoas para fins de exploração sexual
+01.233 - Ato obsceno
+01.234 - Escrito ou objeto obsceno
+01.235 - Bigamia
+01.244 - Abandono material
+01.245 - Entrega de filho menor a pessoa idônea
+01.246 - Abandono intelectual (instrução fundamental)
+01.247 - Abandono intelectual
+01.248 - Induzimento a fuga, entrega arbitrária ou sonegação de incapazes
+01.249 - Subtração de incapazes
+
+CRIMES CONTRA A INCOLUMIDADE E SAÚDE PÚBLICA
+01.250 - Incêndio
+01.251 - Explosão
+01.252 - Uso de gás tóxico ou asfixiante
+01.253 - Fabricar/fornecer/adquirir/possuir substância explosiva
+01.254 - Inundação (risco de vida ou patrimônio)
+01.256 - Desabamento ou desmoronamento (risco de vida ou patrimônio)
+01.264 - Arremesso de projétil
+01.265 - Atentado contra segurança de serviço de utilidade pública
+01.270 - Envenenamento de água potável ou substância alimentícia/medicinal
+01.272 - Falsificação/corrupção/adulteração de substância ou produto alimentício
+01.273 - Falsificação/adulteração de produtos terapêuticos ou medicinais
+
+CRIMES CONTRA A FÉ PÚBLICA
+01.289 - Moeda falsa
+01.297 - Falsificação de documento público
+01.298 - Falsificação de documento particular
+01.299 - Falsidade ideológica
+01.304 - Uso de documento falso
+01.305 - Supressão de documento
+01.307 - Falsa identidade
+01.308 - Falsa identidade — usar como próprio documento alheio ou ceder a outrem
+01.311 - Adulteração de sinal identificador de veículo automotor (inclusive clonagem)
+
+CRIMES CONTRA A ADMINISTRAÇÃO PÚBLICA
+01.312 - Peculato
+01.316 - Concussão
+01.317 - Corrupção passiva
+01.319 - Prevaricação
+01.322 - Violência arbitrária
+01.325 - Violação de sigilo funcional
+01.328 - Usurpação de função
+01.329 - Resistência
+01.330 - Desobediência
+01.331 - Desacato
+01.332 - Tráfico de influência
+01.333 - Corrupção ativa
+01.334 - Contrabando ou descaminho
+01.339 - Denunciação caluniosa
+01.340 - Comunicação falsa de crime ou contravenção
+01.341 - Auto-acusação falsa
+01.342 - Falso testemunho ou falsa perícia
+01.344 - Coação no curso do processo
+01.350 - Exercício arbitrário ou abuso de poder
+01.351 - Facilitação/promoção de fuga de pessoa presa
+01.352 - Evasão mediante violência contra a pessoa
+01.353 - Arrebatamento de presos
+01.354 - Motim de presos
+11.030 / 11.040 - Crimes de abuso de autoridade (Lei 13.869/2019)
+
+CRIMES CONTRA A ORGANIZAÇÃO DO TRABALHO
+01.197 a 01.207 - Crimes contra a organização do trabalho (atentado à liberdade de trabalho/associação, paralisação, frustração de direito trabalhista, aliciamento — especificar tipo no histórico)
+
+CRIMES DE TORTURA, ARMAS E EXPLOSIVOS
+02.010 - Tortura
+03.120 - Posse irregular de arma de fogo de uso permitido
+03.140 - Porte ilegal de arma de fogo de uso permitido
+03.150 - Disparo de arma de fogo ou acionamento de munição
+03.160 - Posse ou porte ilegal de arma de fogo de uso restrito
+03.161 - Suprimir ou alterar marca/numeração/sinal de identificação de arma de fogo
+03.163 - Possuir/deter/fabricar/empregar artefato explosivo
+03.164 - Portar/possuir/adquirir/transportar/fornecer arma de fogo
+03.165 - Vender/entregar/fornecer arma de fogo
+03.170 - Comércio ilegal de arma de fogo, acessório ou munição
+03.180 - Tráfico internacional de arma de fogo
+08.190 - Porte ilegal de arma branca
+
+CRIMES E INFRAÇÕES DE DROGAS (LEI 11.343/2006)
+04.280 - Uso e consumo de drogas
+04.330 - Tráfico ilícito de drogas
+04.331 - Tráfico ilícito de matérias-primas para preparação de drogas
+04.332 - Cultivo de plantas utilizadas na preparação de drogas
+04.333 - Utilização/consentimento de uso de local ou bem para tráfico de drogas
+04.334 - Incentivo ao uso ou consumo de drogas
+04.335 - Oferecimento eventual ao consumo de drogas
+04.340 - Fabrico, venda ou posse de apetrechos para preparação de drogas
+04.350 - Associação para o tráfico de drogas
+04.351 - Associação para o financiamento ou custeio do tráfico de drogas
+04.360 - Financiamento ou custeio de tráfico de drogas
+04.370 - Colaboração como informante para o tráfico de drogas
+
+ESTATUTO DA CRIANÇA E DO ADOLESCENTE (ECA — LEI 8.069/90)
+05.228 a 05.244 - Infrações diversas do ECA (omissão de comunicação/atendimento, privação de liberdade sem flagrante, submissão a vexame, subtração de incapaz, tráfico de criança/adolescente, pornografia infantil — especificar artigo no histórico)
+05.501 a 05.505 - Exploração sexual, pornografia infantil e aliciamento de criança/adolescente por qualquer meio (arts. 240 a 241-D do ECA)
+
+CONTRAVENÇÕES PENAIS E INFRAÇÕES DIVERSAS
+08.200 - Anúncio de meio abortivo
+08.210 - Vias de fato/agressão
+08.240 - Instrumento de emprego usual na prática de furto
+08.260 - Violação de lugar ou objeto (chaveiro sem autorização)
+08.360 - Sinais de perigo (comunicação de perigo na via pública)
+08.370 - Arremesso ou colocação perigosa
+08.380 - Emissão abusiva de fumaça, vapor ou gás
+08.390 - Associação secreta
+08.400 - Provocação de tumulto/conduta inconveniente
+08.410 - Falso alarma — ameaça de bomba
+08.420 - Perturbação do trabalho ou do sossego alheios
+08.430 - Recusa de moeda de curso legal
+08.450 - Simulação da qualidade de funcionário público
+08.460 - Uso ilegítimo de uniforme ou distintivo
+08.470 - Exercício ilegal de profissão ou atividade
+08.480 - Exercício ilegal do comércio/obra de arte/coisas antigas
+08.500 - Jogos de azar
+08.510 - Loteria não autorizada
+08.580 - Jogo do bicho
+08.590 - Vadiagem
+08.600 - Mendicância
+08.610 - Importunação ofensiva ao pudor
+08.620 - Embriaguez (escândalo/perigo próprio ou alheio)
+08.630 - Servir bebida alcoólica a menores, incapazes ou embriagados
+08.640 - Crueldade contra animais
+08.650 - Perturbação da tranquilidade
+08.660 - Omissão de comunicação de crime
+08.670 - Inumação ou exumação de cadáver
+08.680 - Recusa de dados sobre a própria identificação ou qualificação
+08.700 - Violação do privilégio postal da União
+
+CRIMES DE TRÂNSITO (CTB)
+10.161 - Aplicação das medidas administrativas previstas no art. 269 do CTB
+10.302 - Homicídio culposo na direção de veículo automotor
+10.303 - Lesão corporal culposa na direção de veículo automotor
+10.304 - Omissão de socorro em acidente de trânsito
+10.305 - Abandono do local de acidente de trânsito
+10.306 - Dirigir sob influência de álcool ou substância psicoativa
+10.307 - Violar suspensão ou proibição de dirigir
+10.308 - Disputa de corrida não autorizada (racha)
+10.309 - Dirigir sem permissão/habilitação ou com habilitação cassada gerando perigo de dano
+10.310 - Entrega de direção a pessoa não habilitada
+10.311 - Transitar em velocidade incompatível em locais específicos ou com aglomeração
+10.312 - Alterar local de crime em acidente de trânsito
+
+ESTATUTO DO IDOSO (LEI 10.741/2003)
+13.096 a 13.109 - Crimes contra o idoso (discriminação, abandono, exposição a perigo, apropriação de bens/benefício, retenção de cartão, coação, exibição depreciativa — especificar artigo no histórico)
+
+CRIMES MILITARES E DE APOIO
+38.xxx - Crimes militares diversos (Código Penal Militar — especificar artigo no histórico)
+39.001/44.001 - Apoio a órgãos federais
+39.002/44.002 - Apoio a órgãos estaduais
+39.003/44.003 - Apoio a órgãos municipais
+39.004/44.004 - Apoio a órgãos privados
+39.005/44.005 - Apoio à Polícia Civil/Delegado de Polícia Civil
+39.006/44.006 - Apoio a militar/PM/BM
+39.007 - Apoio a órgãos judiciários
+40.001 a 40.004 - Descumprimento de sigilo/colaboração premiada em organização criminosa (Lei 12.850/2013)
+42.000 - Prática de ato por xenofobia, racismo, etnia ou religião com finalidade de terror social (Lei 13.260/2016)
+
+OUTRAS LEIS ESPECIAIS (citar sempre a lei/artigo específico no histórico quando identificado)
+06.xxx - Infrações ao Código de Defesa do Consumidor
+07.xxx - Crimes de preconceito de raça/cor/etnia/religião (Lei 7.716/89)
+09.18x/09.19x - Crimes contra propriedade industrial, marcas e patentes
+12.xxx - Crimes contra o sistema de estoque de combustível
+14.1xx - Crimes de responsabilidade de prefeitos e vereadores
+15.0xx - Crimes relativos a sonegação fiscal
+16.0xx-16.2xx - Crimes contra a segurança nacional
+17.0xx-17.2xx - Crimes contra o sistema financeiro nacional
+18.1xx-18.2xx - Crimes contra o sentimento religioso e respeito aos mortos
+19.5xx - Crimes relativos ao Estatuto do Índio
+20.2xx-34.1xx - Crimes eleitorais
+21.0xx - Crimes de lavagem ou ocultação de bens, direitos e valores
+22.120 / 36.05x - Violação de direito autoral (programa de computador, topografia de circuito integrado)
+23.0xx-23.0xx - Crimes contra a ordem tributária, econômica e relações de consumo
+24.0xx - Crimes relativos a serviços postais
+25.183 - Crimes relativos a serviços de telecomunicações
+26.0xx - Crimes relativos ao Código de Telecomunicações
+27.1xx/28.2xx - Crimes relativos ao meio ambiente
+29.0xx - Infrações contra ordenamento urbano/patrimônio cultural/administração ambiental
+30.4xx / 31.0xx / 32.3xx - Infrações ambientais relativas à fauna, flora, pesca
+35.089-35.098 - Crimes contra licitações e contratos da administração pública (Lei 8.666/93)
+37.001-37.006 - Fraude/violência em competição esportiva; revenda irregular de ingressos
